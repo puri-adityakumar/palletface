@@ -22,7 +22,8 @@
     "build": "tsc",
     "build:web": "esbuild src/index.ts --bundle --format=iife --global-name=DitherFace --outfile=dist/dither-face.js",
     "sheet": "npm run build && node scripts/render-sheet.mjs",
-    "check": "npm run typecheck && npm run test && npm run build"
+    "check": "npm run typecheck && npm run test && npm run build",
+    "prepack": "rm -rf dist && npm run check && npm run build:web"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
