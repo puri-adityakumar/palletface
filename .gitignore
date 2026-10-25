@@ -1,0 +1,9 @@
+node_modules/
+dist/
+out-sheet/
+
+# session files, not part of the repo
+out/
+.dither-face-backup/
+.zcode/
+palletism-fixes.md
