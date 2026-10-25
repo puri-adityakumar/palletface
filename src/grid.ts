@@ -28,12 +28,14 @@ let uid = 0
 
 /**
  * Wrap an `n` x `n` grid of svg fragments in a px-sized square avatar with a
- * circular clip. Ids are unique per process, so many discs can share a page.
- * (Unlike the mockup, which relied on innerHTML, the svg carries an explicit
- * xmlns so the string also works as a standalone file or data URI.)
+ * circular clip. The default id is unique per process, so many discs can
+ * share a page; styles that must render byte-identically for the same seed
+ * pass their own `id` — namespaced and hashed — since two such discs only
+ * share an id when their clip geometry is identical anyway. (Unlike the
+ * mockup, which relied on innerHTML, the svg carries an explicit xmlns so
+ * the string also works as a standalone file or data URI.)
  */
-export function disc(px: number, n: number, inner: string): string {
-  const id = 'c' + uid++
+export function disc(px: number, n: number, inner: string, id: string = 'c' + uid++): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges"><defs><clipPath id="${id}"><circle cx="${n / 2}" cy="${n / 2}" r="${n / 2}"/></clipPath></defs><g clip-path="url(#${id})">${inner}</g></svg>`
 }
 

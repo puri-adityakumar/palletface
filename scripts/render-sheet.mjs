@@ -113,7 +113,7 @@ export function renderSheet(lib, styles, users = USERS) {
       .map((user, j) => {
         const x = gridX + j * (AVATAR + AVATAR_GAP)
         return (
-          place(style.render('user-' + j, user, AVATAR), x, top) +
+          place(style.draw('user-' + j, AVATAR), x, top) +
           text(x + AVATAR / 2, top + AVATAR + WHO_GAP + 10, { 'font-size': 10.5, fill: FAINT, 'text-anchor': 'middle' }, esc(user))
         )
       })
@@ -123,9 +123,9 @@ export function renderSheet(lib, styles, users = USERS) {
     const navY = center - PILL_H / 2
     const pill =
       `<rect x="${navX}" y="${navY}" width="${PILL_W}" height="${PILL_H}" rx="${PILL_H / 2}" fill="#ffffff" stroke="${lib.INK}" stroke-opacity="0.1"/>` +
-      place(style.render('user-0', users[0], NAV_PX), navX + 11, navY + 7) +
+      place(style.draw('user-0', NAV_PX), navX + 11, navY + 7) +
       text(navX + 11 + NAV_PX + 8, center + 4, { 'font-size': 11, fill: MUTED }, 'nav')
-    const profile = place(style.render('user-1', users[1], PROFILE_PX), W - PAD_X - PROFILE_PX, center - PROFILE_PX / 2)
+    const profile = place(style.draw('user-1', PROFILE_PX), W - PAD_X - PROFILE_PX, center - PROFILE_PX / 2)
     parts.push(hairline + name + note + people + pill + profile)
     y += ROW_H
   })
