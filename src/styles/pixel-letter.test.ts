@@ -69,4 +69,19 @@ describe('pixelLetter', () => {
     expect(new Set(shadows.map((c) => c.fill)).size).toBe(1)
     expect(DEEP.some((color) => color === shadows[0]!.fill)).toBe(true)
   })
+
+  it('takes the initial from name when given, leaving the rng on the seed', () => {
+    // the sheet passes the mockup's two arguments: 'user-<j>' seeds the rng,
+    // the display name picks the letter — 'user-0' alone would draw 'U'
+    const named = pixelLetter('user-0', 80, 'aditya')
+    const anon = pixelLetter('user-0', 80)
+    // the rng picks stay the seed's: the dither field is the anonymous draw's
+    expect(rects(named).slice(0, 13 * 13)).toEqual(rects(anon).slice(0, 13 * 13))
+    // and the ink pass is the name's initial 'A' at the glyph offset
+    const litA = glyph('A')
+      .flatMap((row, y) => row.map((bit, x) => bit && { x: 4 + x, y: 3 + y }))
+      .filter((p): p is { x: number; y: number } => p !== false)
+    const ink = rects(named).slice(13 * 13 + litA.length)
+    expect(ink.map((c) => `${c.x},${c.y}`).sort()).toEqual(litA.map((p) => `${p.x},${p.y}`).sort())
+  })
 })

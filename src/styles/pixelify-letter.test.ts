@@ -71,4 +71,19 @@ describe('pixelifyLetter', () => {
       expect([INK, RUST]).toContain(letter[0])
     }
   })
+
+  it('takes the initial from name when given, leaving the rng on the seed', () => {
+    // the sheet passes the mockup's two arguments: 'user-<j>' seeds the rng,
+    // the display name picks the letter — 'user-0' alone would draw 'U'
+    const named = pixelifyLetter('user-0', 80, 'aditya')
+    const anon = pixelifyLetter('user-0', 80)
+    expect(named).not.toBe(anon)
+    // the rng picks stay the seed's: the checker is the anonymous draw's, and
+    // the letter keeps its color even though the glyph under it changes
+    const fills = (svg: string) => [...svg.matchAll(/fill="([^"]+)"/g)].map((m) => m[1] ?? '')
+    expect(fills(named).slice(0, 16 * 16)).toEqual(fills(anon).slice(0, 16 * 16))
+    const letter = fills(named).slice(16 * 16)
+    expect(letter.length).toBeGreaterThan(0)
+    expect(new Set(letter)).toEqual(new Set(fills(anon).slice(16 * 16)))
+  })
 })

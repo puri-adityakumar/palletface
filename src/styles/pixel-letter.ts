@@ -5,12 +5,13 @@
  * mockup (`pixelLetter`, mockups/avatars/index.html): the same 'plet' rng
  * namespace and draw order, the same 13x13 grid math and glyph offsets.
  *
- * One deliberate divergence from the mockup, forced by the port: the initial
- * comes from the seed itself, since this style is a pure function of
- * `(seed, px)`. The clip id is namespaced and derived from the seed hash and
- * passed to grid.ts's `disc`, so the same seed always renders a
- * byte-identical svg — the default per-process id would make repeat renders
- * differ.
+ * The initial comes from `name` when the caller supplies one — the mockup's
+ * second argument, which the sheet passes so the rng can stay on the mockup's
+ * `user-<j>` seeds — and falls back to the seed. Either way the style is a
+ * pure function of its arguments. The clip id is namespaced and derived from
+ * the seed hash and passed to grid.ts's `disc`, so the same seed always
+ * renders a byte-identical svg — the default per-process id would make repeat
+ * renders differ.
  */
 import { fnv1a, mulberry32 } from '../seed.js'
 import { DEEP, INK, PASTEL } from '../palettes.js'
@@ -32,8 +33,11 @@ function pickN<T>(r: () => number, list: readonly T[], n: number): T[] {
   return out
 }
 
-/** Render the pixel-letter avatar for `seed` at `px` css pixels. */
-export function pixelLetter(seed: string, px: number): string {
+/**
+ * Render the pixel-letter avatar for `seed` at `px` css pixels; `name`, when
+ * given, supplies the initial instead of the seed.
+ */
+export function pixelLetter(seed: string, px: number, name?: string): string {
   const r = mulberry32(fnv1a('plet' + seed))
   const field = pickN(r, PASTEL, 2)
   const c1 = field[0]!
@@ -53,7 +57,7 @@ export function pixelLetter(seed: string, px: number): string {
 
   // the initial: the shadow pass first (behind), then the ink letter,
   // each shadow pixel one unit down-right of the ink pixel it backs.
-  const g = glyph(initialOf(seed))
+  const g = glyph(initialOf(name ?? seed))
   g.forEach((row, y) =>
     row.forEach((bit, x) => {
       if (bit) out += rect(4 + x + 1, 3 + y + 1, shadow)

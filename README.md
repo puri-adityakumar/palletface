@@ -31,5 +31,5 @@ The eight styles, in sheet order:
 | `ascii-face` | a kaomoji assembled from random brackets, eyes and a mouth |
 | `pixelify-letter` | the pixel-font initial on a two-tone checker |
 
-Each look is also exported directly (`pixelSprite`, `pixelLetter`, `ditherOrb`, `pixelLandscape`, `asciiLetter`, `asciiField`, `asciiFace`, `pixelifyLetter` — each `(seed, px) => svg`), and the `STYLES` registry carries them in sheet order with `slug`, `title`, `note` and `draw` — which is what `npm run sheet` lays out into `out-sheet/sheet.svg`.
+Each look is also exported directly (`pixelSprite`, `pixelLetter`, `ditherOrb`, `pixelLandscape`, `asciiLetter`, `asciiField`, `asciiFace`, `pixelifyLetter` — each `(seed, px, name?) => svg`; the letter styles take the initial from `name` when given, else the seed), and the `STYLES` registry carries them in sheet order with `slug`, `title`, `note` and `draw` — which is what `npm run sheet` lays out into `out-sheet/sheet.svg`.
 

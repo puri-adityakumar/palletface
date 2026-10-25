@@ -68,11 +68,13 @@ function drawLetter(initial: string, color: string): string {
 
 /**
  * The pixelify-letter avatar: `seed` drives the rng (namespaced `pfy`, as in
- * the mockup) and supplies the initial via `initialOf`; `px` is the rendered
+ * the mockup) and `name`, when given, supplies the initial via `initialOf` —
+ * the mockup's second argument, which the sheet passes so the rng stays on
+ * its `user-<j>` seeds; otherwise the seed supplies it. `px` is the rendered
  * size. Same seed, same bytes — the clip id is hashed from the seed rather
  * than counted per process.
  */
-export function pixelifyLetter(seed: string, px: number): string {
+export function pixelifyLetter(seed: string, px: number, name?: string): string {
   const r = mulberry32(fnv1a('pfy' + seed))
   const n = 16
   const picked = pickN(r, PASTEL, 2)
@@ -84,6 +86,6 @@ export function pixelifyLetter(seed: string, px: number): string {
   for (let y = 0; y < n; y++)
     for (let x = 0; x < n; x++)
       out += rect(x, y, (Math.floor(x / size) + Math.floor(y / size)) % 2 ? c1 : c2)
-  out += drawLetter(initialOf(seed), letterColor)
+  out += drawLetter(initialOf(name ?? seed), letterColor)
   return disc(px, n, out, 'c-pfy-' + fnv1a(seed).toString(36))
 }

@@ -36,10 +36,12 @@ export interface AvatarStyle {
   note: string
   /**
    * Draw the avatar as a standalone `<svg>` string: `seed` drives the rng
-   * (and, for the letter styles, picks the initial) and `px` is the box size
-   * in css pixels.
+   * and `px` is the box size in css pixels. The letter styles take their
+   * initial from `name` when the caller supplies one — the mockup passes the
+   * display name while keeping the rng on its `user-<j>` seeds — and from
+   * `seed` otherwise.
    */
-  draw: (seed: string, px: number) => string
+  draw: (seed: string, px: number, name?: string) => string
 }
 
 /**
@@ -103,6 +105,11 @@ export interface DitherFaceOptions {
   style?: string
   /** Box size in css pixels. Defaults to 80, the sheet's avatar size. */
   px?: number
+  /**
+   * Display name the letter styles draw the initial of, e.g. `"aditya"` for
+   * an `A`. Defaults to the seed.
+   */
+  name?: string
 }
 
 /** Fallback box size when no `px` is given — the sheet's avatar size. */
@@ -120,5 +127,5 @@ export function ditherFace(seed: string, options: DitherFaceOptions = {}): strin
   if (!style) {
     throw new Error(`ditherFace: unknown style ${JSON.stringify(slug)}; available: ${STYLES.map((s) => s.slug).join(', ')}`)
   }
-  return style.draw(seed, options.px ?? DEFAULT_PX)
+  return style.draw(seed, options.px ?? DEFAULT_PX, options.name)
 }

@@ -39,4 +39,23 @@ describe('asciiLetter', () => {
     )
     expect(drawn).toEqual(onCells)
   })
+
+  it('takes the initial from name when given, leaving the rng on the seed', () => {
+    // the sheet passes the mockup's two arguments: 'user-<j>' seeds the rng,
+    // the display name picks the letter — 'user-1' alone would draw 'U'
+    const named = asciiLetter('user-1', 80, 'zeke')
+    const anon = asciiLetter('user-1', 80)
+    // the rng picks stay the seed's: same background
+    const bg = (svg: string) => svg.match(/<rect width="9" height="9" fill="([^"]+)"/)?.[1]
+    expect(bg(named)).toBe(bg(anon))
+    // and the ink cells are the name's initial 'Z' at offset (2, 1)
+    const ink = [
+      ...named.matchAll(new RegExp(`<text x="([\\d.]+)" y="([\\d.]+)"[^>]*fill="${INK}">([^<]*)</text>`, 'g')),
+    ]
+    expect(new Set(ink.map((m) => m[3]!)).size).toBe(1)
+    const drawn = new Set(ink.map((m) => `${Number(m[1]!) - 2.5},${Number(m[2]!) - 1.5}`))
+    const onCells = new Set<string>()
+    glyph('Z').forEach((row, gy) => row.forEach((on, gx) => { if (on) onCells.add(gx + ',' + gy) }))
+    expect(drawn).toEqual(onCells)
+  })
 })

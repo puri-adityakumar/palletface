@@ -4,9 +4,9 @@
  * (mockups/avatars/index.html) onto the core modules, with the rng namespaced
  * `alet` like every style's own stream.
  *
- * One deviation from the mockup: the initial comes from `initialOf(seed)` —
- * the render signature is (seed, px), where the mockup took it from the
- * display name.
+ * The initial comes from `name` when the caller supplies one — the mockup's
+ * second argument, which the sheet passes so the rng can stay on the mockup's
+ * `user-<j>` seeds — and falls back to `initialOf(seed)`.
  */
 import { fnv1a, mulberry32 } from '../seed.js'
 import { DEEP, INK, PASTEL } from '../palettes.js'
@@ -28,16 +28,17 @@ const pick = <T>(r: () => number, list: readonly T[]): T => list[Math.floor(r() 
 /**
  * Draw the avatar as a standalone `<svg>`: a 9x9 grid with the glyph at
  * offset (2, 1) in the picked character and ink, dots in the accent color,
- * wrapped in the px-sized circular frame.
+ * wrapped in the px-sized circular frame. `name`, when given, supplies the
+ * initial instead of the seed.
  */
-export function asciiLetter(seed: string, px: number): string {
+export function asciiLetter(seed: string, px: number, name?: string): string {
   const r = mulberry32(fnv1a('alet' + seed))
   const n = 9
   const bg = pick(r, PASTEL)
   const ch = pick(r, CHARS)
   const dot = pick(r, DOTS)
   const accent = pick(r, DEEP)
-  const g = glyph(initialOf(seed))
+  const g = glyph(initialOf(name ?? seed))
   const cells: AsciiCell[][] = []
   for (let y = 0; y < n; y++) {
     const row: AsciiCell[] = []
