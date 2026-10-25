@@ -4,6 +4,15 @@
   "description": "Deterministic seeded SVG avatars — pixel and ascii faces picked from a user id, so they never change between renders.",
   "type": "module",
   "license": "MIT",
+  "author": "puri-adityakumar <kumar.adityapuri@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/puri-adityakumar/dither-face.git"
+  },
+  "bugs": {
+    "url": "https://github.com/puri-adityakumar/dither-face/issues"
+  },
+  "homepage": "https://github.com/puri-adityakumar/dither-face#readme",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
