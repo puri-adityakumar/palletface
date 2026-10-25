@@ -41,7 +41,7 @@
 <div class="sheet">
   <div class="eyebrow">playground · generated avatars</div>
   <h1>one seed, eighty faces<i>.</i></h1>
-  <p class="lede">type a seed and every avatar below re-renders as you type: each one is drawn from <b>seed-user</b> by ../dist/dither-face.js — deterministic, offline, no framework. eight styles at 80px, the real nav (30px) and profile (56px) sizes on the right, and a copy-svg button under every avatar.</p>
+  <p class="lede">type a seed and every avatar below re-renders as you type: each one is drawn from <b>seed-user</b> by ../dist/dither-face.js — deterministic, offline, no framework. eight styles at 80px, the real nav (30px) and profile (56px) sizes on the right, and a copy-svg button under every avatar. open with <b>?seed=&lt;text&gt;</b> to land on a chosen seed for a capture.</p>
   <div class="error" id="error"></div>
   <div class="seedbar">
     <label for="seed">seed</label>
@@ -58,6 +58,12 @@ const NAV_PX = 30, PROFILE_PX = 56, AVATAR_PX = 80
 
 const lib = window.DitherFace
 const errorBox = document.getElementById('error')
+
+// ?seed=<text> on the url pre-fills the input so the page can be captured at a
+// chosen seed (a present-but-empty ?seed= clears it). applied before the lib
+// check, so the input matches even when the bundle fails to load.
+const urlParams = new URLSearchParams(location.search)
+if (urlParams.has('seed')) document.getElementById('seed').value = urlParams.get('seed')
 
 if (!lib || typeof lib.ditherFace !== 'function' || !Array.isArray(lib.STYLES)) {
   errorBox.textContent = 'window.DitherFace is missing — build it first: run `npm run build:web`, then reload this page. (it looks for ../dist/dither-face.js next to playground/.)'
@@ -166,12 +172,10 @@ if (!lib || typeof lib.ditherFace !== 'function' || !Array.isArray(lib.STYLES)) 
     }
   }
 
-  // coalesce keystrokes to one render per frame
-  let raf = 0
-  document.getElementById('seed').addEventListener('input', () => {
-    if (raf) return
-    raf = requestAnimationFrame(() => { raf = 0; render() })
-  })
+  // render straight on input: 80 avatars cost ~3ms (measured in chrome), so
+  // per-keystroke rendering needs no frame coalescing — and a rAF gate would
+  // stall forever in an occluded tab, freezing an automated ?seed= capture.
+  document.getElementById('seed').addEventListener('input', render)
 
   render()
 }
