@@ -1,5 +1,11 @@
 # Qualification execution log
 
+## 2026-11-04 — Stage 8 failure confirmed
+
+- Q-003 contrast failure confirmed by parent: placeholders and control boundaries below agreed thresholds. Native Safari and actual assistive-technology speech untested.
+- Targeted site-only fixes for Q-003 plus open Q-002 authorized; valid gallery grouping and bounded download-error feedback may be included. Package output must stay frozen.
+- Fresh sandbox full S8 recheck and affected S6 journeys required. Original evidence retained; Stage 8 sandbox authorized for deletion. Approved count remains 54 until recheck.
+
 ## 2026-11-04 — Stage 7 accepted
 
 - Parent accepted 8 security/privacy/resource scenarios, 41 cases/2,827 assertions, with documented bounded scope. Results and CSP attribution hashes verified.

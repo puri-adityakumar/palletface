@@ -17,6 +17,8 @@ Agents cannot approve their own findings or accept risk. A finding is closed onl
 
 ## 2. Open findings
 
+**Q-003 (S1, S8-07) CONFIRMED 2026-11-04:** placeholder contrast 4.41:1 and light control boundaries 1.57–2.70:1 fail agreed AA thresholds. Parent verified raw artifact hashes and CSS values; see [S8 evidence](evidence/S8.md). Targeted CSS correction plus full fresh accessibility recheck required. Site-only Q-002/Q-003 fixes authorized; no avatar/package output change. S8-O1 generic gallery aria-label should receive valid group semantics; actual screen-reader speech and native Safari remain coverage limitations.
+
 **Current open issue Q-002 (S2, S6-09):** When the site JavaScript asset fails to load with scripting otherwise enabled, static content remains readable but the playground has no explanatory failure state. Evidence: [S6 report](evidence/S6.md), raw `out/qualification/S6/attempts/202611031953-71be63/retrieved/reports/S6-09.json`. Parent disposition: owner acceptance or targeted fix/recheck required; S6-09 not approved. Missing CSS alone is expected graceful degradation, not automatically a defect. Q-001 is closed per superseding parent disposition above. WebKit CSP warning is under separate security investigation, not yet a confirmed vulnerability.
 
 | Finding | Stage | Scenario | Severity | Observation | Evidence | Owner | Disposition |
