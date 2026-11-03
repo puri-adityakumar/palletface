@@ -1619,8 +1619,19 @@ async function scenarioS805(ctx) {
       const snapshot = await assertReflow(opened.page, chk, '200% layout equivalent (640 CSS px)')
       chk.eq(snapshot.innerWidth, 640, 'CDP layout viewport is 640 CSS px')
       chk.eq(snapshot.visualViewportScale, 1, 'device metrics report scale 1; this is layout equivalence, not page-zoom scaling')
-      await shot(opened.page, 's8-05-zoom-200-640', 'zoom sampling', '200% layout-viewport equivalent 640 CSS px', { fullPage: true })
-      await writeJson(path.join(out, 'artifacts', 's8-05-zoom-200.json'), { snapshot, method: 'CDP Emulation.setDeviceMetricsOverride width=640, deviceScaleFactor=1; layout-viewport equivalence only' })
+      const visual = await openPage(ctx.browsers.chromium, { viewport: { width: 640, height: 800 } })
+      try {
+        await gotoSite(visual.page, '/?seed=s8-zoom&style=pixel-landscape&size=192')
+        const visualSnapshot = await assertReflow(visual.page, chk, '200% visual sample real viewport')
+        await shot(visual.page, 's8-05-zoom-200-640', 'zoom sampling', '200% layout-equivalent 640 CSS px, captured from a real Playwright viewport', { fullPage: true })
+        await writeJson(path.join(out, 'artifacts', 's8-05-zoom-200.json'), {
+          snapshot,
+          visualSnapshot,
+          method: 'CDP Emulation.setDeviceMetricsOverride width=640, deviceScaleFactor=1 for the reflow measurement; full-page visual sample uses a separate real 640 CSS-px Playwright viewport because CDP-surface fullPage capture clipped in Chromium 156. This is layout-viewport equivalence, not CSS zoom or visual-scale claim.'
+        })
+      } finally {
+        await visual.context.close()
+      }
       await session.detach().catch(() => {})
       return snapshot
     } finally {
@@ -1636,8 +1647,19 @@ async function scenarioS805(ctx) {
       const snapshot = await assertReflow(opened.page, chk, '400% layout equivalent (320 CSS px)')
       chk.eq(snapshot.innerWidth, 320, 'CDP layout viewport is 320 CSS px')
       chk.eq(snapshot.visualViewportScale, 1, 'device metrics report scale 1; this is layout equivalence, not page-zoom scaling')
-      await shot(opened.page, 's8-05-narrow-320-400pct', 'zoom sampling', '400% layout-viewport equivalent 320 CSS px', { fullPage: true })
-      await writeJson(path.join(out, 'artifacts', 's8-05-zoom-400.json'), { snapshot, method: 'CDP Emulation.setDeviceMetricsOverride width=320, deviceScaleFactor=1; layout-viewport equivalence only' })
+      const visual = await openPage(ctx.browsers.chromium, { viewport: { width: 320, height: 800 } })
+      try {
+        await gotoSite(visual.page, '/?seed=s8-zoom&style=pixel-landscape&size=192')
+        const visualSnapshot = await assertReflow(visual.page, chk, '400% visual sample real viewport')
+        await shot(visual.page, 's8-05-narrow-320-400pct', 'zoom sampling', '400% layout-equivalent 320 CSS px, captured from a real Playwright viewport', { fullPage: true })
+        await writeJson(path.join(out, 'artifacts', 's8-05-zoom-400.json'), {
+          snapshot,
+          visualSnapshot,
+          method: 'CDP Emulation.setDeviceMetricsOverride width=320, deviceScaleFactor=1 for the reflow measurement; full-page visual sample uses a separate real 320 CSS-px Playwright viewport because CDP-surface fullPage capture clipped in Chromium 156. This is layout-viewport equivalence, not CSS zoom or visual-scale claim.'
+        })
+      } finally {
+        await visual.context.close()
+      }
       await session.detach().catch(() => {})
       return snapshot
     } finally {
