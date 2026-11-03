@@ -26,6 +26,12 @@
 - S2-05 raster comparison masks text and clip edges; the raster negative control does not exercise the same masked acceptance rule. Matched-context recheck and explicit coverage/limitations required before advancement.
 - No product defect inferred from raster differences alone. Stage 3 remains gated; all original evidence retained.
 
+## 2026-11-03 — Stage 2 recheck accepted
+
+- Parent accepted S2-R1: 8 scenarios, 6,065 cases, 15,270 assertions, no failures. Full-pixel matched-context comparison covers 102 targets across three engines; limits recorded explicitly.
+- Retrieved tarball/harness hashes verified. Sandbox authorized for deletion; Stage 3 authorized.
+- Stage 3 reassigned to the already approved DeepSeek max route because repeated GLM execution attempts produced no reliable deliverables. No unapproved provider/model substitution.
+
 ## 2026-11-03 — Stage 1 Q-001 fix rerun (provisional)
 
 - Fix commit `104195b`: `ascii-letter` consumes one dot decision per grid cell before glyph overlay.

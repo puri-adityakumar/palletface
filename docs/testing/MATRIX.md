@@ -1,5 +1,7 @@
 # Release Qualification Matrix — dither-face 0.1.0
 
+**Latest parent disposition (2026-11-03): 16/80 scenarios approved PASS** — S1-01…08 at `104195b`, S2-01…08 at `0016a1e`, unchanged product tarball `ed4c359b…`. **63 NOT RUN, 1 BLOCKED** (native Safari coverage). This disposition supersedes stale provisional summary/row labels below; detailed evidence is in S1-R1 and S2-R1 reports. Stage 3 execution assigned to DeepSeek max following GLM execution failures.
+
 **Baseline:** `test/release-qualification` at `3ca99d2`. **Latest run:** Stage 2 R1 at `0016a1e` (harness/fixtures only after product source `e3c5ead`), provisional and parent review PENDING. The prior Stage 2 run at `6cc38c2` was returned for a focused S2-05 measurement correction. Parent accepted Stage 1 R1 at `104195b` and closed Q-001 on 2026-11-03.
 
 **Status summary:** 80 scenarios — **8 parent-approved PASS (Stage 1 R1), 8 provisional Stage 2 R1 PASS, 63 NOT RUN, 1 BLOCKED**. Stage 2 rows are agent-observed provisional results and are not final PASS until parent disposition. `S8-09` remains a native Safari coverage limitation. Historical preview results are not counted here.

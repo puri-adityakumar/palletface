@@ -1,5 +1,7 @@
 # Release Qualification Report — dither-face 0.1.0
 
+**Latest parent disposition (2026-11-03): 16/80 approved PASS.** Stages 1 and 2 accepted; Q-001 closed. Stage 2 R1: 6,065 cases / 15,270 assertions, exact raw SVG agreement and matched-context full-pixel checks with documented platform/sample limits. Remaining 63 scenarios NOT RUN and native Safari BLOCKED. Earlier summaries below are submission history, superseded by this disposition; no release approval.
+
 **Status:** DRAFT — **8 of 80 scenarios parent-approved PASS** (Stage 1 R1 on `104195b`) and **8 of 80 provisional Stage 2 R1 PASS** at qualification harness revision `0016a1e` (product source `e3c5ead`). Parent accepted S1-R1 and closed Q-001 on 2026-11-03 after inspecting the fix, regression/oracle logic and retrieved artifact hashes. The prior Stage 2 run was returned for a focused S2-05 measurement correction; Stage 2 R1 parent disposition is **PENDING**. Remaining stages are not qualified. No overall release approval is implied.
 
 **Baseline:** `test/release-qualification` at `3ca99d2`; Stage 1 fix revision `104195b`. Full plan: [PLAN.md](PLAN.md). Scenario matrix: [MATRIX.md](MATRIX.md). Findings: [FINDINGS.md](FINDINGS.md).
