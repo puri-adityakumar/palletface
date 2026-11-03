@@ -10,9 +10,10 @@
   App dependency specifiers are `file:../../fixtures/dither-face-0.1.0.tgz`, so the
   installed package is a real copy in each app's `node_modules`, never a repository
   alias, workspace or symlink.
-- `package-lock.json` files are not checked in as hand-authored inputs. The harness
-  runs `npm install --package-lock-only`, then `npm ci`, verifies the lockfile is
-  byte-identical after `ci`, and retrieves the generated locks as evidence; those
-  retrieved locks are committed after the run.
+- `package-lock.json` files are committed from the Stage 4 sandbox lock bootstrap;
+  their SHA-256 values are recorded in `results.json`. The final evidence run uses
+  these tracked locks directly with `npm ci` and verifies they stay byte-identical.
+  When a lock is absent, the harness can still bootstrap one with
+  `npm install --package-lock-only` in the sandbox.
 - Raw logs and screenshots are retrieved to ignored `out/qualification/S4/` and are
   not part of the tracked report.

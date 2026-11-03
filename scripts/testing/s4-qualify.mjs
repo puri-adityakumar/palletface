@@ -329,8 +329,14 @@ const lockRecords = []
 
 async function bootstrapNpmProject(label, projectDir) {
   const lockFile = path.join(projectDir, 'package-lock.json')
-  const install = await setupCmd(`setup-${label}-lock`, `npm install --package-lock-only --ignore-scripts --no-audit --no-fund`, projectDir)
-  setup.assert(install.exitCode === 0, `${label}: package-lock generation`, { stderr: install.stderr.slice(-2000) })
+  const trackedLock = fs.existsSync(lockFile)
+  let install = null
+  if (trackedLock) {
+    setup.assert(true, `${label}: tracked package-lock.json is used directly`)
+  } else {
+    install = await setupCmd(`setup-${label}-lock`, `npm install --package-lock-only --ignore-scripts --no-audit --no-fund`, projectDir)
+    setup.assert(install.exitCode === 0, `${label}: package-lock generation`, { stderr: install.stderr.slice(-2000) })
+  }
   const before = fs.existsSync(lockFile) ? await sha256File(lockFile) : null
   setup.assert(Boolean(before), `${label}: package-lock.json exists`)
   const ci = await setupCmd(`setup-${label}-ci`, `npm ci --no-audit --no-fund --prefer-offline`, projectDir)
@@ -345,9 +351,14 @@ async function bootstrapNpmProject(label, projectDir) {
     const target = path.join(locksDir, label, 'package-lock.json')
     await fsp.mkdir(path.dirname(target), { recursive: true })
     await fsp.copyFile(lockFile, target)
-    lockRecords.push({ project: label, path: path.relative(outDir, target).split(path.sep).join('/'), sha256: before })
+    lockRecords.push({
+      project: label,
+      path: path.relative(outDir, target).split(path.sep).join('/'),
+      sha256: before,
+      source: trackedLock ? 'tracked' : 'generated-in-sandbox',
+    })
   }
-  return { before, after, ci, install }
+  return { before, after, ci, install, trackedLock }
 }
 
 const appBootstrap = {}
