@@ -484,6 +484,10 @@ function excludedFileName(file) {
   return patternData.excludedFileNamePatterns.some((source) => new RegExp(source).test(file))
 }
 
+function reviewedFalsePositive(file, type) {
+  return (patternData.reviewedFalsePositiveFileNames ?? []).find((entry) => entry.path === file && entry.type === type) ?? null
+}
+
 async function walkFiles(root) {
   const files = []
   async function walk(directory) {
@@ -1494,6 +1498,7 @@ async function runS7_06(sc, { installed }) {
   const manifest = await readJson(sourceManifestPath)
   const allowlist = await readJson(allowlistPath)
   const findings = []
+  const reviewed = []
   const scopeStats = {}
 
   sc.case('tracked source scan')
@@ -1501,7 +1506,11 @@ async function runS7_06(sc, { installed }) {
     const full = path.join(repo, file.path)
     const text = await fsp.readFile(full, 'utf8')
     findings.push(...scanText(text, file.path))
-    if (excludedFileName(file.path)) findings.push({ file: file.path, line: 1, type: 'excluded-file-name', redacted: true })
+    if (excludedFileName(file.path)) {
+      const review = reviewedFalsePositive(file.path, 'excluded-file-name')
+      if (review) reviewed.push({ file: file.path, line: 1, type: 'excluded-file-name', redacted: true, reason: review.reason })
+      else findings.push({ file: file.path, line: 1, type: 'excluded-file-name', redacted: true })
+    }
   }
   scopeStats.trackedSource = { files: manifest.fileCount, findings: findings.length }
 
@@ -1528,7 +1537,14 @@ async function runS7_06(sc, { installed }) {
   for (const file of manifest.files.filter((entry) => entry.path.startsWith('tests/qualification/'))) {
     const text = await fsp.readFile(path.join(repo, file.path), 'utf8')
     findings.push(...scanText(text, file.path))
-    if (excludedFileName(file.path)) findings.push({ file: file.path, line: 1, type: 'excluded-file-name', redacted: true })
+    if (excludedFileName(file.path)) {
+      const review = reviewedFalsePositive(file.path, 'excluded-file-name')
+      if (review) {
+        if (!reviewed.some((entry) => entry.file === file.path)) reviewed.push({ file: file.path, line: 1, type: 'excluded-file-name', redacted: true, reason: review.reason })
+      } else {
+        findings.push({ file: file.path, line: 1, type: 'excluded-file-name', redacted: true })
+      }
+    }
   }
   scopeStats.qualificationFixtures = { findings: findings.length - fixtureFindingsBefore }
 
@@ -1604,7 +1620,8 @@ async function runS7_06(sc, { installed }) {
   sc.case('scanner result')
   const uniqueFindings = [...new Map(findings.map((finding) => [`${finding.file}:${finding.line}:${finding.type}`, finding])).values()]
   sc.assert(uniqueFindings.length === 0, 'scoped source, tarball, fixtures and logs contain no credential or excluded material', { findings: uniqueFindings, scopes: scopeStats })
-  sc.note('Findings, if any, are reported as redacted file+line+type only and require human review; this scan is conservative and is not proof that arbitrary prose contains no secret. The scan reads only the uploaded repo, tarball, qualification fixtures and own evidence logs, never home auth files.')
+  sc.note(`Findings, if any, are reported as redacted file+line+type only and require human review; this scan is conservative and is not proof that arbitrary prose contains no secret. The scan reads only the uploaded repo, tarball, qualification fixtures and own evidence logs, never home auth files. Reviewed false positive(s): ${reviewed.length ? reviewed.map((entry) => `${entry.file} (${entry.type})`).join(', ') : 'none'}.`)
+  for (const entry of reviewed) sc.note(`Reviewed false positive retained for parent review: ${entry.file} [${entry.type}] - ${entry.reason}`)
 
   await writeJson(path.join(outDir, 'artifacts/s7-06-scan.json'), {
     scopes: scopeStats,
@@ -1612,6 +1629,7 @@ async function runS7_06(sc, { installed }) {
     artifactFindings,
     sensitiveEnvChecked: sensitiveEnv.length,
     canary: { findingCount: canaryFindings.length, types: canaryTypes, redacted: true },
+    reviewedFalsePositives: reviewed,
     excludedFileNamePatterns: patternData.excludedFileNamePatterns,
     patternVersion: patternData.version,
   })

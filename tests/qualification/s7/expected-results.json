@@ -43,7 +43,7 @@
     },
     "secretPatterns": {
       "path": "tests/qualification/s7/secret-patterns.json",
-      "sha256": "b4af8633eb0e918b76d19345dffc3ee924dde85a89af1535dd4291338536b9a9",
+      "sha256": "762e4ee1b592dbdb9c3cb5a1e876ae29c35c6f30984d28af5fcfebdda83ea893",
       "version": "s7-conservative-1"
     },
     "toolsLock": {
@@ -103,7 +103,7 @@
       "title": "Secrets and excluded data",
       "severity": "S0",
       "expectedStatus": "PASS",
-      "expected": "A pinned conservative classifier scans tracked source, the actual tarball and its exact allowlist, qualification fixtures, and this stage's raw logs. It finds no credential-shaped token, private-key block, auth-like assignment or excluded backup/env/auth file; findings, if any, would be reported as redacted file+line+type only and require human review. No scan reads home auth material or prints a potential secret. Built site and installed package contain no local host path, runtime env reference, sensitive environment value or excluded file. A clearly fake synthetic canary is detected by the same classifier without writing the canary value to evidence."
+      "expected": "A pinned conservative classifier scans tracked source, the actual tarball and its exact allowlist, qualification fixtures, and this stage's raw logs. It finds no credential-shaped token, private-key block, auth-like assignment or excluded backup/env/auth file; findings, if any, would be reported as redacted file+line+type only and require human review. The tracked Stage 3 pnpm .npmrc fixture is declared as a reviewed false positive (no auth token) and is reported, not hidden. No scan reads home auth material or prints a potential secret. Built site and installed package contain no local host path, runtime env reference, sensitive environment value or excluded file. A clearly fake synthetic canary is detected by the same classifier without writing the canary value to evidence."
     },
     "S7-07": {
       "title": "Extreme inputs",
