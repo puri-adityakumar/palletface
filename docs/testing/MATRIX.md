@@ -1,25 +1,25 @@
 # Release Qualification Matrix — dither-face 0.1.0
 
-**Baseline:** `test/release-qualification` at `3ca99d2`. **Execution:** not started.
+**Baseline:** `test/release-qualification` at `3ca99d2`. **Latest run:** Stage 1 at `104195b` (Q-001 fix), provisional and parent review PENDING.
 
-**Status summary:** 80 scenarios — **79 NOT RUN, 1 BLOCKED, 0 RUNNING, 0 PASS, 0 FAIL**. `S8-09` is BLOCKED because native Safari/macOS is unavailable. Historical 114 unit / 38 browser results from [VERIFICATION.md](../VERIFICATION.md) are **not** qualification rows and are not counted here.
+**Status summary:** 80 scenarios — **8 provisional PASS (Stage 1; parent approval PENDING), 71 NOT RUN, 1 BLOCKED, 0 RUNNING, 0 current FAIL**. Stage 1 provisional PASS results are not final until parent review; Q-001's historical failure is fixed pending review. `S8-09` is BLOCKED because native Safari/macOS is unavailable. Historical 114 unit / 38 browser results from [VERIFICATION.md](../VERIFICATION.md) are **not** qualification rows and are not counted here.
 
 **Severity if failed:** S0 = integrity/security/secrets/determinism/package/false-claim blocker; S1 = required functional, compatibility, accessibility, or agreed-performance blocker; S2/S3 = release owner written acceptance only. No agent may self-approve. Every row requires the evidence fields in section 2, including commit, tarball SHA-256, versions, exact command, expected/actual, artifact, severity, and parent approval.
 
 ## 1. Scenarios
 
-### Stage 1 — API and direct rendering (GLM-5.3 Flash high)
+### Stage 1 — API and direct rendering (DeepSeek V4.1 Flash 1017 max; reassigned after GLM attempt rejection)
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S1-01 | ESM entry import | Install actual tarball in empty Node 24 project; import package root; enumerate exports. | Import succeeds; documented named exports exist; no side effects or network. | S1 | NOT RUN |
-| S1-02 | All eight renderers direct render | Call each documented renderer with fixed seeds (`alice`, `bob`, `用户`, empty); XML-parse output. | Non-empty well-formed SVG per renderer; documented structure; no throw. | S1 | NOT RUN |
-| S1-03 | Default option equivalence | Compare ditherFace(seed), empty options, explicit sprite/80 defaults, and pixelSprite(seed,80). Test missing direct-renderer px separately. | Equivalent high-level defaults match; direct renderers reject missing px. | S1 | NOT RUN |
-| S1-04 | Invalid options | Test invalid types, null, NaN/Infinity, unknown styles, zero/negative px; test fractional/tiny/large finite positive px. | Invalid inputs throw; unknown extra keys may be ignored; no undocumented upper size cap. | S1 | NOT RUN |
-| S1-05 | Unicode and normalization | Seeds: ASCII, emoji, combining marks, CJK, RTL, whitespace-only, 10k chars; repeat twice. | Deterministic, safely escaped, no crash/hang; normalization matches documentation. | S1 | NOT RUN |
-| S1-06 | Initials extraction | Names: Latin, CJK, Arabic, emoji, punctuation, single char, extra spaces; inspect rendered text. | Documented initials/letters; XML-escaped; deterministic. | S1 | NOT RUN |
-| S1-07 | Strict TypeScript declarations | Strict consumer imports types/options; `tsc --noEmit` under declared module resolution. | Valid usage compiles; documented invalid usage errors; no missing declarations. | S1 | NOT RUN |
-| S1-08 | SVG validity and safe markup | XML-parse every output; scan for `script`, `on*` handlers, `foreignObject`, external URLs. | Well-formed SVG; no executable content or external references. | S0 | NOT RUN |
+| S1-01 | ESM entry import | Install actual tarball in empty Node 24 project; import package root; enumerate exports. | Import succeeds; documented named exports exist; no side effects or network. | S1 | PASS (provisional; parent PENDING) |
+| S1-02 | All eight renderers direct render | Call each documented renderer with fixed seeds (`alice`, `bob`, `用户`, empty); XML-parse output. | Non-empty well-formed SVG per renderer; documented structure; no throw. | S1 | PASS (provisional; parent PENDING) |
+| S1-03 | Default option equivalence | Compare ditherFace(seed), empty options, explicit sprite/80 defaults, and pixelSprite(seed,80). Test missing direct-renderer px separately. | Equivalent high-level defaults match; direct renderers reject missing px. | S1 | PASS (provisional; parent PENDING) |
+| S1-04 | Invalid options | Test invalid types, null, NaN/Infinity, unknown styles, zero/negative px; test fractional/tiny/large finite positive px. | Invalid inputs throw; unknown extra keys may be ignored; no undocumented upper size cap. | S1 | PASS (provisional; parent PENDING) |
+| S1-05 | Unicode and normalization | Seeds: ASCII, emoji, combining marks, CJK, RTL, whitespace-only, 10k chars; repeat twice. | Deterministic, safely escaped, no crash/hang; normalization matches documentation. | S1 | PASS (provisional; parent PENDING) |
+| S1-06 | Initials extraction | Names: Latin, CJK, Arabic, emoji, punctuation, single char, extra spaces; inspect rendered text. | Documented initials/letters; XML-escaped; deterministic. | S1 | PASS (provisional; parent PENDING) |
+| S1-07 | Strict TypeScript declarations | Strict consumer imports types/options; `tsc --noEmit` under declared module resolution. | Valid usage compiles; documented invalid usage errors; no missing declarations. | S1 | PASS (provisional; parent PENDING) |
+| S1-08 | SVG validity and safe markup | XML-parse every output; scan for `script`, `on*` handlers, `foreignObject`, external URLs. | Well-formed SVG; no executable content or external references. | S0 | PASS (provisional; parent PENDING) |
 
 ### Stage 2 — Determinism and embedding (DeepSeek V4.1 Flash 1017 max)
 

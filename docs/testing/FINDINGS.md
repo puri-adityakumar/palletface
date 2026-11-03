@@ -1,8 +1,8 @@
 # Qualification Findings — dither-face 0.1.0
 
-**Status:** OPEN — **1 confirmed finding**. Stage 1 failed; later stages remain gated.
+**Status:** OPEN — **1 confirmed finding**, fix implemented and awaiting parent verification. Stage 1 rerun is provisional; later stages remain gated.
 
-**Baseline:** `test/release-qualification` at `3ca99d2`.
+**Baseline:** `test/release-qualification` at `3ca99d2`; original S1 run at `7637956`; targeted fix at `104195b`.
 
 ## 1. Classification and disposition
 
@@ -19,7 +19,7 @@ Agents cannot approve their own findings or accept risk. A finding is closed onl
 
 | Finding | Stage | Scenario | Severity | Observation | Evidence | Owner | Disposition |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Q-001 | 1 | S1-06 | S1 | ascii-letter consumes dot RNG conditionally on glyph coverage; changing name shifts dots outside both glyphs, violating documented background invariance. | [S1 evidence](evidence/S1.md), raw S1-06.json; parent inspected checker and source | Implementation agent | CONFIRMED; fix and fresh-sandbox rerun required |
+| Q-001 | 1 | S1-06 | S1 | ascii-letter consumed dot RNG conditionally on glyph coverage; changing name shifted dots outside both glyphs, violating documented background invariance. | [Original failure S1](evidence/S1.md), raw S1-06.json; [fix rerun S1-R1](evidence/S1-R1.md), raw S1-06.json | Implementation agent | **OPEN — fix implemented at `104195b`; Stage 1 R1 provisional 8/8 PASS, parent verification PENDING. Not self-closed.** |
 
 ## 3. Accepted lower-severity issues
 
