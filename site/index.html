@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f4f0">
+  <meta name="description" content="Deterministic SVG identities from a string. Eight pixel and ASCII styles, rendered entirely in your browser.">
+  <link rel="canonical" href="https://ditherface.palletism.art/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta property="og:title" content="dither-face — tiny deterministic identities">
+  <meta property="og:description" content="Eight deterministic SVG avatar styles. No account, backend, or runtime dependencies.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ditherface.palletism.art/">
+  <meta property="og:image" content="https://ditherface.palletism.art/social-preview.svg">
+  <meta name="twitter:card" content="summary">
+  <title>dither-face — tiny deterministic identities</title>
+  <link rel="stylesheet" href="/site.css">
+  <script type="module" src="/assets/app.js"></script>
+</head>
+<body>
+  <header class="top"><a class="wordmark" href="#top" aria-label="dither-face home">dither<span>/</span>face</a><a href="https://github.com/puri-adityakumar/dither-face">GitHub ↗</a></header>
+  <main id="top">
+    <section class="hero"><p class="eyebrow">SEEDED SVG IDENTITIES <span>·</span> 0.x PREVIEW</p><h1>One seed.<br><span>Eight tiny worlds.</span></h1><p class="intro">A deterministic avatar generator for the web. Give it a string, pick a style, get the same crisp SVG every time.</p><div class="pixel-mark" aria-hidden="true">░▒▓█▓▒░<br>▒▓█░█▓▒<br>▓█░▒░█▓</div></section>
+    <section class="playground" aria-labelledby="play-title"><div class="section-head"><h2 id="play-title">Make an identity</h2><span class="mono">LOCAL · INSTANT · SVG</span></div>
+      <div class="controls"><label>Seed <input id="seed" type="text" autocomplete="off" placeholder="anything, even empty"></label><label>Display name <span class="optional">optional</span><input id="name" type="text" autocomplete="off" placeholder="for letter styles"></label><label>Size <select id="size"><option value="48">48 px</option><option value="80" selected>80 px</option><option value="128">128 px</option><option value="192">192 px</option></select></label></div>
+      <div class="preview-card"><div id="preview" class="preview" aria-label="Selected avatar preview"></div><div class="preview-info"><p class="eyebrow">SELECTED STYLE</p><h3 id="selected-title">pixel sprite</h3><p id="selected-note"></p></div><div class="actions"><button id="copy-svg" type="button">Copy SVG</button><button id="download-svg" type="button">Download SVG</button><button id="copy-code" type="button">Copy usage</button><button id="share" type="button">Copy link</button></div></div>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+      <h3 class="gallery-title">All eight styles</h3><div id="gallery" class="gallery" aria-label="Avatar styles"></div>
+    </section>
+    <section class="docs"><article><p class="eyebrow">GET STARTED</p><h2>Small by design.</h2><p>Install the package and render an SVG anywhere JavaScript runs.</p><pre><code>npm install dither-face</code></pre><pre><code>import { ditherFace } from 'dither-face'
+
+const svg = ditherFace('user-42', {
+  style: 'pixel-sprite', px: 80
+})</code></pre><p>All eight styles are in the gallery above. Choose a fixed seed and style to keep an identity stable. Letter styles use the first character of <code>name</code>, when provided; the seed still drives the design.</p></article><article><p class="eyebrow">OPTIONS &amp; LIMITS</p><h2>Plain SVG. Clear rules.</h2><p><code>style</code> defaults to <code>pixel-sprite</code>. <code>px</code> defaults to 80; the playground offers 48, 80, 128, and 192. <code>name</code> is optional and affects only letter styles.</p><p>ASCII styles use your system monospace font, so glyph shapes can vary between platforms. This is a 0.x preview: minor releases may change APIs or output. Pin an exact package version when persisted identities need to stay fixed.</p><p>No browser service, account, downloaded font, analytics, or runtime dependency.</p></article></section>
+    <section class="install-links"><a href="https://github.com/puri-adityakumar/dither-face">Source on GitHub ↗</a><a href="https://www.npmjs.com/package/dither-face">Package on npm ↗</a><span>Open-source preview · MIT</span></section>
+  </main>
+  <footer><span>dither-face</span><span>A little sister project by <a href="https://palletism.art">Palletism ↗</a></span></footer>
+</body></html>
