@@ -1,0 +1,56 @@
+{
+  "stage": "S2",
+  "productBaselineCommit": "e3c5ead",
+  "createdBeforeExecution": "2026-11-03",
+  "note": "Written before the Stage 2 harness ran. Expected status is PASS for every assigned scenario. Any observed FAIL, BLOCKED or NOT RUN is a provisional agent result that requires parent review; this file is not self-signoff and makes no release claim. S2-03 expects raw string equality; canonicalization may be recorded as a diagnostic but can never convert a raw mismatch into PASS. Font rasterization is not promised to match across platforms, so S2-03/S2-07 evaluate generated SVG structure/bytes and nonblank rendering, not identical font pixels.",
+  "expectations": {
+    "S2-01": {
+      "title": "In-process determinism",
+      "severity": "S0",
+      "expectedStatus": "PASS",
+      "expected": "For each of 8 styles x 2 seeds x 2 option sets, 100 repeated calls in one process produce one identical SHA-256 of the raw SVG bytes. No call depends on prior calls, the clock, or Math.random."
+    },
+    "S2-02": {
+      "title": "Fresh-process determinism",
+      "severity": "S0",
+      "expectedStatus": "PASS",
+      "expected": "At least three genuinely fresh Node processes, covering Node 22 and Node 24, render the fixed corpus to identical raw-SVG SHA-256 values, and those values equal the harness process. The recorded process versions prove both major lines are represented."
+    },
+    "S2-03": {
+      "title": "Cross-engine output",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Sampled raw SVG strings from the installed tarball are byte-identical between Node and Chromium, Firefox, and WebKit bundles built from that installed package. A single-byte corruption negative control must be detected by the raw comparator. Canonicalization is diagnostic only; any raw mismatch is reported as FAIL with first-difference evidence."
+    },
+    "S2-04": {
+      "title": "XML and Unicode embedding",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Every generated SVG for ASCII, emoji, CJK, RTL, combining, bidi-control, BOM, control-character and lone-surrogate seeds/names parses as well-formed XML with the SVG namespace, dimensions and viewBox; emitted bytes contain no XML-1.0-invalid characters (including C0 controls other than tab/LF/CR, lone surrogates, U+FFFE/U+FFFF); markup is escaped and ID references resolve. Negative controls prove the checker rejects a NUL injection and a removed <defs> block."
+    },
+    "S2-05": {
+      "title": "Mixed repeated IDs",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "At least 50 mixed/repeated avatars with different sizes and names: duplicate IDs are present and permitted only when every definition for that ID is byte-equivalent; no same-ID conflicting geometry/gradient definition exists. Chromium inline-vs-isolated element captures with the same engine and fonts match pixel-for-pixel, proving clip/ID resolution is not polluted across styles. A crafted conflicting-ID negative control must be detected."
+    },
+    "S2-06": {
+      "title": "Inline data URL",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Every sampled SVG embedded as a data:image/svg+xml URL in img and drawn to canvas reports the requested natural dimensions, produces a nonblank canvas with multiple colors, causes no external/network request, and executes no script. A broken/blank data URL negative control must be classified blank/error, and a crafted script-in-SVG control must not set the script flag."
+    },
+    "S2-07": {
+      "title": "File and HTTP embedding",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Standalone SVG bytes load both directly and through img from file:// and from a localhost HTTP route served as image/svg+xml. Load events fire, natural dimensions match, captures are nonblank, file and HTTP structure are identical, and every recorded request is local (no external host). A local 500/HTML broken response must be detected as a load failure/blank."
+    },
+    "S2-08": {
+      "title": "Pairwise options and invariance",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "An explicit style/seed/name/px pairwise table covering 8 styles x 24 seeds is repeatable when the same calls are re-run in a different interleaving. Removing only the root width/height attributes makes all size variants byte-identical. Changing only the name leaves pixel-letter/pixelify-letter background rect layers and ascii-letter seeded dots outside both glyphs unchanged (Q-001 exact fixture included), and non-letter styles ignore name. Recorded fixed preview fixtures (8/8) and the ascii-letter Q-001 migration SHA match the tracked expectations. No time- or random-dependent background is observed."
+    }
+  }
+}
