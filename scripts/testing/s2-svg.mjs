@@ -298,8 +298,9 @@ export function corruptSingleByte(svg) {
   if (bodyOffset >= 0) candidates.push([bodyOffset + 1, 0x73])
   const textOffset = buffer.indexOf(Buffer.from('<text'))
   if (textOffset >= 0) candidates.push([textOffset + 5, 0x61])
-  const [offset, replacement] = candidates.find(([index]) => buffer[index] !== replacement) ?? [-1, 0]
-  if (offset < 0) throw new Error('no single-byte corruption candidate')
+  const chosen = candidates.find((candidate) => buffer[candidate[0]] !== candidate[1]) ?? null
+  if (!chosen) throw new Error('no single-byte corruption candidate')
+  const [offset, replacement] = chosen
   const originalByte = buffer[offset]
   buffer[offset] = replacement
   return { corrupted: buffer.toString('utf8'), offset, originalByte, newByte: replacement }
