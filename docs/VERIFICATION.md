@@ -24,4 +24,13 @@ The passing full-suite source manifest is saved with local artifacts. Its SHA-25
 - Hosted GitHub Actions, npm trusted publication, repository visibility changes, custom-domain DNS, and Cloudflare deployment were **not performed**.
 - No package was published, branch pushed, PR created, or Palletism application changed.
 
+## ascii-letter dot migration (Q-001)
+
+The Stage 1 execution found `ascii-letter` consumed its dot PRNG only on cells the glyph did not cover, so changing `name` shifted dots outside the glyph. The approved fix consumes exactly one dot decision for every 9x9 grid cell and overlays the glyph afterwards. This intentionally changes existing `ascii-letter` dot patterns once; seeded background/character/dot/accent picks, glyph shape, clip IDs, and the other seven styles are unchanged.
+
+- Historical baseline fixture: [src/fixtures/baseline.json](../src/fixtures/baseline.json) remains byte-unchanged; regression tests reproduce its old ascii-letter digests with a test-local legacy oracle and separately verify the new per-cell mask.
+- Exact preview fixture (raw SVG SHA-256): old `449be0cee10b1d7eca10002b468f0a51bcaa6571ecb2202947939bf132129bec` → new `ebfcb2cf41b1437e9637deb4304ed20555a84d5f12a1739813c78af8514bade8`. The old/new pair is recorded in [src/fixtures/preview.json](../src/fixtures/preview.json).
+- README preview `docs/preview.svg` regenerated from the fixed library: old file SHA-256 `b1371c7cd0259913c403563d352795b5537a742deabba3a2da93aafea6911102` → new `44875f64ede83cdde0c731f444e70e9a865ca0fffafd5b3792c5e5c3512a4eb5`.
+- Test-local independent PRNG/oracle coverage: [tests/helpers/ascii-letter-oracle.ts](../tests/helpers/ascii-letter-oracle.ts), exercised by `src/styles/ascii-letter.test.ts` and `src/regression.test.ts`.
+
 Rerun `npm run check:all` after functional changes. Browser installation instructions and release prerequisites are in [RELEASING.md](RELEASING.md).

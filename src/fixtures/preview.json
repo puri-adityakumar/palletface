@@ -1,5 +1,5 @@
 {
-  "note": "Exact SVG bytes after intentional ASCII ID namespacing and 0-9 glyph addition; do not update without output review.",
+  "note": "Exact SVG bytes after intentional ASCII ID namespacing, 0-9 glyph addition, and the parent-approved Q-001 ascii-letter dot migration; do not update without output review.",
   "records": [
     {
       "style": "pixel-sprite",
@@ -29,7 +29,11 @@
       "style": "ascii-letter",
       "seed": "preview-output",
       "name": "7even",
-      "sha256": "449be0cee10b1d7eca10002b468f0a51bcaa6571ecb2202947939bf132129bec"
+      "sha256": "ebfcb2cf41b1437e9637deb4304ed20555a84d5f12a1739813c78af8514bade8",
+      "migration": {
+        "previousSha256": "449be0cee10b1d7eca10002b468f0a51bcaa6571ecb2202947939bf132129bec",
+        "reason": "Parent-approved Q-001 fix: one dot decision per grid cell. Seeded colors/characters/glyph shape/ID unchanged; mask independently verified."
+      }
     },
     {
       "style": "ascii-field",

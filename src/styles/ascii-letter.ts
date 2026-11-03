@@ -20,7 +20,7 @@ const CHARS = ['#', '@', '%', '&', '$', '*', 'X', '8'] as const
 /** The dot characters sprinkled over the cells the glyph does not cover. */
 const DOTS = ['.', '·', ':', '-'] as const
 
-/** The share of non-glyph cells that carry a dot instead of staying blank. */
+/** The share of grid cells that carry a dot instead of staying blank. */
 const DOT_RATE = 0.3
 
 /** One uniform pick from `list` — the mockup's helper; core has no pick. */
@@ -45,8 +45,12 @@ export function asciiLetter(seed: string, px: number, name?: string): string {
   for (let y = 0; y < n; y++) {
     const row: AsciiCell[] = []
     for (let x = 0; x < n; x++) {
+      // One dot decision per grid cell, even under the glyph: the seeded
+      // background mask must not depend on the name's initial. The glyph is
+      // overlaid afterwards.
+      const dotted = r() < DOT_RATE
       const on = g[y - 1]?.[x - 2] ?? false
-      row.push(on ? ch : r() < DOT_RATE ? { ch: dot, color: accent } : ' ')
+      row.push(on ? ch : dotted ? { ch: dot, color: accent } : ' ')
     }
     cells.push(row)
   }

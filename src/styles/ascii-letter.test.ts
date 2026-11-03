@@ -3,6 +3,16 @@ import { describe, expect, it } from 'vitest'
 import { asciiLetter } from './ascii-letter.js'
 import { glyph, initialOf } from '../font.js'
 import { INK } from '../palettes.js'
+import {
+  cellsToMap,
+  fixedModel,
+  legacyModel,
+  outsideGlyphDiffs,
+  parseAsciiLetter,
+} from '../../tests/helpers/ascii-letter-oracle.js'
+
+const DOT_INVARIANCE_SEEDS = ['seed-background-check', 'alice', 'user-7', '艾达', '<script>&"']
+const DOT_INVARIANCE_NAMES = [['Alice', 'Bob'], ['Zoe', '9lives'], ['Élodie', '用户']] as const
 
 describe('asciiLetter', () => {
   it('renders the same seed to a byte-identical svg', () => {
@@ -57,5 +67,52 @@ describe('asciiLetter', () => {
     const onCells = new Set<string>()
     glyph('Z').forEach((row, gy) => row.forEach((on, gx) => { if (on) onCells.add(gx + ',' + gy) }))
     expect(drawn).toEqual(onCells)
+  })
+
+  it('keeps dots outside the union of both glyphs fixed when only the name changes', () => {
+    // Q-001 regression: pre-fix, r() advanced only under non-glyph cells, so
+    // the first differing glyph shifted every later background decision.
+    let comparisons = 0
+    for (const seed of DOT_INVARIANCE_SEEDS) {
+      for (const [nameA, nameB] of DOT_INVARIANCE_NAMES) {
+        const a = parseAsciiLetter(asciiLetter(seed, 80, nameA))
+        const b = parseAsciiLetter(asciiLetter(seed, 80, nameB))
+        expect(a.bg, `${seed}: background colour`).toBe(b.bg)
+        expect(outsideGlyphDiffs(a, b), `${seed}: ${nameA} vs ${nameB}`).toEqual([])
+        comparisons += 1
+      }
+    }
+    expect(comparisons).toBe(DOT_INVARIANCE_SEEDS.length * DOT_INVARIANCE_NAMES.length)
+  })
+
+  it('matches an independent per-cell PRNG mask and glyph overlay', () => {
+    // Independent reference model, not the style's own output: every one of
+    // the 81 cells consumes exactly one dot decision, then the glyph overlays.
+    for (const seed of [...DOT_INVARIANCE_SEEDS, '']) {
+      for (const [, name] of DOT_INVARIANCE_NAMES) {
+        for (const label of [name, undefined] as const) {
+          const parsed = parseAsciiLetter(asciiLetter(seed, 80, label))
+          const model = fixedModel(seed, label)
+          expect(parsed.bg, `${seed}/${label ?? 'seed'}: bg`).toBe(model.picks.bg)
+          expect(parsed.cells, `${seed}/${label ?? 'seed'}: every cell`).toEqual(cellsToMap(model.cells))
+          expect(parsed.glyphs, `${seed}/${label ?? 'seed'}: glyph cells`).toEqual(model.glyphCells)
+        }
+      }
+    }
+  })
+
+  it('preserves historical seed picks and glyph shape across the dot migration', () => {
+    let maskChanged = false
+    for (const seed of DOT_INVARIANCE_SEEDS) {
+      for (const [, name] of DOT_INVARIANCE_NAMES) {
+        const before = legacyModel(seed, name)
+        const after = fixedModel(seed, name)
+        expect(after.picks, `${seed}/${name}`).toEqual(before.picks)
+        expect(after.glyphCells, `${seed}/${name}`).toEqual(before.glyphCells)
+        // The approved difference is the mask itself, not colour/glyph selection.
+        if (JSON.stringify([...cellsToMap(after.cells).entries()]) !== JSON.stringify([...cellsToMap(before.cells).entries()])) maskChanged = true
+      }
+    }
+    expect(maskChanged, 'the fixed mask differs from the historical conditional stream').toBe(true)
   })
 })
