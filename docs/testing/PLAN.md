@@ -1,6 +1,6 @@
 # Release Qualification Plan — dither-face 0.1.0
 
-**Status:** Planning complete; execution **not started**. No scenario has run and no release claim is made.
+**Status:** Execution in progress. **16/80 scenarios parent-approved PASS** (Stages 1–2); **8 provisional Stage 3 PASS**, parent disposition PENDING; 55 NOT RUN and native Safari BLOCKED. No release claim is made.
 
 **Baseline:** `test/release-qualification` at `3ca99d2`, clean. Package `dither-face@0.1.0`, ESM, Node `>=22`, zero runtime dependencies. Historical preview results in [VERIFICATION.md](../VERIFICATION.md) are context only and are **not** qualification evidence.
 
@@ -33,7 +33,7 @@ Qualify the tracked source and the actual packed tarball for a prelaunch release
 | --- | --- | --- |
 | 1 | GMI GLM-5.3 Flash high via OpenCode | API, direct renderers, defaults, invalid options, Unicode, initials, types |
 | 2 | DeepSeek V4.1 Flash 1017 max via OpenCode | Determinism, fresh process, cross-engine, XML, mixed IDs, embedding |
-| 3 | GMI GLM-5.3 Flash high | Tarball, prepack, manifest, exports, types, zero deps, consumers |
+| 3 | DeepSeek V4.1 Flash 1017 max (reassigned after GLM execution failures) | Tarball, prepack, manifest, exports, types, zero deps, consumers |
 | 4 | DeepSeek V4.1 Flash 1017 max | Independent Node JS, strict TS, Vite vanilla/React dev and production browser |
 | 5 | GMI GLM-5.3 Flash high | Next SSR/hydration/prod, Vue, Svelte, Worker, offline HTML |
 | 6 | DeepSeek V4.1 Flash 1017 max | Playground URL/history/params, rapid input, copy/download, snippets, asset failures |

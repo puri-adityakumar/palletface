@@ -1,8 +1,8 @@
 # Qualification Findings — dither-face 0.1.0
 
-**Status:** No open findings. **Q-001 CLOSED by parent review, 2026-11-03**: targeted fix and complete Stage 1 recheck accepted on product revision `104195b`; 8/8 scenarios PASS. Stage 2 was then executed provisionally at harness revision `6cc38c2` (product source `e3c5ead`): 8/8 provisional PASS, no new product finding, parent disposition PENDING. The original finding and provisional agent submissions below are retained for audit, superseded by these dispositions.
+**Status:** No open findings. **Q-001 CLOSED by parent review, 2026-11-03**: targeted fix and complete Stage 1 recheck accepted on product revision `104195b`; 8/8 scenarios PASS. Stage 2 R1 was parent-accepted at harness revision `0016a1e` (product source `e3c5ead`), no new product finding. Stage 3 was executed at product source `a9685b7`: 8/8 provisional PASS, no new product finding, parent disposition PENDING; the observed S3 failures were qualification-harness timeout/JSON/ordering/symlink-removal defects, corrected and re-run without product or package changes. The original finding and provisional submissions below are retained for audit, superseded by these dispositions.
 
-**Baseline:** `test/release-qualification` at `3ca99d2`; original S1 run at `7637956`; targeted fix at `104195b`.
+**Baseline:** `test/release-qualification` at `3ca99d2`; original S1 run at `7637956`; targeted fix at `104195b`; Stage 3 provisional at `704309e`/`28a8a0b`.
 
 ## 1. Classification and disposition
 

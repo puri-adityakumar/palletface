@@ -1,10 +1,10 @@
 # Release Qualification Matrix — dither-face 0.1.0
 
-**Latest parent disposition (2026-11-03): 16/80 scenarios approved PASS** — S1-01…08 at `104195b`, S2-01…08 at `0016a1e`, unchanged product tarball `ed4c359b…`. **63 NOT RUN, 1 BLOCKED** (native Safari coverage). This disposition supersedes stale provisional summary/row labels below; detailed evidence is in S1-R1 and S2-R1 reports. Stage 3 execution assigned to DeepSeek max following GLM execution failures.
+**Latest parent disposition (2026-11-03): 16/80 scenarios approved PASS** — S1-01…08 at `104195b`, S2-01…08 at `0016a1e`, unchanged product tarball `ed4c359b…`. **Stage 3 is 8 provisional agent-observed PASS, parent disposition PENDING.** **55 NOT RUN, 1 BLOCKED** (native Safari coverage). This disposition supersedes stale provisional summary/row labels below; detailed evidence is in S1-R1, S2-R1 and S3 reports. Stage 3 was executed by DeepSeek max following repeated GLM execution failures.
 
-**Baseline:** `test/release-qualification` at `3ca99d2`. **Latest run:** Stage 2 R1 at `0016a1e` (harness/fixtures only after product source `e3c5ead`), provisional and parent review PENDING. The prior Stage 2 run at `6cc38c2` was returned for a focused S2-05 measurement correction. Parent accepted Stage 1 R1 at `104195b` and closed Q-001 on 2026-11-03.
+**Baseline:** `test/release-qualification` at `3ca99d2`. **Latest run:** Stage 3 at product source `a9685b7` / final harness `704309e`; S3-01…08 provisional PASS, 68 cases, 351 counted assertions, 0 failures, tarball unchanged `ed4c359b…`. Parent review is PENDING. Stage 2 R1 was parent-accepted; Stage 1 R1 was parent-accepted at `104195b` and Q-001 is closed.
 
-**Status summary:** 80 scenarios — **8 parent-approved PASS (Stage 1 R1), 8 provisional Stage 2 R1 PASS, 63 NOT RUN, 1 BLOCKED**. Stage 2 rows are agent-observed provisional results and are not final PASS until parent disposition. `S8-09` remains a native Safari coverage limitation. Historical preview results are not counted here.
+**Status summary:** 80 scenarios — **16 parent-approved PASS (Stages 1–2), 8 provisional Stage 3 PASS, 55 NOT RUN, 1 BLOCKED**. Stage 3 rows are agent-observed provisional results and are not final PASS until parent disposition. `S8-09` remains a native Safari coverage limitation. Historical preview results are not counted here.
 
 **Severity if failed:** S0 = integrity/security/secrets/determinism/package/false-claim blocker; S1 = required functional, compatibility, accessibility, or agreed-performance blocker; S2/S3 = release owner written acceptance only. No agent may self-approve. Every row requires the evidence fields in section 2, including commit, tarball SHA-256, versions, exact command, expected/actual, artifact, severity, and parent approval.
 
@@ -38,18 +38,20 @@
 
 Stage 2 R1 reran the full suite in a new dedicated sandbox after the prior S2 return; product source and tarball were unchanged. Evidence: [S2-R1](evidence/S2-R1.md); returned run: [S2](evidence/S2.md).
 
-### Stage 3 — Packaging and consumers (GLM-5.3 Flash high)
+Stage 3 ran in a new dedicated sandbox against product source `a9685b7` (byte-identical product source to `e3c5ead`) and the unchanged tarball `ed4c359b…`: 8 provisional PASS, 68 cases, 351 counted assertions, all five negative controls detected. Evidence: [S3](evidence/S3.md). Parent disposition PENDING.
+
+### Stage 3 — Packaging and consumers (DeepSeek V4.1 Flash 1017 max; reassigned after GLM execution failures)
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S3-01 | Tarball manifest | `npm pack --dry-run --json`; compare packed file list to declared allowlist. | Only intended dist/license/readme/package files; no source, secrets, maps, or logs. | S0 | NOT RUN |
-| S3-02 | Prepack lifecycle | Clean checkout; `npm pack`; record lifecycle output and tarball SHA-256. | `clean:dist`, `check`, `build:web` run; tarball produced; hash recorded. | S1 | NOT RUN |
-| S3-03 | Actual tarball install | Empty project `npm install <tarball.tgz>`; no repo alias/symlink; import package. | Install and import succeed from the packed artifact. | S0 | NOT RUN |
-| S3-04 | Zero runtime dependencies | Inspect manifest and installed tree with `npm ls --omit=dev`. | No `dependencies`; no runtime packages installed. | S0 | NOT RUN |
-| S3-05 | Exports resolution | Import root; attempt documented-unsupported deep paths. | Root resolves; unsupported deep imports fail or match documented behavior. | S1 | NOT RUN |
-| S3-06 | Types from tarball | Strict TS consumer resolves package types under Node16 and bundler resolution. | Types resolve; compile succeeds; no missing-declaration warnings. | S1 | NOT RUN |
-| S3-07 | npm/pnpm/Yarn consumers | Pinned dummy dependencies and lockfiles; install tarball and run script in all three. | All three install and execute identically. | S1 | NOT RUN |
-| S3-08 | Manifest truth | Compare name/version/engines/license/sideEffects/files with repo and packed output. | Values match; no unexpected runtime fields or files. | S1 | NOT RUN |
+| S3-01 | Tarball manifest | `npm pack --dry-run --json`; compare packed file list to declared allowlist. | Only intended dist/license/readme/package files; no source, secrets, maps, or logs. | S0 | PASS (provisional; parent PENDING) |
+| S3-02 | Prepack lifecycle | Clean checkout; `npm pack`; record lifecycle output and tarball SHA-256. | `clean:dist`, `check`, `build:web` run; tarball produced; hash recorded. | S1 | PASS (provisional; parent PENDING) |
+| S3-03 | Actual tarball install | Empty project `npm install <tarball.tgz>`; no repo alias/symlink; import package. | Install and import succeed from the packed artifact. | S0 | PASS (provisional; parent PENDING) |
+| S3-04 | Zero runtime dependencies | Inspect manifest and installed tree with `npm ls --omit=dev`. | No `dependencies`; no runtime packages installed. | S0 | PASS (provisional; parent PENDING) |
+| S3-05 | Exports resolution | Import root; attempt documented-unsupported deep paths. | Root resolves; unsupported deep imports fail or match documented behavior. | S1 | PASS (provisional; parent PENDING) |
+| S3-06 | Types from tarball | Strict TS consumer resolves package types under Node16 and bundler resolution. | Types resolve; compile succeeds; no missing-declaration warnings. | S1 | PASS (provisional; parent PENDING) |
+| S3-07 | npm/pnpm/Yarn consumers | Pinned dummy dependencies and lockfiles; install tarball and run script in all three. | All three install and execute identically. | S1 | PASS (provisional; parent PENDING) |
+| S3-08 | Manifest truth | Compare name/version/engines/license/sideEffects/files with repo and packed output. | Values match; no unexpected runtime fields or files. | S1 | PASS (provisional; parent PENDING) |
 
 ### Stage 4 — Independent Node/TS/Vite browser use (DeepSeek V4.1 Flash 1017 max)
 
