@@ -1,0 +1,23 @@
+{
+  "name": "s4-02-typescript",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Stage 4 strict TypeScript consumer with NodeNext emit and Bundler noEmit checks.",
+  "packageManager": "npm@11.19.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.nodenext.json",
+    "check:bundler": "tsc -p tsconfig.bundler.json",
+    "start": "node dist-node/main.js"
+  },
+  "dependencies": {
+    "dither-face": "file:../../fixtures/dither-face-0.1.0.tgz"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "typescript": "7.0.2"
+  }
+}
