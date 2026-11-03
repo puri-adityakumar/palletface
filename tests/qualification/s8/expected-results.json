@@ -1,0 +1,130 @@
+{
+  "stage": "S8",
+  "title": "Accessibility and visuals",
+  "createdBeforeExecution": "2026-11-04",
+  "productSourceCommitAtCreation": "a521e78bc8fb4855781feffded0167996bbee65a",
+  "productFreezeBase": "5cdf36450516d9f4af31d882f1191aeeec892e3e",
+  "note": "Written before the Stage 8 sandbox harness ran. It records expected status and method, not observed results. It is not self-approval and makes no release claim. Expected PASS does not override an actual FAIL; any FAIL/BLOCKED is reported as observed.",
+  "expectations": {
+    "S8-01": {
+      "title": "Automated accessibility",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Pinned axe-core 4.11.0 default rules run in Chromium, Firefox, WebKit and mobile Chromium on the default page, and in Chromium on selected-style, clipboard-fallback, source-expanded, narrow-view and JS-asset-blocked states. No serious or critical axe violations. Moderate/minor violations and incomplete results are reported, not hidden. Negative controls with a missing label and low-contrast text are detected by the same scanner. The pre-existing Q-002 missing-JS-asset failure state remains OPEN and is not waived by any S8 result."
+    },
+    "S8-02": {
+      "title": "Keyboard operation",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Real Tab and Shift+Tab traversal reaches every focusable control in logical DOM order exactly once, with visible focus and no focus trap. Enter/Space operate the skip link, text inputs, native size select, copy, download, every style button and details summaries. Focus is never moved into a control programmatically to manufacture a keyboard claim; programmatic focus only occurs as the product's documented clipboard-fallback behaviour. External production links are focused and their hrefs checked but not activated to avoid network."
+    },
+    "S8-03": {
+      "title": "Labels and roles",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Every interactive control has a non-empty accessible name and the expected role/state. The size select is named 'Size' and does not absorb its option text. The preview has role img and an updating accessible label; generated decorative SVG and gallery thumbnails are hidden from assistive technology. State buttons expose aria-pressed. The static HTML with the JS asset blocked still labels seed, name, size and both textareas."
+    },
+    "S8-04": {
+      "title": "Status announcements",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "One live DOM status region has role=status and aria-live=polite. Copy success, clipboard fallback/failure and download success set the fixed visible messages and do not duplicate the live region. Render updates clear the status without noisy announcements. No screen-reader speech verification is claimed because no assistive technology is available; that manual subcheck is BLOCKED. A synthetic download-exception probe is recorded as an explicit limitation, not a speech claim. Q-002 remains OPEN and is not waived."
+    },
+    "S8-05": {
+      "title": "Zoom and reflow",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Using Chromium CDP device metrics, a 1280 CSS-px reference becomes 640 and 320 CSS-px layout viewports for 200% and 400% layout equivalence. This is documented as layout-viewport equivalence, not a claim of browser page-zoom visual scaling; a separate pinch-zoom emulation is recorded only as non-reflow. At 200% and 400% equivalents there is no horizontal page overflow or hidden content/control loss and every control remains keyboard-reachable. A synthetic 200% text-only enlargement stress test is also run and its method/limits are stated. Firefox and WebKit are checked at 320 CSS px for narrow reflow."
+    },
+    "S8-06": {
+      "title": "Mobile and visual inspection",
+      "severity": "S2",
+      "expectedStatus": "PASS",
+      "expected": "Chromium at 360x800, 360x640, 390x844, 844x390, 768x1024, 1024x768 and desktop 1280x800 is measured. Primary targets are preferably 44x44 CSS px; WCAG 2.2 minimum 24x24 or the spacing/inline exceptions are applied with actual bounding boxes. All eight styles are selected at 192 px on a 360 px viewport without clipping. Long-source clipboard fallback and a keyboard-overlay emulation (explicitly emulation-only) are inspected. Screenshots are captured and visually inspected after retrieval, not treated as pixel baselines."
+    },
+    "S8-07": {
+      "title": "Contrast and forced colors",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Computed WCAG AA checks require 4.5:1 for normal text and 3:1 for large text. Control boundaries and focus indicators require 3:1 against the adjacent background; selected state must not rely on colour alone and must expose aria-pressed. Text, control boundaries, focus and selected state are measured from actual computed colours and inspected in screenshots. Chromium forced-colors emulation is checked for visible boundaries, focus and selected state without colour alone. A synthetic low-contrast negative control must be detected by the same checker. If any required ratio is unmet, the scenario is FAIL and is not waived."
+    },
+    "S8-08": {
+      "title": "Reduced motion",
+      "severity": "S2",
+      "expectedStatus": "PASS",
+      "expected": "With prefers-reduced-motion: reduce emulated in Chromium, Firefox and WebKit, computed animation-name, animation-duration and transition-duration show no non-essential animation on any element or pseudo-element. The no-preference baseline is compared; the page is not required to invent an animation to suppress."
+    },
+    "S8-09": {
+      "title": "Native Safari",
+      "severity": "S1",
+      "expectedStatus": "BLOCKED",
+      "expected": "Remains BLOCKED. The sandbox is Linux and provides Playwright WebKit, which is not macOS Safari and is not a substitute. No native Safari PASS is claimed or waived; WebKit results are supplementary only."
+    }
+  },
+  "thresholds": {
+    "axe": {
+      "tool": "axe-core 4.11.0 default rules",
+      "seriousCriticalViolationsAllowed": 0,
+      "moderateMinor": "reported with rule ids, impact, targets and assessment"
+    },
+    "contrast": {
+      "normalText": 4.5,
+      "largeText": 3,
+      "largeTextDefinition": ">=24 px normal weight or >=18.66 px bold",
+      "controlBoundary": 3,
+      "focusIndicator": 3,
+      "focusIndicatorMinWidthPx": 2
+    },
+    "targetSize": {
+      "preferred": 44,
+      "wcag22Minimum": 24,
+      "exceptions": ["spacing", "inline text links"]
+    },
+    "viewports": {
+      "reference": [1280, 800],
+      "zoom200LayoutEquivalent": [640, 800],
+      "zoom400LayoutEquivalent": [320, 800],
+      "narrow": [320, 800],
+      "mobilePortrait": [360, 800],
+      "mobileShort": [360, 640],
+      "mobile390": [390, 844],
+      "mobileTablet": [768, 1024],
+      "desktop": [1280, 800]
+    },
+    "activeBudgetSeconds": 1800,
+    "perCommandTimeoutSeconds": 600,
+    "childTimeoutMs": 30000,
+    "sandboxMemoryMb": 4096,
+    "sandboxCpu": "platform default (no CPU override)",
+    "sandboxVolumes": []
+  },
+  "negativeControls": {
+    "required": [
+      "the same axe scanner detects a missing accessible name and low-contrast text on a bounded disposable page",
+      "the same keyboard focus checker detects a bounded disposable page whose controls suppress visible focus",
+      "the same contrast checker detects the low-contrast text and passes the real page text",
+      "clean controls pass the axe and focus checks"
+    ]
+  },
+  "crossStage": {
+    "Q-002": {
+      "status": "OPEN",
+      "source": "S6-09",
+      "rule": "Blocking the site JavaScript asset with scripting enabled leaves static content readable but the playground has no explanatory failure state. Stage 8 records the reproduction and does not fix or waive it."
+    },
+    "S7-WebKit-CSP": {
+      "status": "attribution recorded in S7 evidence; do not blanket-ignore violations",
+      "rule": "The known WebKit 27.2 style-src-attr warning is expected only from the native select while select function still works. Any other CSP violation is reported, not suppressed, and CSP is not weakened. Playwright/web-inspector screenshot style injection is attributed separately."
+    }
+  },
+  "environment": {
+    "sandboxImage": "blaxel/ts-app:latest",
+    "region": "us-pdx-1",
+    "memoryMb": 4096,
+    "cpu": "platform default (no CPU override)",
+    "volumes": [],
+    "browsers": "Chromium, Firefox, WebKit and mobile Chromium via pinned @playwright/test 1.64.1",
+    "scanner": "axe-core 4.11.0",
+    "site": "actual tracked site built in sandbox with root npm ci and npm run build:site"
+  }
+}
