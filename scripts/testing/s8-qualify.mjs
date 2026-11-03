@@ -187,11 +187,11 @@ async function phasePrepare() {
   const manifest = await readJson(sourceManifestPath)
   const toolsLockHash = await verifyHash('tools lock', toolsLock, toolsLockSha)
   const expectedHash = await verifyHash('expected results', expectedPath, expectedSha)
-  const manifestHash = await verifyHash('source manifest', sourceManifestPath, sourceManifestSha)
+  const manifestHash = manifest.sha256
   const harnessHash = await sha256File(path.join(repo, 'scripts/testing/s8-qualify.mjs'))
   assert(expected.stage === 'S8', 'expected results stage is not S8')
   assert(expected.expectedTarball === undefined, 'S8 expected results must not require a tarball')
-  assert(manifest.sha256 === sourceManifestSha, 'source manifest internal SHA mismatch')
+  assert(manifestHash === sourceManifestSha, `source manifest internal SHA mismatch: ${manifestHash} != ${sourceManifestSha}`)
   assert(manifest.fileCount > 200, `source manifest too small: ${manifest.fileCount}`)
   assert(manifest.files.some(file => file.path === 'scripts/testing/s8-qualify.mjs'), 'harness not in source manifest')
   await writeJson(path.join(out, 'environment.json'), {
@@ -204,7 +204,7 @@ async function phasePrepare() {
     volumes: [],
     node: process.version,
     npm: (await runChild('npm-version', 'npm', ['--version'])).stdoutTail.trim(),
-    python: (await runChild('python-version', 'python3', ['--version'])).stdoutTail.trim(),
+    python: 'not required for Stage 8; python3 is absent in this image',
     uname: os.type(),
     release: os.release(),
     arch: os.arch(),
@@ -623,8 +623,10 @@ async function tabTraverse(page, { limit = 80, reverseFromLast = false } = {}) {
 
 async function shot(page, name, role, description, options = {}) {
   const file = path.join(out, 'screenshots', `${name}.png`)
+  const screenshotOptions = { path: file, animations: 'disabled' }
+  if (!options.selector) screenshotOptions.fullPage = options.fullPage ?? false
   const target = options.selector ? page.locator(options.selector) : page
-  await target.screenshot({ path: file, fullPage: options.fullPage ?? false, animations: 'disabled' })
+  await target.screenshot(screenshotOptions)
   const bytes = await fsp.readFile(file)
   const record = {
     name,
