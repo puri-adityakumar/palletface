@@ -888,6 +888,7 @@ async function main() {
     assert,
     addCase,
     block: blockScenario,
+    negativeControl,
     note,
   }
   const browserObs = await runBrowserScenarios(browserCases)

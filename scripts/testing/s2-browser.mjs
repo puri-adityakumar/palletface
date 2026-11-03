@@ -393,7 +393,7 @@ async function runS205(ctx, browsers, outRoot) {
           ctx.assert(id, metrics.dimensionsEqual && metrics.eligibleFraction === 1 && metrics.eligiblePixels === control.px * control.px, `${engine} control ${control.name}: every pixel of the target box is eligible`, { metrics, control: control.name })
           addBrowserCase(ctx, id)
           ctx.assert(id, !metrics.accepted, `${engine} control ${control.name}: the production full-pixel comparator rejects the corruption`, { metrics, control: control.name })
-          negativeControl(`S2-05-${engine}-${control.name}`, { accepted: metrics.accepted, eligibleFraction: metrics.eligibleFraction, differingPixels: metrics.differingPixels, maxChannelDelta: metrics.maxChannelDelta })
+          ctx.negativeControl(`S2-05-${engine}-${control.name}`, { accepted: metrics.accepted, eligibleFraction: metrics.eligibleFraction, differingPixels: metrics.differingPixels, maxChannelDelta: metrics.maxChannelDelta })
           await fsp.writeFile(path.join(dir, 'controls', `${engine}-${control.name}-original.png`), original.buffer)
           await fsp.writeFile(path.join(dir, 'controls', `${engine}-${control.name}-corrupted.png`), corrupted.buffer)
           engineControls[control.name] = metrics
@@ -429,7 +429,7 @@ async function runS205(ctx, browsers, outRoot) {
           ctx.assert(id, metrics.dimensionsEqual && metrics.eligibleFraction === 1, `${engine} control conflicting-id: every pixel is eligible`, { metrics })
           addBrowserCase(ctx, id)
           ctx.assert(id, !metrics.accepted, `${engine} control conflicting-id: the production comparator rejects sibling ID pollution`, { metrics })
-          negativeControl(`S2-05-${engine}-conflicting-id`, { accepted: metrics.accepted, eligibleFraction: metrics.eligibleFraction, differingPixels: metrics.differingPixels, maxChannelDelta: metrics.maxChannelDelta })
+          ctx.negativeControl(`S2-05-${engine}-conflicting-id`, { accepted: metrics.accepted, eligibleFraction: metrics.eligibleFraction, differingPixels: metrics.differingPixels, maxChannelDelta: metrics.maxChannelDelta })
           await fsp.writeFile(path.join(dir, 'controls', `${engine}-conflicting-id-present.png`), present)
           await fsp.writeFile(path.join(dir, 'controls', `${engine}-conflicting-id-isolated.png`), isolated)
           engineControls.conflictingId = { analysis: controlAnalysis, metrics }
