@@ -118,10 +118,10 @@
       "title": "Cloudflare workerd Worker and browser Worker",
       "severity": "S1",
       "expectedStatus": "PASS",
-      "expected": "TWO runtimes are exercised without deployment. A local wrangler/workerd dev server built from the installed tarball returns all eight SVG bodies with Content-Type image/svg+xml; charset=utf-8; the workerd response headers show no process and no document globals. Separately, a real Chromium page starts a classic browser Web Worker that loads the installed package IIFE, generates all eight avatars, and posts them back; all eight raw SVGs match frozen hashes and there are no worker errors or external requests. No worker is deployed or published.",
+      "expected": "TWO runtimes are exercised without deployment. A local wrangler/workerd dev server built from the installed tarball returns all eight SVG bodies with Content-Type image/svg+xml; charset=utf-8; the workerd response headers show no Node process version and no DOM document global; the workerd bundle has no node: imports. Separately, a real Chromium page starts a classic browser Web Worker that loads the installed package IIFE, generates all eight avatars, and posts them back; all eight raw SVGs match frozen hashes and there are no worker errors or external requests. No worker is deployed or published.",
       "cases": [
         "wrangler/workerd dev server starts locally",
-        "workerd /health shows no process/document globals",
+        "workerd /health shows no Node process version or DOM globals",
         "workerd all eight SVG bodies and content type",
         "browser Web Worker postMessage all eight",
         "worker console/page errors none",

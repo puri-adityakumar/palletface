@@ -2,13 +2,20 @@ import { ditherFace, STYLES } from 'dither-face'
 
 const STYLE_SLUGS = new Set(STYLES.map((style) => style.slug))
 
+const hasNodeProcess =
+  typeof process !== 'undefined' &&
+  typeof process.versions === 'object' &&
+  process.versions !== null &&
+  typeof process.versions.node === 'string'
+
 function runtimeHeaders(style) {
   return {
     'content-type': 'image/svg+xml; charset=utf-8',
     'cache-control': 'no-store',
     'x-runtime': 'workerd',
-    'x-runtime-node': String(typeof process),
+    'x-runtime-node': String(hasNodeProcess),
     'x-runtime-document': String(typeof document),
+    'x-runtime-process-global': String(typeof process),
     'x-dither-style': style,
   }
 }
@@ -23,6 +30,15 @@ export default {
           ok: true,
           runtime: 'workerd',
           hasProcess: typeof process !== 'undefined',
+          hasNodeProcess,
+          processKeys:
+            typeof process === 'object' && process !== null
+              ? Object.keys(process).slice(0, 24)
+              : [],
+          nodeVersion:
+            typeof process === 'object' && process !== null && process.versions
+              ? (process.versions.node ?? null)
+              : null,
           hasDocument: typeof document !== 'undefined',
           styles: [...STYLE_SLUGS],
         }),

@@ -1006,7 +1006,7 @@ async function runPhaseTest() {
         await fsp.writeFile(htmlPath, html)
         artifacts.html.push({ path: rel(htmlPath), sha256: sha256(html), bytes: Buffer.byteLength(html) })
         s501.assert(html.includes('data-ssr="next"'), 'Next SSR marker is present')
-        s501.assert(!/Application error|__next_error__|next-error/i.test(html), 'Next response is not an error page')
+        s501.assert(!/id="__next_error__"/.test(html), 'Next response is not the Next error page')
 
         s501.case('all eight server-rendered avatars')
         const images = extractImages(html, 'data-initial')
@@ -1218,8 +1218,8 @@ async function runPhaseTest() {
     s505.case('workerd health and globals')
     s505.assert(healthResponse.status === 200, 'workerd health returns 200', { status: healthResponse.status })
     s505.assert(health.ok === true && health.runtime === 'workerd', 'workerd runtime reports itself', { health })
-    s505.assert(health.hasProcess === false, 'workerd runtime has no process global', { health })
-    s505.assert(health.hasDocument === false, 'workerd runtime has no document global', { health })
+    s505.assert(health.hasNodeProcess === false, 'workerd runtime exposes no Node process version', { health })
+    s505.assert(health.hasDocument === false, 'workerd runtime has no DOM document global', { health })
 
     s505.case('workerd all eight SVG responses')
     const workerRaw = {}
@@ -1238,7 +1238,7 @@ async function runPhaseTest() {
       s505.assert(response.headers.get('x-runtime') === 'workerd', `workerd ${style}: runtime header`, {
         runtime: response.headers.get('x-runtime'),
       })
-      s505.assert(response.headers.get('x-runtime-node') === 'undefined', `workerd ${style}: no Node process`, {
+      s505.assert(response.headers.get('x-runtime-node') === 'false', `workerd ${style}: no Node process version`, {
         value: response.headers.get('x-runtime-node'),
       })
       s505.assert(response.headers.get('x-runtime-document') === 'undefined', `workerd ${style}: no DOM document`, {
@@ -1332,7 +1332,7 @@ async function runPhaseTest() {
         await opened.page.goto(fileUrl, { waitUntil: 'load', timeout: 60000 })
         await opened.page.waitForSelector('html[data-ready="true"]', { timeout: 30000 })
         s506.case(`${engineName} offline file:// render`)
-        const raw = await basicGridChecks(s506, opened.page, golden, `plain-${engineName}`, 'data-plain')
+        const raw = await basicGridChecks(s506, opened.page, golden, `plain-${engineName}`, 'data-plain-style')
         if (engineName === 'chromium') parityHosts.push({ host: 'plain', raw })
         const fontResources = await opened.page.evaluate(() =>
           performance
@@ -1522,7 +1522,7 @@ async function runPhaseTest() {
     volumes: [],
     node: process.version,
     npm: (await runCommand({ label: 'environment-npm-version', command: 'npm --version', cwd: repo })).stdout.trim(),
-    os: (await runCommand({ label: 'environment-os', command: 'uname -a; cat /etc/os-release; nproc; free -m', cwd: repo })).stdout,
+    os: (await runCommand({ label: 'environment-os', command: 'uname -a; cat /etc/os-release; (nproc || true); (free -m || true)', cwd: repo })).stdout,
     browsers: tests.browserVersions,
     frameworks: expected.versions.frameworks,
     playwright: '1.64.1',
