@@ -163,10 +163,25 @@ export async function assertRendered(c, page, selector, expectedSvg, label) {
     if (!element) return { ok: false, reason: 'missing element', selector }
     const reference = document.createElement('span')
     reference.innerHTML = svg
+    const actualHtml = element.innerHTML
+    const expectedHtml = reference.innerHTML
+    // The site decorates only the preview SVG with aria-hidden="true" after
+    // inserting the library bytes. That single site-owned attribute is not
+    // part of the library output; every other byte still has to match.
+    const allowAriaHidden = selector === '#preview' ? 1 : 0
+    const removedActual = (actualHtml.match(/ aria-hidden="true"/g) ?? []).length
+    const removedExpected = (expectedHtml.match(/ aria-hidden="true"/g) ?? []).length
+    const normalize = (html) => html.replace(/ aria-hidden="true"/g, '')
     return {
-      ok: element.innerHTML === reference.innerHTML,
-      actual: element.innerHTML.slice(0, 600),
-      expected: reference.innerHTML.slice(0, 600),
+      ok:
+        removedActual <= allowAriaHidden &&
+        removedExpected === 0 &&
+        normalize(actualHtml) === normalize(expectedHtml),
+      removedActual,
+      removedExpected,
+      allowAriaHidden,
+      actual: actualHtml.slice(0, 600),
+      expected: expectedHtml.slice(0, 600),
     }
   }, { selector, svg: expectedSvg })
   c.check(result.ok, label, result)

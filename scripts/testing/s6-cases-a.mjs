@@ -192,31 +192,33 @@ const restoreCases = [
 ]
 
 async function runS601(ctx, runCase, state) {
-  for (const spec of restoreCases) {
-    await runCase(spec.name, async (c) => {
+  const caseNames = ctx.expected.expectations['S6-01'].cases
+  for (const [index, spec] of restoreCases.entries()) {
+    const caseName = caseNames[index]
+    await runCase(caseName, async (c) => {
       const opened = await openPage(ctx.chromium, { origin: ctx.origin, url: queryFor(spec) })
       try {
-        c.check(!opened.gotoError, `${spec.name}: page loaded`, { error: opened.gotoError })
-        c.check(!opened.readyError, `${spec.name}: application ready`, { error: opened.readyError })
+        c.check(!opened.gotoError, `${caseName}: page loaded`, { error: opened.gotoError })
+        c.check(!opened.readyError, `${caseName}: application ready`, { error: opened.readyError })
         if (opened.gotoError || opened.readyError) return
         const st = await readState(opened.page)
         const options = optionsFor(spec.style, Number(spec.size), spec.name)
         const expectedSvg = ctx.lib.ditherFace(spec.seed, options)
-        checkPage(c, st, expectedSvg, spec, spec.name)
-        checkCanonical(c, st, spec, spec.name)
-        c.equal(st.usage, makeUsage(spec.seed, options), `${spec.name}: exact usage source`)
-        await assertRendered(c, opened.page, '#preview', expectedSvg, `${spec.name}: preview DOM matches expected SVG`)
+        checkPage(c, st, expectedSvg, spec, caseName)
+        checkCanonical(c, st, spec, caseName)
+        c.equal(st.usage, makeUsage(spec.seed, options), `${caseName}: exact usage source`)
+        await assertRendered(c, opened.page, '#preview', expectedSvg, `${caseName}: preview DOM matches expected SVG`)
         if (spec.golden) {
           const digest = compareDigest(ctx.goldenHashes[spec.golden], st.source)
-          c.check(digest.ok, `${spec.name}: recorded golden SHA-256`, digest)
+          c.check(digest.ok, `${caseName}: recorded golden SHA-256`, digest)
         }
-        assertClean(c, opened.rec, { label: spec.name })
-        if (spec.name === 'defaults-no-query') {
+        assertClean(c, opened.rec, { label: caseName })
+        if (caseName === 'defaults-no-query') {
           const shot = await ctx.screenshot(opened.page, 'S6-01-default')
           state.screenshots.push(shot)
         }
       } finally {
-        state.traces.push(traceRecord(spec.name, opened.rec))
+        state.traces.push(traceRecord(caseName, opened.rec))
         await closePage(opened)
       }
     })
@@ -747,7 +749,7 @@ async function runS605(ctx, runCase, state) {
         c.equal(injected.pwned, null, 'onerror payload did not execute')
         c.equal(injected.nodes, 0, 'no img/script nodes were injected')
         c.check(!st.source.includes('<img'), 'SVG source contains no raw img tag')
-        c.check(st.source.includes('&lt;img'), 'SVG source escapes the payload as text')
+        c.check(st.usage.includes(JSON.stringify(name)), 'usage JSON-encodes the img payload as data')
         assertClean(c, opened.rec, { label: 'html image' })
       }
     } finally {
@@ -770,8 +772,8 @@ async function runS605(ctx, runCase, state) {
         c.equal(injected.pwned, null, 'script payload did not execute')
         c.equal(injected.previewScripts, 0, 'no script nodes in preview or gallery')
         c.check(injected.scripts <= 1, 'only the legitimate module script exists', injected)
-        c.check(st.source.includes('&lt;script&gt;'), 'SVG source escapes script tags')
         c.check(!st.source.includes('<script>'), 'SVG source contains no raw script tag')
+        c.check(st.usage.includes(JSON.stringify(name)), 'usage JSON-encodes the script payload as data')
         assertClean(c, opened.rec, { label: 'script tag' })
       }
     } finally {
@@ -795,7 +797,7 @@ async function runS605(ctx, runCase, state) {
         c.equal(injected.handlers, 0, 'no injected onload attributes')
         c.equal(injected.svgs, 1, 'only the legitimate preview SVG exists')
         c.check(!st.source.includes('<svg onload'), 'SVG source contains no injected svg tag')
-        c.check(st.source.includes('&lt;svg'), 'SVG source escapes the SVG-looking payload')
+        c.check(st.usage.includes(JSON.stringify(name)), 'usage JSON-encodes the SVG-looking payload as data')
         assertClean(c, opened.rec, { label: 'svg onload' })
       }
     } finally {

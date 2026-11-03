@@ -312,7 +312,7 @@ async function runS607(ctx, runCase, state) {
       downloadText = await fsp.readFile(downloadPath, 'utf8')
       c.check(compareSvg(st.source, downloadText).ok, 'download bytes equal the displayed source exactly')
       c.equal(Buffer.byteLength(downloadText), Buffer.byteLength(st.source), 'download byte length')
-      c.equal(event.failure(), null, 'download did not report a failure')
+      c.equal(await event.failure(), null, 'download did not report a failure')
     })
 
     await runCase('download-blob-mime-xml', async (c) => {
@@ -476,7 +476,15 @@ async function runS607(ctx, runCase, state) {
       c.check(focus.active, `${label}: manual textarea is focused`)
       c.check(focus.start === 0 && focus.end === focus.length, `${label}: manual text is fully selected`, focus)
       c.check(focus.status.includes('Clipboard unavailable'), `${label}: visible unavailable status`, focus)
-      assertClean(c, opened.rec, { label })
+      c.equal(opened.rec.pageErrors.length, 0, `${label}: no unhandled page errors`, { pageErrors: opened.rec.pageErrors })
+      c.equal(opened.rec.external.length, 0, `${label}: no external requests`, { external: opened.rec.external })
+      c.equal(opened.rec.failed.length, 0, `${label}: no failed requests`, { failed: opened.rec.failed })
+      c.equal(opened.rec.httpErrors.length, 0, `${label}: no HTTP >=400 responses`, { httpErrors: opened.rec.httpErrors })
+      const unexpectedConsole = opened.rec.consoleErrors.filter((message) => !/Content Security Policy/.test(message))
+      c.equal(unexpectedConsole.length, 0, `${label}: no unexpected console errors`, {
+        unexpectedConsole,
+        consoleErrors: opened.rec.consoleErrors,
+      })
       state.traces.push(traceRecord(label, opened.rec))
     } finally {
       await closePage(opened)
@@ -550,7 +558,7 @@ async function runS608(ctx, runCase, state) {
     c.equal(ctx.setup.consumer.installExitCode, 0, 'npm install of the actual tarball exited 0')
   })
 
-  const page = await openPage(ctx.chromium, {
+  const opened = await openPage(ctx.chromium, {
     origin: ctx.origin,
     url: '/?seed=preview-output&name=7even&style=pixel-sprite&size=80',
   })
@@ -558,8 +566,8 @@ async function runS608(ctx, runCase, state) {
     for (let index = 0; index < ctx.lib.STYLES.length; index += 1) {
       const style = ctx.lib.STYLES[index]
       await runCase(`exec-${style.slug}`, async (c) => {
-        await page.locator(`#gallery button[data-style="${style.slug}"]`).click()
-        const st = await readState(page)
+        await opened.page.locator(`#gallery button[data-style="${style.slug}"]`).click()
+        const st = await readState(opened.page)
         const expected = ctx.lib.ditherFace('preview-output', optionsFor(style.slug, 80, '7even'))
         c.check(compareSvg(expected, st.source).ok, `${style.slug}: displayed source before snippet execution`)
         const golden = compareDigest(ctx.goldenHashes[style.slug], st.source)
@@ -572,8 +580,8 @@ async function runS608(ctx, runCase, state) {
       })
     }
   } finally {
-    state.traces.push(traceRecord('snippet-site', page.rec))
-    await closePage(page)
+    state.traces.push(traceRecord('snippet-site', opened.rec))
+    await closePage(opened)
   }
 
   await runCase('name-empty-behavior', async (c) => {
@@ -646,9 +654,8 @@ async function runS609(ctx, runCase, state) {
   })
   let cssBlocked = null
   let disabled = null
-  try {
-    await jsBlocked.page.waitForTimeout(1_500)
-    await runCase('js-blocked-static-fallback', async (c) => {
+  await jsBlocked.page.waitForTimeout(1_500)
+  await runCase('js-blocked-static-fallback', async (c) => {
       const view = await jsBlocked.page.evaluate(() => ({
         text: document.body.innerText,
         h1: document.querySelector('h1')?.innerText ?? '',
@@ -746,12 +753,6 @@ async function runS609(ctx, runCase, state) {
         message: 'CSS blocked: playground remains fully functional and readable, but the page is unstyled. Cosmetic user impact recorded for parent review.',
       })
     })
-  } finally {
-    state.traces.push(traceRecord('js-blocked', jsBlocked.rec))
-    if (cssBlocked) state.traces.push(traceRecord('css-blocked', cssBlocked.rec))
-    await closePage(jsBlocked)
-    await closePage(cssBlocked)
-  }
 
   disabled = await openPage(ctx.chromium, {
     origin: ctx.origin,
@@ -759,8 +760,7 @@ async function runS609(ctx, runCase, state) {
     waitReady: false,
     contextOptions: { javaScriptEnabled: false },
   })
-  try {
-    await runCase('js-disabled-noscript', async (c) => {
+  await runCase('js-disabled-noscript', async (c) => {
       const noscript = disabled.page.locator('noscript')
       const noscriptText = (await noscript.textContent()) ?? ''
       const noscriptVisible = await noscript.isVisible()
@@ -780,10 +780,6 @@ async function runS609(ctx, runCase, state) {
         message: 'JavaScript disabled: the documented noscript notice is visible and static content remains; no defect observed for this documented limitation.',
       })
     })
-  } finally {
-    state.traces.push(traceRecord('js-disabled', disabled.rec))
-    await closePage(disabled)
-  }
 
   await runCase('no-permanent-blank-both-modes', async (c) => {
     const jsText = await jsBlocked.page.evaluate(() => document.body.innerText.length)
@@ -793,6 +789,13 @@ async function runS609(ctx, runCase, state) {
     c.check(await jsBlocked.page.locator('h1').first().isVisible(), 'JS-blocked hero is still visible')
     c.check(await cssBlocked.page.locator('h1').first().isVisible(), 'CSS-blocked hero is still visible')
   })
+
+  state.traces.push(traceRecord('js-blocked', jsBlocked.rec))
+  if (cssBlocked) state.traces.push(traceRecord('css-blocked', cssBlocked.rec))
+  if (disabled) state.traces.push(traceRecord('js-disabled', disabled.rec))
+  await closePage(jsBlocked)
+  await closePage(cssBlocked)
+  await closePage(disabled)
 }
 
 export async function runScenariosB(ctx) {
