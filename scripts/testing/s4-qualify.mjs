@@ -88,9 +88,15 @@ const scenarioRecords = {}
 const setupCommands = []
 const servers = []
 
-await fsp.rm(outDir, { recursive: true, force: true })
+// Clean only this harness's own output, never the orchestration control files
+// (harness.log / harness.pid / harness.exit) that share the output directory.
+await fsp.mkdir(outDir, { recursive: true })
 for (const directory of [logsDir, reportsDir, resultsDir, locksDir, screenshotsDir, workDir]) {
+  await fsp.rm(directory, { recursive: true, force: true })
   await fsp.mkdir(directory, { recursive: true })
+}
+for (const file of ['setup.json', 'results.json', 'controls.json', 'versions.json', 'environment.json']) {
+  await fsp.rm(path.join(outDir, file), { force: true })
 }
 
 function shellQuote(value) {
