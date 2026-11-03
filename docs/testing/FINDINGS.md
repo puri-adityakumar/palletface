@@ -1,6 +1,6 @@
 # Qualification Findings — dither-face 0.1.0
 
-**Status:** OPEN — **0 findings recorded**. This template is not a pass claim and does not imply the absence of defects. Execution has not started.
+**Status:** OPEN — **1 confirmed finding**. Stage 1 failed; later stages remain gated.
 
 **Baseline:** `test/release-qualification` at `3ca99d2`.
 
@@ -19,7 +19,7 @@ Agents cannot approve their own findings or accept risk. A finding is closed onl
 
 | Finding | Stage | Scenario | Severity | Observation | Evidence | Owner | Disposition |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| — | — | — | — | None recorded | — | — | — |
+| Q-001 | 1 | S1-06 | S1 | ascii-letter consumes dot RNG conditionally on glyph coverage; changing name shifts dots outside both glyphs, violating documented background invariance. | [S1 evidence](evidence/S1.md), raw S1-06.json; parent inspected checker and source | Implementation agent | CONFIRMED; fix and fresh-sandbox rerun required |
 
 ## 3. Accepted lower-severity issues
 
