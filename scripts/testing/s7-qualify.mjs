@@ -727,7 +727,9 @@ async function runPhasePrepare() {
     } catch {
       manifestFailures.push({ path: file.path, issue: 'missing' })
     }
-    if (excludedFileName(file.path)) manifestFailures.push({ path: file.path, issue: 'excluded-file-name' })
+    if (excludedFileName(file.path) && !reviewedFalsePositive(file.path, 'excluded-file-name')) {
+      manifestFailures.push({ path: file.path, issue: 'excluded-file-name' })
+    }
   }
   assert(manifestFailures.length === 0, 'uploaded tracked source matches source manifest and has no excluded names', { failures: manifestFailures.slice(0, 20) })
   assert(manifest.fileCount === manifest.files.length, 'source manifest file count is consistent')
