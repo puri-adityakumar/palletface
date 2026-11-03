@@ -286,13 +286,19 @@ export async function checkTarballManifest({ inspection, allowlist, dryRun }) {
 
   if (dryRun) {
     const dryFiles = Array.isArray(dryRun.files) ? dryRun.files : []
-    const dryPaths = new Set(dryFiles.map((entry) => entry.path))
+    // npm pack --dry-run reports paths relative to the package root; the
+    // archive (and tar -t) prefixes every entry with package/.
+    const dryFilesNormalized = dryFiles.map((entry) => ({
+      ...entry,
+      path: entry.path.startsWith('package/') ? entry.path : `package/${entry.path}`,
+    }))
+    const dryPaths = new Set(dryFilesNormalized.map((entry) => entry.path))
     const dryUnexpected = [...dryPaths].filter((entry) => !expected.has(entry)).sort()
     const dryMissing = [...expected].filter((entry) => !dryPaths.has(entry)).sort()
     push(dryUnexpected.length === 0, 'dry-run manifest has no unexpected path', dryUnexpected)
     push(dryMissing.length === 0, 'dry-run manifest has no missing path', dryMissing)
-    push(dryFiles.length === inspection.files.length, 'dry-run manifest file count equals archive', { dry: dryFiles.length, archive: inspection.files.length })
-    const sizeMismatches = dryFiles.filter((entry) => inspection.fileMap[entry.path] && entry.size !== inspection.fileMap[entry.path].size)
+    push(dryFilesNormalized.length === inspection.files.length, 'dry-run manifest file count equals archive', { dry: dryFilesNormalized.length, archive: inspection.files.length })
+    const sizeMismatches = dryFilesNormalized.filter((entry) => inspection.fileMap[entry.path] && entry.size !== inspection.fileMap[entry.path].size)
     push(sizeMismatches.length === 0, 'dry-run manifest sizes equal archive bytes', sizeMismatches.map((entry) => ({ path: entry.path, dry: entry.size, archive: inspection.fileMap[entry.path]?.size })))
     push(dryRun.name === allowlist.package && dryRun.version === allowlist.version, 'dry-run manifest name/version match package', { name: dryRun.name, version: dryRun.version })
     push(dryRun.filename === `${allowlist.package}-${allowlist.version}.tgz`, 'dry-run filename matches package/version', dryRun.filename)
