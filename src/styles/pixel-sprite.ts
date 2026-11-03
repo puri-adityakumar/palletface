@@ -31,6 +31,7 @@ const pickN = <T>(r: () => number, list: readonly T[], n: number): T[] => {
  * seed fully determines the output: same seed, byte-identical svg.
  */
 export function pixelSprite(seed: string, px: number): string {
+  validateRenderArgs(seed, px)
   const r = mulberry32(fnv1a('sprite' + seed))
   const n = 12
   const [bg] = pickN(r, PASTEL, 1)
@@ -60,3 +61,4 @@ export function pixelSprite(seed: string, px: number): string {
   const clipId = 'sprite-' + fnv1a('sprite' + seed).toString(36)
   return disc(px, n, out, clipId)
 }
+import { validateRenderArgs } from '../validation.js'

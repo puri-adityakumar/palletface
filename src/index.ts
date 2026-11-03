@@ -2,7 +2,7 @@
  * dither-face entry point. The registry holds the eight ported styles in
  * sheet order ("01 pixel sprite" … "08 pixelify letter"); `ditherFace` is the
  * one-call consumer API over it. Every avatar is a pure function of its seed
- * string — the same seed renders the same face, byte for byte, forever.
+ * string for a given package version and runtime configuration.
  */
 export * from './seed.js'
 export * from './palettes.js'
@@ -29,7 +29,7 @@ import { pixelifyLetter } from './styles/pixelify-letter.js'
 /** One look in the registry. */
 export interface AvatarStyle {
   /** Url-safe id passed as `style` to `ditherFace`, e.g. `"pixel-sprite"`. */
-  slug: string
+  slug: StyleSlug
   /** Sheet row title, e.g. "pixel sprite". */
   title: string
   /** One-line note shown under the title on the sheet. */
@@ -48,6 +48,8 @@ export interface AvatarStyle {
  * Every style, in sheet order — the same rows the sheet renderer lays out.
  * Slugs are stable api: pick one for `ditherFace(seed, { style })`.
  */
+export type StyleSlug = 'pixel-sprite' | 'pixel-letter' | 'dither-orb' | 'pixel-landscape' | 'ascii-letter' | 'ascii-field' | 'ascii-face' | 'pixelify-letter'
+
 export const STYLES: readonly AvatarStyle[] = [
   {
     slug: 'pixel-sprite',
@@ -97,12 +99,12 @@ export const STYLES: readonly AvatarStyle[] = [
     note: "the site's own pixel font for the initial, on a two-tone checker.",
     draw: pixelifyLetter,
   },
-]
+] as const satisfies readonly AvatarStyle[]
 
 /** Options for `ditherFace`; everything is optional. */
 export interface DitherFaceOptions {
   /** Which look to draw, by slug. Defaults to the first sheet style, `'pixel-sprite'`. */
-  style?: string
+  style?: StyleSlug
   /** Box size in css pixels. Defaults to 80, the sheet's avatar size. */
   px?: number
   /**
@@ -122,6 +124,10 @@ const DEFAULT_PX = 80
  * slug, listing the valid ones.
  */
 export function ditherFace(seed: string, options: DitherFaceOptions = {}): string {
+  if (typeof seed !== 'string') throw new TypeError(`seed must be a string; received ${typeof seed}`)
+  if (options.name !== undefined && typeof options.name !== 'string') throw new TypeError(`name must be a string when provided; received ${typeof options.name}`)
+  if (options.px !== undefined && (typeof options.px !== 'number' || !Number.isFinite(options.px) || options.px <= 0)) throw new RangeError(`px must be a positive finite number; received ${String(options.px)}`)
+  if (options.style !== undefined && typeof options.style !== 'string') throw new TypeError(`style must be a style slug string; received ${typeof options.style}`)
   const slug = options.style ?? STYLES[0]?.slug
   const style = STYLES.find((s) => s.slug === slug)
   if (!style) {

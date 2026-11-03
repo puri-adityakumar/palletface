@@ -36,6 +36,7 @@ function pick(rng: () => number, pool: string[]): string {
 
 /** Draw the dither orb for `seed` as a standalone svg, `px` css pixels square. */
 export function ditherOrb(seed: string, px: number): string {
+  validateRenderArgs(seed, px)
   const rng = mulberry32(fnv1a('orb' + seed))
   const pool: string[] = [...ORB_POOL]
   const [c1, c2, c3]: [string, string, string] = [pick(rng, pool), pick(rng, pool), pick(rng, pool)]
@@ -54,3 +55,4 @@ export function ditherOrb(seed: string, px: number): string {
   // one so the same seed renders byte-identical svg in every process.
   return disc(px, GRID, out, 'orb-' + fnv1a('orb' + seed).toString(16))
 }
+import { validateRenderArgs } from '../validation.js'

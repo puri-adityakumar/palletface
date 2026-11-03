@@ -31,6 +31,7 @@ function pickN(r: () => number, list: readonly string[], n: number): string[] {
 
 /** Draw the ascii face avatar: a kaomoji on a diagonal two-color gradient. */
 export function asciiFace(seed: string, px: number): string {
+  validateRenderArgs(seed, px)
   const h = fnv1a('face' + seed)
   const r = mulberry32(h)
   const key = h.toString(36)
@@ -49,3 +50,4 @@ export function asciiFace(seed: string, px: number): string {
   // renders byte-identical svg on every call instead of counting a shared uid.
   return disc(px, 32, `<g shape-rendering="auto">${inner}</g>`, 'c' + key)
 }
+import { validateRenderArgs } from '../validation.js'

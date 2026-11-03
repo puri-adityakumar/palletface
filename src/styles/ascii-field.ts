@@ -30,6 +30,7 @@ function pickN<T>(r: () => number, list: readonly T[], n: number): T[] {
  * two-pastel gradient. The style draws no initial, so it takes no name.
  */
 export function asciiField(seed: string, px: number): string {
+  validateRenderArgs(seed, px)
   const hash = fnv1a('afield' + seed)
   const r = mulberry32(hash)
   const [bg, tint] = pickN(r, PASTEL, 2)
@@ -71,3 +72,4 @@ export function asciiField(seed: string, px: number): string {
   // twice in one process (disc's optional id, grid.ts).
   return disc(px, N, `<g shape-rendering="auto">${bgFill}${asciiGrid(N, 'none', cells)}</g>`, 'c' + hash)
 }
+import { validateRenderArgs } from '../validation.js'

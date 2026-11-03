@@ -12,6 +12,7 @@ import { fnv1a, mulberry32 } from '../seed.js'
 import { DEEP, INK, PASTEL } from '../palettes.js'
 import { asciiGrid, disc, type AsciiCell } from '../grid.js'
 import { glyph, initialOf } from '../font.js'
+import { validateRenderArgs } from '../validation.js'
 
 /** The characters the initial can be drawn with; one is picked per seed. */
 const CHARS = ['#', '@', '%', '&', '$', '*', 'X', '8'] as const
@@ -32,6 +33,7 @@ const pick = <T>(r: () => number, list: readonly T[]): T => list[Math.floor(r() 
  * initial instead of the seed.
  */
 export function asciiLetter(seed: string, px: number, name?: string): string {
+  validateRenderArgs(seed, px, name)
   const r = mulberry32(fnv1a('alet' + seed))
   const n = 9
   const bg = pick(r, PASTEL)

@@ -61,6 +61,7 @@ function discSeeded(id: string, px: number, inner: string): string {
 
 /** Render the pixel-landscape avatar for `seed` at `px` css pixels. */
 export function pixelLandscape(seed: string, px: number): string {
+  validateRenderArgs(seed, px)
   const r = mulberry32(fnv1a('land' + seed))
 
   const sky = pick(r, SKIES)
@@ -95,3 +96,4 @@ export function pixelLandscape(seed: string, px: number): string {
 
   return discSeeded('land-' + fnv1a('land' + seed).toString(16), px, out)
 }
+import { validateRenderArgs } from '../validation.js'
