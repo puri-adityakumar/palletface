@@ -298,7 +298,7 @@ async function waitForReact(page, expected) {
         if (state[key] !== value) return false
       }
       const img = document.querySelector('[data-testid="avatar-main"][data-mode="img"]')
-      if (expected.mainMounted !== false) {
+      if (expected.showMain !== false) {
         if (img === null || !img.complete || img.naturalWidth === 0) return false
       }
       return true
@@ -328,7 +328,7 @@ export async function runReact(ctx, options) {
 
   try {
     await page.goto(url, { waitUntil: 'load', timeout: 60_000 })
-    await waitForReact(page, { seed: 'preview-output', name: '7even', size: 80, mainMounted: true })
+    await waitForReact(page, { seed: 'preview-output', name: '7even', size: 80, showMain: true })
     const initial = await readReact(page)
     ctx.assert(initial.mainCount === 1 && initial.mainMode === 'img', `${label}: typed <img> main avatar mounted`)
     const initialDecoded = decodeSvgDataUrl(initial.mainSrc)
@@ -364,7 +364,7 @@ export async function runReact(ctx, options) {
     await page.fill('#seed', '用户-42')
     await page.fill('#name', 'Élodie')
     await page.selectOption('#size', '120')
-    await waitForReact(page, { seed: '用户-42', name: 'Élodie', size: 120, mainMounted: true })
+    await waitForReact(page, { seed: '用户-42', name: 'Élodie', size: 120, showMain: true })
     const updated = await readReact(page)
     ctx.assert(updated.mainSrc !== initial.mainSrc, `${label}: prop/state update changes src`)
     ctx.assert(updated.mainNaturalWidth === 120, `${label}: prop/state size update renders at 120px`)
@@ -379,7 +379,7 @@ export async function runReact(ctx, options) {
     )
     ctx.assert((await readReact(page)).mainCount === 0, `${label}: main avatar unmounts`)
     await page.click('#toggle-main')
-    await waitForReact(page, { seed: '用户-42', name: 'Élodie', size: 120, mainMounted: true })
+    await waitForReact(page, { seed: '用户-42', name: 'Élodie', size: 120, showMain: true })
     ctx.assert((await readReact(page)).mainCount === 1, `${label}: main avatar remounts`)
 
     // 100-avatar list.
@@ -410,7 +410,7 @@ export async function runReact(ctx, options) {
     await page.fill('#seed', 'preview-output')
     await page.fill('#name', '7even')
     await page.selectOption('#size', '80')
-    await waitForReact(page, { seed: 'preview-output', name: '7even', size: 80, mainMounted: true })
+    await waitForReact(page, { seed: 'preview-output', name: '7even', size: 80, showMain: true })
     const final = await readReact(page)
     const finalDecoded = decodeSvgDataUrl(final.mainSrc)
     const finalHash = finalDecoded === null ? null : sha256(finalDecoded)

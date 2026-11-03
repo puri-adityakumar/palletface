@@ -876,7 +876,9 @@ await runScenario('S4-06', 'Vite React production', 'S1', async (ctx, cmd) => {
   const missingAssets = assetRefs.filter((ref) => !fs.existsSync(path.join(distDir, ref.replace(/^\//, ''))))
   ctx.assert(missingAssets.length === 0, 'S4-06 every referenced asset exists', { missingAssets })
 
-  const scan = await scanTextFiles(distDir, ['playwright', 'vitest', '@playwright', '\\bnode:', 'child_process', '\\brequire\\('])
+  // Match actual Node built-in imports ("node:fs"), not object keys such as
+  // `{node:n}` that happen to contain the same four characters.
+  const scan = await scanTextFiles(distDir, ['playwright', 'vitest', '@playwright', "[\"']node:[a-z]", 'child_process', '\\brequire\\('])
   ctx.assert(scan.findings.length === 0, 'S4-06 dist contains no test tooling or Node-only APIs', {
     findings: scan.findings,
   })
