@@ -1,6 +1,6 @@
 # Qualification Findings — dither-face 0.1.0
 
-**Status:** No open findings. **Q-001 CLOSED by parent review, 2026-11-03**: targeted fix and complete Stage 1 recheck accepted on product revision `104195b`; 8/8 scenarios PASS. The original finding and provisional agent submission below are retained for audit, superseded by this disposition.
+**Status:** No open findings. **Q-001 CLOSED by parent review, 2026-11-03**: targeted fix and complete Stage 1 recheck accepted on product revision `104195b`; 8/8 scenarios PASS. Stage 2 was then executed provisionally at harness revision `6cc38c2` (product source `e3c5ead`): 8/8 provisional PASS, no new product finding, parent disposition PENDING. The original finding and provisional agent submissions below are retained for audit, superseded by these dispositions.
 
 **Baseline:** `test/release-qualification` at `3ca99d2`; original S1 run at `7637956`; targeted fix at `104195b`.
 
@@ -19,7 +19,7 @@ Agents cannot approve their own findings or accept risk. A finding is closed onl
 
 | Finding | Stage | Scenario | Severity | Observation | Evidence | Owner | Disposition |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Q-001 | 1 | S1-06 | S1 | ascii-letter consumed dot RNG conditionally on glyph coverage; changing name shifted dots outside both glyphs, violating documented background invariance. | [Original failure S1](evidence/S1.md), raw S1-06.json; [fix rerun S1-R1](evidence/S1-R1.md), raw S1-06.json | Implementation agent | **OPEN — fix implemented at `104195b`; Stage 1 R1 provisional 8/8 PASS, parent verification PENDING. Not self-closed.** |
+| Q-001 | 1 | S1-06 | S1 | ascii-letter consumed dot RNG conditionally on glyph coverage; changing name shifted dots outside both glyphs, violating documented background invariance. | [Original failure S1](evidence/S1.md), raw S1-06.json; [fix rerun S1-R1](evidence/S1-R1.md), raw S1-06.json | Implementation agent | **CLOSED — parent accepted the `104195b` fix and S1-R1 on 2026-11-03. Agent did not self-close.** |
 
 ## 3. Accepted lower-severity issues
 

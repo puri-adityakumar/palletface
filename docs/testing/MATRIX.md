@@ -1,8 +1,8 @@
 # Release Qualification Matrix — dither-face 0.1.0
 
-**Baseline:** `test/release-qualification` at `3ca99d2`. **Latest run:** Stage 1 at `104195b` (Q-001 fix), provisional and parent review PENDING.
+**Baseline:** `test/release-qualification` at `3ca99d2`. **Latest run:** Stage 2 at `6cc38c2` (harness/fixtures only after product source `e3c5ead`), provisional and parent review PENDING. Parent accepted Stage 1 at `104195b` and closed Q-001 on 2026-11-03.
 
-**Status summary:** 80 scenarios — **8 parent-approved PASS (Stage 1 on `104195b`), 71 NOT RUN, 1 BLOCKED**. Parent accepted S1-R1 and closed Q-001 on 2026-11-03. Stage 1 row annotations below preserve the provisional submission; this approval supersedes their PENDING labels. `S8-09` remains a native Safari coverage limitation. Historical preview results are not counted here.
+**Status summary:** 80 scenarios — **8 parent-approved PASS (Stage 1), 8 provisional Stage 2 PASS, 63 NOT RUN, 1 BLOCKED**. Stage 2 rows are agent-observed provisional results and are not final PASS until parent disposition. `S8-09` remains a native Safari coverage limitation. Historical preview results are not counted here.
 
 **Severity if failed:** S0 = integrity/security/secrets/determinism/package/false-claim blocker; S1 = required functional, compatibility, accessibility, or agreed-performance blocker; S2/S3 = release owner written acceptance only. No agent may self-approve. Every row requires the evidence fields in section 2, including commit, tarball SHA-256, versions, exact command, expected/actual, artifact, severity, and parent approval.
 
@@ -12,27 +12,27 @@
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S1-01 | ESM entry import | Install actual tarball in empty Node 24 project; import package root; enumerate exports. | Import succeeds; documented named exports exist; no side effects or network. | S1 | PASS (provisional; parent PENDING) |
-| S1-02 | All eight renderers direct render | Call each documented renderer with fixed seeds (`alice`, `bob`, `用户`, empty); XML-parse output. | Non-empty well-formed SVG per renderer; documented structure; no throw. | S1 | PASS (provisional; parent PENDING) |
-| S1-03 | Default option equivalence | Compare ditherFace(seed), empty options, explicit sprite/80 defaults, and pixelSprite(seed,80). Test missing direct-renderer px separately. | Equivalent high-level defaults match; direct renderers reject missing px. | S1 | PASS (provisional; parent PENDING) |
-| S1-04 | Invalid options | Test invalid types, null, NaN/Infinity, unknown styles, zero/negative px; test fractional/tiny/large finite positive px. | Invalid inputs throw; unknown extra keys may be ignored; no undocumented upper size cap. | S1 | PASS (provisional; parent PENDING) |
-| S1-05 | Unicode and normalization | Seeds: ASCII, emoji, combining marks, CJK, RTL, whitespace-only, 10k chars; repeat twice. | Deterministic, safely escaped, no crash/hang; normalization matches documentation. | S1 | PASS (provisional; parent PENDING) |
-| S1-06 | Initials extraction | Names: Latin, CJK, Arabic, emoji, punctuation, single char, extra spaces; inspect rendered text. | Documented initials/letters; XML-escaped; deterministic. | S1 | PASS (provisional; parent PENDING) |
-| S1-07 | Strict TypeScript declarations | Strict consumer imports types/options; `tsc --noEmit` under declared module resolution. | Valid usage compiles; documented invalid usage errors; no missing declarations. | S1 | PASS (provisional; parent PENDING) |
-| S1-08 | SVG validity and safe markup | XML-parse every output; scan for `script`, `on*` handlers, `foreignObject`, external URLs. | Well-formed SVG; no executable content or external references. | S0 | PASS (provisional; parent PENDING) |
+| S1-01 | ESM entry import | Install actual tarball in empty Node 24 project; import package root; enumerate exports. | Import succeeds; documented named exports exist; no side effects or network. | S1 | PASS (parent accepted 2026-11-03) |
+| S1-02 | All eight renderers direct render | Call each documented renderer with fixed seeds (`alice`, `bob`, `用户`, empty); XML-parse output. | Non-empty well-formed SVG per renderer; documented structure; no throw. | S1 | PASS (parent accepted 2026-11-03) |
+| S1-03 | Default option equivalence | Compare ditherFace(seed), empty options, explicit sprite/80 defaults, and pixelSprite(seed,80). Test missing direct-renderer px separately. | Equivalent high-level defaults match; direct renderers reject missing px. | S1 | PASS (parent accepted 2026-11-03) |
+| S1-04 | Invalid options | Test invalid types, null, NaN/Infinity, unknown styles, zero/negative px; test fractional/tiny/large finite positive px. | Invalid inputs throw; unknown extra keys may be ignored; no undocumented upper size cap. | S1 | PASS (parent accepted 2026-11-03) |
+| S1-05 | Unicode and normalization | Seeds: ASCII, emoji, combining marks, CJK, RTL, whitespace-only, 10k chars; repeat twice. | Deterministic, safely escaped, no crash/hang; normalization matches documentation. | S1 | PASS (parent accepted 2026-11-03) |
+| S1-06 | Initials extraction | Names: Latin, CJK, Arabic, emoji, punctuation, single char, extra spaces; inspect rendered text. | Documented initials/letters; XML-escaped; deterministic. | S1 | PASS (parent accepted 2026-11-03) |
+| S1-07 | Strict TypeScript declarations | Strict consumer imports types/options; `tsc --noEmit` under declared module resolution. | Valid usage compiles; documented invalid usage errors; no missing declarations. | S1 | PASS (parent accepted 2026-11-03) |
+| S1-08 | SVG validity and safe markup | XML-parse every output; scan for `script`, `on*` handlers, `foreignObject`, external URLs. | Well-formed SVG; no executable content or external references. | S0 | PASS (parent accepted 2026-11-03) |
 
 ### Stage 2 — Determinism and embedding (DeepSeek V4.1 Flash 1017 max)
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S2-01 | In-process determinism | 100 repeated calls per renderer/seed/options; hash output bytes. | All hashes equal for identical inputs. | S0 | NOT RUN |
-| S2-02 | Fresh-process determinism | Three separate Node processes, same inputs; compare SHA-256. | Identical bytes/hashes across processes. | S0 | NOT RUN |
-| S2-03 | Cross-engine output | Compare raw output in Node/Chromium/Firefox/WebKit first; canonicalization is diagnostic only. | Sampled output agrees or discrepancies are reported, never hidden by normalization. | S1 | NOT RUN |
-| S2-04 | XML and Unicode embedding | XML-parse outputs for Unicode/RTL/emoji/control-character seeds. | Well-formed; invalid XML chars absent; safe escaping. | S1 | NOT RUN |
-| S2-05 | Mixed repeated IDs | Render 50 mixed/repeated avatars at different sizes/names; inspect definition equivalence. | Repeated IDs allowed for equivalent definitions; no conflicting geometry/gradients or incorrect rendering. | S1 | NOT RUN |
-| S2-06 | Inline data URL | Embed SVG as `data:image/svg+xml` in `img`/canvas; monitor requests. | Renders; no external requests; no script execution. | S1 | NOT RUN |
-| S2-07 | File and HTTP embedding | Save `.svg`, load via `file://`; serve over localhost HTTP and embed. | Both render; identical structure; no non-local network. | S1 | NOT RUN |
-| S2-08 | Pairwise options and invariance | Pairwise renderer/seed/name/px samples; interleave calls; compare fixed fixtures; remove only outer dimensions for size comparison. | Repeatable fixture-preserving output; px does not alter design, name does not alter seeded backgrounds. | S1 | NOT RUN |
+| S2-01 | In-process determinism | 100 repeated calls per renderer/seed/options; hash output bytes. | All hashes equal for identical inputs. | S0 | PASS (provisional; parent PENDING) |
+| S2-02 | Fresh-process determinism | Three separate Node processes, same inputs; compare SHA-256. | Identical bytes/hashes across processes. | S0 | PASS (provisional; parent PENDING) |
+| S2-03 | Cross-engine output | Compare raw output in Node/Chromium/Firefox/WebKit first; canonicalization is diagnostic only. | Sampled output agrees or discrepancies are reported, never hidden by normalization. | S1 | PASS (provisional; parent PENDING) |
+| S2-04 | XML and Unicode embedding | XML-parse outputs for Unicode/RTL/emoji/control-character seeds. | Well-formed; invalid XML chars absent; safe escaping. | S1 | PASS (provisional; parent PENDING) |
+| S2-05 | Mixed repeated IDs | Render 50 mixed/repeated avatars at different sizes/names; inspect definition equivalence. | Repeated IDs allowed for equivalent definitions; no conflicting geometry/gradients or incorrect rendering. | S1 | PASS (provisional; parent PENDING) |
+| S2-06 | Inline data URL | Embed SVG as `data:image/svg+xml` in `img`/canvas; monitor requests. | Renders; no external requests; no script execution. | S1 | PASS (provisional; parent PENDING) |
+| S2-07 | File and HTTP embedding | Save `.svg`, load via `file://`; serve over localhost HTTP and embed. | Both render; identical structure; no non-local network. | S1 | PASS (provisional; parent PENDING) |
+| S2-08 | Pairwise options and invariance | Pairwise renderer/seed/name/px samples; interleave calls; compare fixed fixtures; remove only outer dimensions for size comparison. | Repeatable fixture-preserving output; px does not alter design, name does not alter seeded backgrounds. | S1 | PASS (provisional; parent PENDING) |
 
 ### Stage 3 — Packaging and consumers (GLM-5.3 Flash high)
 

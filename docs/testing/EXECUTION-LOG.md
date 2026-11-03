@@ -27,3 +27,11 @@
 - Same unmodified harness and expected-results files; all eight scenarios provisional PASS (469 cases, 3,012 assertions, 0 failures). Complete unit suite 117/117.
 - New regression failed the old implementation (8 failed / 48 passed) in a disposable sandbox copy. Historical baseline fixture unchanged; ascii-letter preview migration old/new SHAs recorded.
 - Parent review **PENDING**; Q-001 remains open; sandbox left alive; no Stage 2 dispatch.
+
+## 2026-11-03 — Stage 2 executed (provisional)
+
+- Model: DeepSeek V4.1 Flash 1017 through OpenCode; dedicated sandbox `dither-face-q-s2-202611031706-f58c61` (`blaxel/ts-app:latest`, `us-pdx-1`, 4096 MB, default CPU, no volumes).
+- Product source unchanged at `e3c5ead`; qualification harness/fixtures committed through `6cc38c2`; tarball `dither-face-0.1.0.tgz` SHA-256 `ed4c359b1b023e9b68a584334faef914390372f5e589b8c28d569b6932c20021` (23,220 bytes), identical to the accepted Stage 1 artifact.
+- Final harness: 8/8 provisional PASS, 5,379 cases, 14,830 assertions, 0 failures, 0 integrity failures, 0 NOT RUN. Node 22.23.4/24.22.2 fresh processes, Chromium/Firefox/WebKit raw SVG parity, xmldom 0.9.12 adversarial XML, 82-instance repeated-ID analysis, data-URL/file/HTTP embedding, pairwise/size/name invariance.
+- Seven prior attempts in the same dedicated sandbox differed only in harness measurement/API defects (xmldom 0.9 `errorHandler`, capture box/background/font context, text-mask padding); all earlier evidence retained under `out/qualification/S2/run*/`. No source, site, dependency or product-output change was made.
+- Raw evidence retrieved (275 final-run files); sandbox left alive pending parent disposition. No push, PR, publish, deploy, DNS, or later stage. Parent disposition **PENDING**; no self-signoff or release claim.
