@@ -14,8 +14,8 @@
 | --- | --- | --- | --- | --- | --- |
 | S1-01 | ESM entry import | Install actual tarball in empty Node 24 project; import package root; enumerate exports. | Import succeeds; documented named exports exist; no side effects or network. | S1 | NOT RUN |
 | S1-02 | All eight renderers direct render | Call each documented renderer with fixed seeds (`alice`, `bob`, `用户`, empty); XML-parse output. | Non-empty well-formed SVG per renderer; documented structure; no throw. | S1 | NOT RUN |
-| S1-03 | Default option equivalence | Per renderer compare omitted options, `{}`, and documented explicit defaults byte-for-byte. | Identical output for equivalent defaults. | S1 | NOT RUN |
-| S1-04 | Invalid options | Pass null, arrays, wrong primitive types, NaN/Infinity, unknown keys, out-of-range values. | Documented throw or safe fallback; never malformed SVG or partial state. | S1 | NOT RUN |
+| S1-03 | Default option equivalence | Compare ditherFace(seed), empty options, explicit sprite/80 defaults, and pixelSprite(seed,80). Test missing direct-renderer px separately. | Equivalent high-level defaults match; direct renderers reject missing px. | S1 | NOT RUN |
+| S1-04 | Invalid options | Test invalid types, null, NaN/Infinity, unknown styles, zero/negative px; test fractional/tiny/large finite positive px. | Invalid inputs throw; unknown extra keys may be ignored; no undocumented upper size cap. | S1 | NOT RUN |
 | S1-05 | Unicode and normalization | Seeds: ASCII, emoji, combining marks, CJK, RTL, whitespace-only, 10k chars; repeat twice. | Deterministic, safely escaped, no crash/hang; normalization matches documentation. | S1 | NOT RUN |
 | S1-06 | Initials extraction | Names: Latin, CJK, Arabic, emoji, punctuation, single char, extra spaces; inspect rendered text. | Documented initials/letters; XML-escaped; deterministic. | S1 | NOT RUN |
 | S1-07 | Strict TypeScript declarations | Strict consumer imports types/options; `tsc --noEmit` under declared module resolution. | Valid usage compiles; documented invalid usage errors; no missing declarations. | S1 | NOT RUN |
@@ -27,12 +27,12 @@
 | --- | --- | --- | --- | --- | --- |
 | S2-01 | In-process determinism | 100 repeated calls per renderer/seed/options; hash output bytes. | All hashes equal for identical inputs. | S0 | NOT RUN |
 | S2-02 | Fresh-process determinism | Three separate Node processes, same inputs; compare SHA-256. | Identical bytes/hashes across processes. | S0 | NOT RUN |
-| S2-03 | Cross-engine output | Bundle and run Chromium, Firefox, WebKit, plus Node; compare canonical output. | Canonical output matches; any difference documented and assessed. | S1 | NOT RUN |
+| S2-03 | Cross-engine output | Compare raw output in Node/Chromium/Firefox/WebKit first; canonicalization is diagnostic only. | Sampled output agrees or discrepancies are reported, never hidden by normalization. | S1 | NOT RUN |
 | S2-04 | XML and Unicode embedding | XML-parse outputs for Unicode/RTL/emoji/control-character seeds. | Well-formed; invalid XML chars absent; safe escaping. | S1 | NOT RUN |
-| S2-05 | Mixed repeated IDs | Render 50 avatars in one HTML document; inspect IDs and URL references. | No duplicate conflicting IDs or cross-avatar references; each renders. | S1 | NOT RUN |
+| S2-05 | Mixed repeated IDs | Render 50 mixed/repeated avatars at different sizes/names; inspect definition equivalence. | Repeated IDs allowed for equivalent definitions; no conflicting geometry/gradients or incorrect rendering. | S1 | NOT RUN |
 | S2-06 | Inline data URL | Embed SVG as `data:image/svg+xml` in `img`/canvas; monitor requests. | Renders; no external requests; no script execution. | S1 | NOT RUN |
 | S2-07 | File and HTTP embedding | Save `.svg`, load via `file://`; serve over localhost HTTP and embed. | Both render; identical structure; no non-local network. | S1 | NOT RUN |
-| S2-08 | Pairwise option combinations | Pairwise sample renderer × seed class × options; repeat each twice. | Deterministic valid output for every sampled combination; no unexplained gaps. | S1 | NOT RUN |
+| S2-08 | Pairwise options and invariance | Pairwise renderer/seed/name/px samples; interleave calls; compare fixed fixtures; remove only outer dimensions for size comparison. | Repeatable fixture-preserving output; px does not alter design, name does not alter seeded backgrounds. | S1 | NOT RUN |
 
 ### Stage 3 — Packaging and consumers (GLM-5.3 Flash high)
 
@@ -63,11 +63,11 @@
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S5-01 | Next.js SSR | Next app renders avatar server-side; inspect returned HTML. | SVG present in SSR HTML; no client-only crash. | S1 | NOT RUN |
+| S5-01 | Next.js SSR | Inspect server HTML for inline SVG or decoded image data URL. | Expected SVG is present inline or encoded; no client-only crash. | S1 | NOT RUN |
 | S5-02 | Next production/hydration | Production build/start; browser console and hydration check. | No hydration mismatch/errors; avatar stable after hydration. | S1 | NOT RUN |
 | S5-03 | Vue client build | Vue 3 production build; browser render. | Renders; no console errors; output matches golden. | S1 | NOT RUN |
 | S5-04 | Svelte client build | Svelte production build; browser render. | Renders; no console errors; output matches golden. | S1 | NOT RUN |
-| S5-05 | Web Worker runtime | Worker imports bundle and renders; transfer result to page. | Works without DOM assumptions; deterministic output. | S1 | NOT RUN |
+| S5-05 | Cloudflare and browser Worker | Install tarball in local workerd/Miniflare SVG route; separately test browser Web Worker. | Both work without DOM/Node-specific assumptions; no deployment required. | S1 | NOT RUN |
 | S5-06 | Plain HTML offline | Plain HTML plus bundled asset via `file://` with network disabled. | Renders fully offline; no failed external requests. | S1 | NOT RUN |
 | S5-07 | Framework parity | Hash framework outputs against Node golden canonical form. | Match for tested fixtures or documented engine differences. | S1 | NOT RUN |
 
@@ -76,11 +76,11 @@
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
 | S6-01 | URL state restore | Load playground with valid seed/renderer/options parameters. | State restored; output matches requested configuration. | S1 | NOT RUN |
-| S6-02 | Back/forward history | Change controls; navigate back and forward repeatedly. | UI and output restore consistently; no stale state. | S1 | NOT RUN |
+| S6-02 | Back/forward history | Navigate distinct share URLs/history entries and back/forward; edit controls within an entry. | UI restores on navigation; replaceState edits need not create per-keystroke history entries. | S1 | NOT RUN |
 | S6-03 | Invalid parameters | Unknown renderer, wrong types, out-of-range, empty required values. | Documented fallback; no crash; URL normalized safely. | S1 | NOT RUN |
 | S6-04 | Duplicate parameters | Repeated keys in varying order. | Documented precedence applied consistently. | S1 | NOT RUN |
 | S6-05 | Malformed/encoded parameters | Malformed percent-encoding, very long values, injection payloads. | No crash/XSS; rejected or safely encoded; bounded work. | S0 | NOT RUN |
-| S6-06 | Rapid input | Rapid typing, slider, and renderer switches for 30 seconds. | Debounce/queue stable; final state matches last input; no runaway work. | S1 | NOT RUN |
+| S6-06 | Rapid input | Rapid typing, size selection, and style changes for 30 seconds. | Final state matches last input; no runaway work; no particular debounce/queue design required. | S1 | NOT RUN |
 | S6-07 | Copy and download | Copy snippet and download SVG; compare with displayed avatar. | Output matches displayed bytes; safe; failures explained. | S1 | NOT RUN |
 | S6-08 | Executable snippets | Execute generated snippets in a clean project; inspect for injection. | Snippets work or are clearly labelled; no script injection. | S0 | NOT RUN |
 | S6-09 | Asset failure | Block font/style/JS chunks in devtools; reload. | Graceful degradation with visible status; no blank page or infinite retry. | S2 | NOT RUN |

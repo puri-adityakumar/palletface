@@ -96,6 +96,8 @@ Severity:
 
 A stage with an open S0/S1 blocks progression. A stage may proceed with accepted S2/S3 only after written owner acceptance. Any source change invalidates prior PASS evidence for affected scenarios and requires a new revision and affected re-runs.
 
+Parent G0 review (2026-11-03): accepted with matrix corrections. Native Safari is a coverage limitation, not an observed defect: it prevents an unqualified Safari support claim, but does not halt unrelated Linux stages. Preserve agent-observed results separately from parent acceptance. Product baseline is 3ca99d2; execution must record actual current clean HEAD, including planning commits. Stage 5 includes both local Cloudflare workerd/Miniflare and browser Web Worker checks, not just one of them.
+
 ## 6. Performance and acceptance discipline
 
 Stage 9 measures a baseline first on the declared sandbox class. Budgets are agreed with the parent **before** PASS/FAIL acceptance. This plan intentionally states no numeric performance promises. Bundle-size and tree-shaking results are reported with the exact build command and measurement method. Memory/object-URL checks include cleanup and repeated-render observation. Throttled runs report device/CPU/network settings.
@@ -105,7 +107,7 @@ Stage 9 measures a baseline first on the declared sandbox class. Budgets are agr
 ```text
 Role: Stage 1 execution agent (implementation sub-agent)
 Model: GMI GLM-5.3 Flash high via OpenCode
-Baseline: test/release-qualification @ 3ca99d2, clean. Do not switch branches.
+Baseline: test/release-qualification at current clean HEAD; record full SHA. Product baseline 3ca99d2. Do not switch branches.
 Sandbox: one new dedicated Blaxel sandbox, explicitly allowed; 4 GB RAM, Node 24,
   Debian default; 30-minute active budget; request extension before expiry.
 Scope: matrix S1-01..S1-08 only — ESM import, all eight documented renderers,
