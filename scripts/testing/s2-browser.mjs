@@ -554,7 +554,7 @@ async function runS205(ctx, browsers, outRoot) {
     await fsp.writeFile(path.join(dir, `S2-05-matched-${engine}.json`), `${JSON.stringify({ engine, summary: summaries[engine], rows: engineRows, controls: engineControls }, null, 2)}\n`)
     ctx.note(id, `${engine}: ${engineRows.length} matched targets (${summaries[engine].stylesCovered} styles), ${acceptedRows.length} full-pixel equal, ${eligiblePixelsTotal} eligible pixels, ${differingPixelsTotal} differing`)
   }
-  ctx.note(id, `controls use the same compareFullPixels acceptance; ${Object.keys(controlsByEngine.chromium ?? {}).length} control groups per engine`)
+  ctx.note(id, `comparator controls use the same compareFullPixels acceptance; ${Object.keys(controlsByEngine.chromium ?? {}).length} groups in Chromium; Firefox/WebKit ran matched equality only`)
   await fsp.writeFile(path.join(dir, 'S2-05-matched.json'), `${JSON.stringify({ engines: summaries, rows: rowsByEngine, controls: controlsByEngine }, null, 2)}\n`)
   return {
     instances: instances.length,
