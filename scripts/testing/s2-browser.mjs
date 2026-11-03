@@ -170,7 +170,7 @@ async function runS203(ctx, browsers, outRoot) {
 }
 
 const MATCHED_VIEWPORT = { width: 2600, height: 2400 }
-const MATCHED_CSS = `*{box-sizing:border-box}html,body{margin:0;padding:0;background:transparent}
+const MATCHED_CSS = `*{box-sizing:border-box}html,body{margin:0;padding:0;background:#ffffff}
 body{font:10px/1.2 system-ui,sans-serif}
 .grid{display:grid;grid-template-columns:repeat(10,240px);gap:14px;padding:16px;align-items:start}
 .cell{display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -210,12 +210,7 @@ function integralClip(clip, px) {
 }
 
 async function captureClip(page, clip) {
-  return page.screenshot({
-    clip: { x: clip.x, y: clip.y, width: clip.width, height: clip.height },
-    omitBackground: true,
-    animations: 'disabled',
-    caret: 'hide',
-  })
+  return page.screenshot({ clip: { x: clip.x, y: clip.y, width: clip.width, height: clip.height } })
 }
 
 async function targetSnapshot(page, index) {
@@ -238,6 +233,7 @@ async function targetSnapshot(page, index) {
       return out
     }
     return {
+      missing: false,
       dpr: window.devicePixelRatio,
       scrollX: window.scrollX,
       scrollY: window.scrollY,
@@ -291,7 +287,7 @@ async function restoreOtherSvgs(page) {
   })
 }
 
-const CONTROL_CSS = `*{box-sizing:border-box}html,body{margin:0;padding:0;background:transparent}
+const CONTROL_CSS = `*{box-sizing:border-box}html,body{margin:0;padding:0;background:#ffffff}
 body{font:10px/1.2 system-ui,sans-serif}
 .slot{position:absolute;left:16px;top:16px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .slot svg{display:block;flex:0 0 auto}
@@ -359,13 +355,17 @@ async function runS205(ctx, browsers, outRoot) {
   const variants = controlVariants(instances, svgs)
   for (const engine of ENGINES) {
     const targetIndices = engine === 'chromium' ? instances.map((_instance, index) => index) : REPRESENTATIVE_ENGINE_INDICES
-    const { context, page } = await newPageFor(browsers[engine], { viewport: MATCHED_VIEWPORT })
     const engineRows = []
     const engineControls = {}
+    let context = null
+    let engineError = null
     try {
+      const created = await newPageFor(browsers[engine], { viewport: MATCHED_VIEWPORT })
+      context = created.context
+      const page = created.page
       await page.setContent(matchedGridHtml(instances, svgs))
       await settleRaster(page)
-      await fsp.writeFile(path.join(dir, 'matched', `${engine}-contact.png`), await page.screenshot({ omitBackground: true }))
+      await fsp.writeFile(path.join(dir, 'matched', `${engine}-contact.png`), await page.screenshot())
 
       const controlPage = await context.newPage()
       try {
@@ -517,8 +517,11 @@ async function runS205(ctx, browsers, outRoot) {
           targetGeometryAndFontUnchanged: JSON.stringify(after) === JSON.stringify(before),
         })
       }
+    } catch (error) {
+      engineError = error
+      ctx.block(id, `${engine}: matched-context measurement failed: ${error.message}`, { stack: error.stack })
     } finally {
-      await context.close()
+      if (context) await context.close()
     }
     rowsByEngine[engine] = engineRows
     controlsByEngine[engine] = engineControls
@@ -537,10 +540,12 @@ async function runS205(ctx, browsers, outRoot) {
       baselineUnstableTargets: engineRows.filter((row) => !row.baseline.accepted).length,
       isolatedUnstableTargets: engineRows.filter((row) => !row.isolatedStability.accepted).length,
       differingPixelsTotal,
+      error: engineError ? { message: engineError.message, stack: engineError.stack } : null,
     }
+    await fsp.writeFile(path.join(dir, `S2-05-matched-${engine}.json`), `${JSON.stringify({ engine, summary: summaries[engine], rows: engineRows, controls: engineControls }, null, 2)}\n`)
     ctx.note(id, `${engine}: ${engineRows.length} matched targets (${summaries[engine].stylesCovered} styles), ${acceptedRows.length} full-pixel equal, ${eligiblePixelsTotal} eligible pixels, ${differingPixelsTotal} differing`)
   }
-  ctx.note(id, `controls use the same compareFullPixels acceptance; ${Object.keys(controlsByEngine.chromium).length} control groups per engine`)
+  ctx.note(id, `controls use the same compareFullPixels acceptance; ${Object.keys(controlsByEngine.chromium ?? {}).length} control groups per engine`)
   await fsp.writeFile(path.join(dir, 'S2-05-matched.json'), `${JSON.stringify({ engines: summaries, rows: rowsByEngine, controls: controlsByEngine }, null, 2)}\n`)
   return {
     instances: instances.length,
