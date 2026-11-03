@@ -801,7 +801,7 @@ async function runNpmConsumers() {
   assert(id, npmTreeOnlyDitherFace(prodTree).only, 'npm production-only tree contains only dither-face', npmTreeOnlyDitherFace(prodTree))
   const renderProd = parseJsonText((await run(id, 'npm-render-prod', `npx -y node@${args.node24} .s3-render.mjs --golden ${sh(path.join(fixturesDir, 'fixtures', 'golden.json'))} --label npm-prod`, prod, {}, 600000)).stdout)
   assert(id, renderProd?.failures === 0 && deepEqual(renderProd?.cases?.map((entry) => entry.actualSha256), renderOnline?.cases?.map((entry) => entry.actualSha256)), 'npm production-only install renders the same eight hashes', renderProd?.cases)
-  pmResults.npm = { lockBefore, lockAfterOnline, lockAfterOffline, tree: npmTree, prodEntries, hashes: renderOnline?.cases, prodHashes: renderProd?.cases, installed, prodTree: npmTreeOnlyDitherFace(prodTree) }
+  pmResults.npm = { lockBefore, lockAfterOnline, lockAfterOffline, tree: npmTree, prodEntries, hashes: renderOnline?.cases, prodHashes: renderProd?.cases, installed, prodTree, prodTreeOnly: npmTreeOnlyDitherFace(prodTree) }
 }
 
 async function runPnpmConsumers() {
@@ -902,7 +902,7 @@ async function fillZeroDependencyScenario() {
   assert(id, String(packaged.devDependencies?.typescript ?? '').includes(args['ts-current']), 'TypeScript is metadata-only development tooling, not a runtime dependency', packaged.devDependencies?.typescript)
   assert(id, Boolean(packaged.devDependencies?.react) && !packaged.dependencies?.react, 'React appears only as a development dependency', { dev: packaged.devDependencies?.react ?? null, runtime: packaged.dependencies?.react ?? null })
 
-  const npmTree = npmTreeOnlyDitherFace(pmResults.npm?.prodTree ?? {})
+  const npmTree = pmResults.npm?.prodTreeOnly ?? { only: false, dependencyKeys: [], nested: [] }
   assert(id, npmTree.only, 'npm production-only tree contains only dither-face', npmTree)
   const npmProdEntries = pmResults.npm?.prodEntries ?? []
   assert(id, deepEqual(npmProdEntries, ['.package-lock.json', 'dither-face']), 'npm production-only install excludes consumer test tools and React', npmProdEntries)
