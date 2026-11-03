@@ -336,68 +336,80 @@ export function pngMetrics(buffer, PNG) {
 export function pixelBuffersEqual(a, b) {
   return a.length === b.length && Buffer.compare(a, b) === 0
 }
+
 /**
- * Compare two same-size captures. The circle clip antialias band is excluded
- * from the assertion by the caller using `interiorDifferingPixels` (2 px
- * margin); the full-image count and maximum channel delta are retained as
- * evidence, never discarded.
+ * Production acceptance for matched-context captures: every pixel in the
+ * captured target box is eligible and must match exactly. There is no mask,
+ * margin or normalization. The eligible-pixel fraction is reported so a
+ * caller can reject a vacuous comparison; for a full target box it is 1.
  */
-export function pixelDiff(bufferA, bufferB, PNG, expectedPx, textMask = null) {
+export function compareFullPixels(bufferA, bufferB, PNG) {
   const a = PNG.sync.read(bufferA)
   const b = PNG.sync.read(bufferB)
   if (a.width !== b.width || a.height !== b.height) {
-    return { dimensionsEqual: false, widthA: a.width, heightA: a.height, widthB: b.width, heightB: b.height, differingPixels: null, interiorDifferingPixels: null, maxChannelDelta: null, minDiffDistance: null, maxDiffDistance: null, exact: false }
+    return {
+      dimensionsEqual: false,
+      accepted: false,
+      widthA: a.width,
+      heightA: a.height,
+      widthB: b.width,
+      heightB: b.height,
+      totalPixels: null,
+      eligiblePixels: 0,
+      eligibleFraction: 0,
+      differingPixels: null,
+      affectedFraction: null,
+      maxChannelDelta: null,
+      meanChannelDeltaPerDifferingPixel: null,
+      firstDifference: null,
+      exact: false,
+    }
   }
   const width = a.width
   const height = a.height
-  const cx = width / 2
-  const cy = height / 2
-  const radius = Math.min(width, height) / 2
+  const totalPixels = width * height
   let differingPixels = 0
-  let interiorDifferingPixels = 0
-  let textDifferingPixels = 0
-  let nonTextDifferingPixels = 0
-  let interiorNonTextDifferingPixels = 0
   let maxChannelDelta = 0
-  let minDiffDistance = Number.POSITIVE_INFINITY
-  let maxDiffDistance = Number.NEGATIVE_INFINITY
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const i = (y * width + x) * 4
-      const delta = Math.max(
-        Math.abs(a.data[i] - b.data[i]),
-        Math.abs(a.data[i + 1] - b.data[i + 1]),
-        Math.abs(a.data[i + 2] - b.data[i + 2]),
-        Math.abs(a.data[i + 3] - b.data[i + 3]),
-      )
-      if (delta === 0) continue
-      differingPixels += 1
-      if (delta > maxChannelDelta) maxChannelDelta = delta
-      const distance = Math.hypot(x + 0.5 - cx, y + 0.5 - cy)
-      if (distance < minDiffDistance) minDiffDistance = distance
-      if (distance > maxDiffDistance) maxDiffDistance = distance
-      const inText = Boolean(textMask && textMask[y * width + x])
-      if (inText) textDifferingPixels += 1
-      else {
-        nonTextDifferingPixels += 1
-        if (distance <= radius - 2) interiorNonTextDifferingPixels += 1
+  let channelDeltaSum = 0
+  let firstDifference = null
+  for (let index = 0; index < a.data.length; index += 4) {
+    const delta = Math.max(
+      Math.abs(a.data[index] - b.data[index]),
+      Math.abs(a.data[index + 1] - b.data[index + 1]),
+      Math.abs(a.data[index + 2] - b.data[index + 2]),
+      Math.abs(a.data[index + 3] - b.data[index + 3]),
+    )
+    if (delta === 0) continue
+    differingPixels += 1
+    channelDeltaSum += delta
+    if (delta > maxChannelDelta) maxChannelDelta = delta
+    if (firstDifference === null) {
+      const pixel = index / 4
+      firstDifference = {
+        x: pixel % width,
+        y: Math.floor(pixel / width),
+        channelDeltas: [
+          Math.abs(a.data[index] - b.data[index]),
+          Math.abs(a.data[index + 1] - b.data[index + 1]),
+          Math.abs(a.data[index + 2] - b.data[index + 2]),
+          Math.abs(a.data[index + 3] - b.data[index + 3]),
+        ],
       }
-      if (distance <= radius - 2) interiorDifferingPixels += 1
     }
   }
   return {
     dimensionsEqual: true,
+    accepted: differingPixels === 0,
     width,
     height,
-    expectedPx,
+    totalPixels,
+    eligiblePixels: totalPixels,
+    eligibleFraction: totalPixels > 0 ? 1 : 0,
     differingPixels,
-    interiorDifferingPixels,
-    textDifferingPixels,
-    nonTextDifferingPixels,
-    interiorNonTextDifferingPixels,
+    affectedFraction: totalPixels > 0 ? differingPixels / totalPixels : 0,
     maxChannelDelta,
-    minDiffDistance: differingPixels ? minDiffDistance : null,
-    maxDiffDistance: differingPixels ? maxDiffDistance : null,
+    meanChannelDeltaPerDifferingPixel: differingPixels > 0 ? channelDeltaSum / differingPixels : 0,
+    firstDifference,
     exact: differingPixels === 0,
   }
 }

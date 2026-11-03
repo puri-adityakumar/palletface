@@ -15,12 +15,12 @@ import { pathToFileURL } from 'node:url'
 import {
   canonicalDiagnostic,
   canonicalElement,
+  compareFullPixels,
   corruptSingleByte,
   definitionAnalysis,
   elementsByName,
   parseSvg,
   pngMetrics,
-  pixelDiff,
   rawCompare,
   removeDefs,
   rootInfo,
@@ -67,32 +67,6 @@ function canvasProbeSource() {
     }
     return { loaded: true, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight, canvasWidth: canvas.width, canvasHeight: canvas.height, opaque, distinctColors: colors.size }
   }`
-}
-
-function buildTextMask(rects, px, pad = 3) {
-  const mask = new Uint8Array(px * px)
-  for (const rect of rects) {
-    const x0 = Math.max(0, Math.floor(rect.x) - pad)
-    const y0 = Math.max(0, Math.floor(rect.y) - pad)
-    const x1 = Math.min(px, Math.ceil(rect.x + rect.width) + pad)
-    const y1 = Math.min(px, Math.ceil(rect.y + rect.height) + pad)
-    for (let y = y0; y < y1; y++) {
-      for (let x = x0; x < x1; x++) mask[y * px + x] = 1
-    }
-  }
-  return mask
-}
-
-async function textRectsFor(page, selector) {
-  return page.evaluate((sel) => {
-    const svg = document.querySelector(sel)
-    if (!svg) return []
-    const base = svg.getBoundingClientRect()
-    return Array.from(svg.querySelectorAll('text')).map((text) => {
-      const rect = text.getBoundingClientRect()
-      return { x: rect.left - base.left, y: rect.top - base.top, width: rect.width, height: rect.height }
-    })
-  }, selector)
 }
 
 async function newPageFor(browser, options = {}) {
@@ -195,122 +169,390 @@ async function runS203(ctx, browsers, outRoot) {
   return { cases: cases.length, engines: engineRows }
 }
 
+const MATCHED_VIEWPORT = { width: 2600, height: 2400 }
+const MATCHED_CSS = `*{box-sizing:border-box}html,body{margin:0;padding:0;background:transparent}
+body{font:10px/1.2 system-ui,sans-serif}
+.grid{display:grid;grid-template-columns:repeat(10,240px);gap:14px;padding:16px;align-items:start}
+.cell{display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cell svg{display:block;flex:0 0 auto}`
+// Firefox/WebKit cover one target per style plus both exact repeats; the full
+// 82-instance corpus runs in Chromium.
+const REPRESENTATIVE_ENGINE_INDICES = [0, 10, 20, 30, 40, 50, 60, 70, 80, 81]
+
+function matchedGridHtml(instances, svgs) {
+  return `<!doctype html><html><head><meta charset="utf-8"><style>${MATCHED_CSS}</style></head><body><div class="grid" id="grid">${instances
+    .map((instance, index) => `<div class="cell" id="cell-${index}" style="width:${instance.px}px;height:${instance.px}px">${svgs[index]}</div>`)
+    .join('')}</div></body></html>`
+}
+
+async function settleRaster(page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+  })
+}
+
+async function cellClip(page, index) {
+  return page.evaluate((cellIndex) => {
+    const cell = document.getElementById(`cell-${cellIndex}`)
+    if (!cell) return { missing: true }
+    const rect = cell.getBoundingClientRect()
+    return { missing: false, x: rect.x, y: rect.y, width: rect.width, height: rect.height }
+  }, index)
+}
+
+function integralClip(clip, px) {
+  const values = [clip.x, clip.y, clip.width, clip.height]
+  if (values.some((value) => !Number.isFinite(value) || Math.abs(value - Math.round(value)) > 1e-9)) return null
+  const rounded = { x: Math.round(clip.x), y: Math.round(clip.y), width: Math.round(clip.width), height: Math.round(clip.height) }
+  if (rounded.width !== px || rounded.height !== px || rounded.width <= 0 || rounded.height <= 0) return null
+  return rounded
+}
+
+async function captureClip(page, clip) {
+  return page.screenshot({
+    clip: { x: clip.x, y: clip.y, width: clip.width, height: clip.height },
+    omitBackground: true,
+    animations: 'disabled',
+    caret: 'hide',
+  })
+}
+
+async function targetSnapshot(page, index) {
+  return page.evaluate((cellIndex) => {
+    const cell = document.getElementById(`cell-${cellIndex}`)
+    const svg = cell?.querySelector('svg')
+    if (!cell || !svg) return { missing: true }
+    const rect = (element) => {
+      const value = element.getBoundingClientRect()
+      return { x: value.x, y: value.y, width: value.width, height: value.height, top: value.top, left: value.left, right: value.right, bottom: value.bottom }
+    }
+    const styleOf = (element) => {
+      const style = getComputedStyle(element)
+      const out = {}
+      for (const key of [
+        'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'fontStretch', 'fontVariant',
+        'lineHeight', 'letterSpacing', 'wordSpacing', 'textRendering', 'textTransform',
+        'whiteSpace', 'direction', 'writingMode', 'color', 'opacity',
+      ]) out[key] = style[key]
+      return out
+    }
+    return {
+      dpr: window.devicePixelRatio,
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+      cell: rect(cell),
+      svg: rect(svg),
+      bodyStyle: styleOf(document.body),
+      cellStyle: styleOf(cell),
+      svgStyle: styleOf(svg),
+      texts: Array.from(svg.querySelectorAll('text')).map((text) => {
+        const style = getComputedStyle(text)
+        return {
+          rect: rect(text),
+          text: text.textContent,
+          fill: style.fill,
+          opacity: style.opacity,
+          fontFamily: style.fontFamily,
+          fontSize: style.fontSize,
+          fontWeight: style.fontWeight,
+          fontStyle: style.fontStyle,
+          textAnchor: style.textAnchor,
+          dominantBaseline: style.dominantBaseline,
+        }
+      }),
+    }
+  }, index)
+}
+
+async function removeOtherSvgs(page, keepIndex) {
+  return page.evaluate((cellIndex) => {
+    window.__s2RemovedSvgs = []
+    const grid = document.getElementById('grid')
+    for (const cell of Array.from(grid.children)) {
+      if (cell.id === `cell-${cellIndex}`) continue
+      const svg = cell.querySelector('svg')
+      if (!svg) continue
+      const parent = svg.parentNode
+      const next = svg.nextSibling
+      parent.removeChild(svg)
+      window.__s2RemovedSvgs.push({ parent, next, svg })
+    }
+    return window.__s2RemovedSvgs.length
+  }, keepIndex)
+}
+
+async function restoreOtherSvgs(page) {
+  return page.evaluate(() => {
+    const removed = window.__s2RemovedSvgs ?? []
+    for (const entry of removed) entry.parent.insertBefore(entry.svg, entry.next)
+    window.__s2RemovedSvgs = []
+    return removed.length
+  })
+}
+
+const CONTROL_CSS = `*{box-sizing:border-box}html,body{margin:0;padding:0;background:transparent}
+body{font:10px/1.2 system-ui,sans-serif}
+.slot{position:absolute;left:16px;top:16px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.slot svg{display:block;flex:0 0 auto}
+.grid{display:grid;grid-template-columns:repeat(10,240px);gap:14px;padding:16px;align-items:start}
+.cell{display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cell svg{display:block;flex:0 0 auto}`
+
+async function captureDisposable(page, svg, px) {
+  await page.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>${CONTROL_CSS}</style></head><body><div class="slot" style="width:${px}px;height:${px}px">${svg}</div></body></html>`)
+  await settleRaster(page)
+  const clip = { x: 16, y: 16, width: px, height: px }
+  return { buffer: await captureClip(page, clip), clip }
+}
+
+function mutateOnce(svg, pattern, replacement, label) {
+  if (!pattern.test(svg)) throw new Error(`control mutation ${label}: pattern not found`)
+  const mutated = svg.replace(pattern, replacement)
+  if (mutated === svg) throw new Error(`control mutation ${label}: no byte changed`)
+  return mutated
+}
+
+function controlVariants(instances, svgs) {
+  const byStyle = (style) => {
+    const index = instances.findIndex((instance) => instance.style === style)
+    if (index < 0) throw new Error(`control style missing: ${style}`)
+    return { index, instance: instances[index], svg: svgs[index] }
+  }
+  const ascii = byStyle('ascii-letter')
+  const field = byStyle('ascii-field')
+  const sprite = byStyle('pixel-sprite')
+  return {
+    ascii,
+    field,
+    sprite,
+    clipGeometry: mutateOnce(ascii.svg, /(<clipPath[^>]*><circle[^>]*\br=")([^"]+)(")/, (_match, before, radius, after) => `${before}${Number(radius) / 2}${after}`, 'clip-geometry'),
+    gradientStop: mutateOnce(field.svg, /(<stop offset="0" stop-color=")(#[0-9a-fA-F]{6})(")/, (_match, before, color, after) => `${before}${color.toLowerCase() === '#101010' ? '#f0f0f0' : '#101010'}${after}`, 'gradient-stop'),
+    flatColor: mutateOnce(sprite.svg, /(fill=")(#[0-9a-fA-F]{6})(")/, (_match, before, color, after) => `${before}${color.toLowerCase() === '#010203' ? '#f4f0e8' : '#010203'}${after}`, 'flat-color'),
+    // The central (4.5,4.5) cell carries the ASCII initial and is inside the
+    // circular clip, so a glyph or opacity change is guaranteed to be painted.
+    textGlyph: mutateOnce(ascii.svg, /(<text x="4\.5" y="4\.5"[^>]*>)([^<])(<\/text>)/, (_match, before, glyph, after) => `${before}${glyph === 'Z' ? 'Y' : 'Z'}${after}`, 'text-glyph'),
+    textOpacity: mutateOnce(ascii.svg, /<text x="4\.5" y="4\.5"/, '<text x="4.5" y="4.5" opacity="0.5"', 'text-opacity'),
+  }
+}
+
+function pollutionSvg(targetSvg) {
+  return mutateOnce(
+    targetSvg,
+    /<clipPath([^>]*)><circle[^>]*\/><\/clipPath>/,
+    '<clipPath$1><rect x="0" y="0" width="18" height="4"/></clipPath>',
+    'pollution-clip',
+  )
+}
+
 async function runS205(ctx, browsers, outRoot) {
   const id = 'S2-05'
-  const browser = browsers.chromium
   const instances = ctx.mixedInstances
   const svgs = ctx.mixedSvgs
   const dir = path.join(outRoot, 'S2-05')
-  await fsp.mkdir(path.join(dir, 'inline'), { recursive: true })
-  await fsp.mkdir(path.join(dir, 'isolated'), { recursive: true })
+  await fsp.mkdir(path.join(dir, 'matched'), { recursive: true })
+  await fsp.mkdir(path.join(dir, 'controls'), { recursive: true })
 
-  const inlineHtml = `<!doctype html><html><head><meta charset="utf-8"><style>
-    *{box-sizing:border-box} body{margin:0;background:transparent;font:10px system-ui,sans-serif}
-    .grid{display:grid;grid-template-columns:repeat(10,var(--col));gap:14px;padding:16px;align-items:start}
-    .cell{display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .cell svg{display:block;flex:0 0 auto}
-  </style></head><body><div class="grid" id="grid"></div></body></html>`
-  const { context: inlineContext, page: inlinePage } = await newPageFor(browser, { viewport: { width: 1600, height: 1200 } })
-  const { context: isolatedContext, page: isolatedPage } = await newPageFor(browser, { viewport: { width: 500, height: 500 } })
-  const rows = []
-  try {
-    await inlinePage.setContent(inlineHtml)
-    await inlinePage.evaluate(({ items, rendered }) => {
-      const grid = document.getElementById('grid')
-      grid.style.setProperty('--col', '240px')
-      grid.innerHTML = items.map((item, index) =>
-        `<div class="cell" id="cell-${index}" style="width:${item.px}px;height:${item.px}px">${rendered[index]}</div>`,
-      ).join('')
-    }, { items: instances, rendered: svgs })
-    await inlinePage.evaluate(() => document.fonts.ready.then(() => true))
-    const inlineSheet = await inlinePage.screenshot({ fullPage: true })
-    await fsp.writeFile(path.join(dir, 'inline-contact.png'), inlineSheet)
+  const rowsByEngine = {}
+  const controlsByEngine = {}
+  const summaries = {}
+  const variants = controlVariants(instances, svgs)
+  for (const engine of ENGINES) {
+    const targetIndices = engine === 'chromium' ? instances.map((_instance, index) => index) : REPRESENTATIVE_ENGINE_INDICES
+    const { context, page } = await newPageFor(browsers[engine], { viewport: MATCHED_VIEWPORT })
+    const engineRows = []
+    const engineControls = {}
+    try {
+      await page.setContent(matchedGridHtml(instances, svgs))
+      await settleRaster(page)
+      await fsp.writeFile(path.join(dir, 'matched', `${engine}-contact.png`), await page.screenshot({ omitBackground: true }))
 
-    for (let index = 0; index < instances.length; index += 1) {
-      const instance = instances[index]
-      const expectedKey = ctx.caseKey(instance)
-      const inlineTextRects = await textRectsFor(inlinePage, `#cell-${index} svg`)
-      const inlineBuffer = await inlinePage.locator(`#cell-${index} svg`).screenshot({ omitBackground: true })
-      await fsp.writeFile(path.join(dir, 'inline', `${String(index).padStart(3, '0')}.png`), inlineBuffer)
+      const controlPage = await context.newPage()
+      try {
+        const positiveA = await captureDisposable(controlPage, variants.ascii.svg, variants.ascii.instance.px)
+        const positiveB = await captureDisposable(controlPage, variants.ascii.svg, variants.ascii.instance.px)
+        const positive = compareFullPixels(positiveA.buffer, positiveB.buffer, ctx.PNG)
+        addBrowserCase(ctx, id)
+        ctx.assert(id, positive.accepted && positive.eligibleFraction === 1, `${engine} positive control: identical disposable documents compare pixel-identical over every eligible pixel`, { positive })
+        await fsp.writeFile(path.join(dir, 'controls', `${engine}-positive-original-a.png`), positiveA.buffer)
+        await fsp.writeFile(path.join(dir, 'controls', `${engine}-positive-original-b.png`), positiveB.buffer)
+        engineControls.positiveIdentical = positive
 
-      await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent;font:10px system-ui,sans-serif}.wrap{display:block}</style></head><body><div class="wrap" id="solo" style="width:${instance.px}px;height:${instance.px}px">${svgs[index]}</div></body></html>`)
-      await isolatedPage.evaluate(() => document.fonts.ready.then(() => true))
-      const isolatedTextRects = await textRectsFor(isolatedPage, '#solo svg')
-      const isolatedBuffer = await isolatedPage.locator('#solo svg').screenshot({ omitBackground: true })
-      await fsp.writeFile(path.join(dir, 'isolated', `${String(index).padStart(3, '0')}.png`), isolatedBuffer)
+        const corruptionControls = [
+          { name: 'clip-geometry', px: variants.ascii.instance.px, original: variants.ascii.svg, corrupted: variants.clipGeometry },
+          { name: 'gradient-stop', px: variants.field.instance.px, original: variants.field.svg, corrupted: variants.gradientStop },
+          { name: 'flat-color', px: variants.sprite.instance.px, original: variants.sprite.svg, corrupted: variants.flatColor },
+          { name: 'text-glyph-ascii', px: variants.ascii.instance.px, original: variants.ascii.svg, corrupted: variants.textGlyph },
+          { name: 'text-opacity-ascii', px: variants.ascii.instance.px, original: variants.ascii.svg, corrupted: variants.textOpacity },
+        ]
+        for (const control of corruptionControls) {
+          const original = await captureDisposable(controlPage, control.original, control.px)
+          const corrupted = await captureDisposable(controlPage, control.corrupted, control.px)
+          const metrics = compareFullPixels(original.buffer, corrupted.buffer, ctx.PNG)
+          addBrowserCase(ctx, id)
+          ctx.assert(id, metrics.dimensionsEqual && metrics.eligibleFraction === 1 && metrics.eligiblePixels === control.px * control.px, `${engine} control ${control.name}: every pixel of the target box is eligible`, { metrics, control: control.name })
+          addBrowserCase(ctx, id)
+          ctx.assert(id, !metrics.accepted, `${engine} control ${control.name}: the production full-pixel comparator rejects the corruption`, { metrics, control: control.name })
+          negativeControl(`S2-05-${engine}-${control.name}`, { accepted: metrics.accepted, eligibleFraction: metrics.eligibleFraction, differingPixels: metrics.differingPixels, maxChannelDelta: metrics.maxChannelDelta })
+          await fsp.writeFile(path.join(dir, 'controls', `${engine}-${control.name}-original.png`), original.buffer)
+          await fsp.writeFile(path.join(dir, 'controls', `${engine}-${control.name}-corrupted.png`), corrupted.buffer)
+          engineControls[control.name] = metrics
+        }
 
-      const inlineMetrics = pngMetrics(inlineBuffer, ctx.PNG)
-      const isolatedMetrics = pngMetrics(isolatedBuffer, ctx.PNG)
-      addBrowserCase(ctx, id)
-      ctx.assert(id, inlineMetrics.width === instance.px && inlineMetrics.height === instance.px, `instance ${index}: inline capture dimensions equal px`, { instance, inlineMetrics })
-      ctx.assert(id, isolatedMetrics.width === instance.px && isolatedMetrics.height === instance.px, `instance ${index}: isolated capture dimensions equal px`, { instance, isolatedMetrics })
-      ctx.assert(id, inlineMetrics.opaquePixels > 0 && isolatedMetrics.opaquePixels > 0, `instance ${index}: both captures nonblank`, { inlineMetrics, isolatedMetrics })
-      ctx.assert(id, inlineMetrics.distinctColors >= 3 && isolatedMetrics.distinctColors >= 3, `instance ${index}: both captures have multiple colors`, { inlineMetrics, isolatedMetrics })
-      const textMask = buildTextMask([...inlineTextRects, ...isolatedTextRects], instance.px)
-      const textMaskPixels = textMask.reduce((sum, value) => sum + value, 0)
-      const diff = pixelDiff(inlineBuffer, isolatedBuffer, ctx.PNG, instance.px, textMask)
-      addBrowserCase(ctx, id)
-      ctx.assert(id, diff.dimensionsEqual && diff.width === instance.px && diff.height === instance.px, `instance ${index}: capture dimensions match`, { instance, diff })
-      addBrowserCase(ctx, id)
-      ctx.assert(id, diff.interiorNonTextDifferingPixels === 0, `instance ${index}: non-text interior pixels equal isolated capture (no cross-document clip/gradient pollution)`, {
-        instance, expectedKey,
-        inlinePixelSha256: inlineMetrics.pixelSha256,
-        isolatedPixelSha256: isolatedMetrics.pixelSha256,
-        diff,
-        textMaskPixels,
-        inlineTextCount: inlineTextRects.length,
-        isolatedTextCount: isolatedTextRects.length,
-        inlineMetrics,
-        isolatedMetrics,
-      })
-      rows.push({
-        index,
-        style: instance.style,
-        seed: instance.seed,
-        name: instance.name,
-        px: instance.px,
-        inlineMetrics,
-        isolatedMetrics,
-        fullImageExact: diff.exact,
-        textMaskPixels,
-        diff,
-      })
+        // Conflicting duplicate-ID control measured through the same
+        // populated-vs-sibling-removed acceptance path as the real corpus.
+        const pollution = pollutionSvg(variants.ascii.svg)
+        const controlAnalysis = definitionAnalysis([
+          { label: 'control-target', doc: parseSvg(ctx.DOMParserCtor, variants.ascii.svg).doc },
+          { label: 'control-sibling', doc: parseSvg(ctx.DOMParserCtor, pollution).doc },
+        ])
+        addBrowserCase(ctx, id)
+        ctx.assert(id, controlAnalysis.conflicts.length > 0, `${engine} control conflicting-id: definition analysis rejects the differing duplicate ID`, { controlAnalysis })
+        const px = variants.ascii.instance.px
+        await controlPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>${CONTROL_CSS}</style></head><body><div class="grid" id="grid"><div class="cell" id="cell-0" style="width:${px}px;height:${px}px">${pollution}</div><div class="cell" id="cell-1" style="width:${px}px;height:${px}px">${variants.ascii.svg}</div></div></body></html>`)
+        await settleRaster(controlPage)
+        const rawClip = await cellClip(controlPage, 1)
+        const clip = integralClip(rawClip, px)
+        addBrowserCase(ctx, id)
+        ctx.assert(id, clip !== null, `${engine} control conflicting-id: target box is at integral coordinates`, { rawClip, px })
+        if (clip) {
+          const present = await captureClip(controlPage, clip)
+          await removeOtherSvgs(controlPage, 1)
+          await settleRaster(controlPage)
+          const afterRawClip = await cellClip(controlPage, 1)
+          addBrowserCase(ctx, id)
+          ctx.assert(id, JSON.stringify(integralClip(afterRawClip, px)) === JSON.stringify(clip), `${engine} control conflicting-id: sibling removal does not move the target`, { before: clip, after: afterRawClip })
+          const isolated = await captureClip(controlPage, clip)
+          await restoreOtherSvgs(controlPage)
+          const metrics = compareFullPixels(present, isolated, ctx.PNG)
+          addBrowserCase(ctx, id)
+          ctx.assert(id, metrics.dimensionsEqual && metrics.eligibleFraction === 1, `${engine} control conflicting-id: every pixel is eligible`, { metrics })
+          addBrowserCase(ctx, id)
+          ctx.assert(id, !metrics.accepted, `${engine} control conflicting-id: the production comparator rejects sibling ID pollution`, { metrics })
+          negativeControl(`S2-05-${engine}-conflicting-id`, { accepted: metrics.accepted, eligibleFraction: metrics.eligibleFraction, differingPixels: metrics.differingPixels, maxChannelDelta: metrics.maxChannelDelta })
+          await fsp.writeFile(path.join(dir, 'controls', `${engine}-conflicting-id-present.png`), present)
+          await fsp.writeFile(path.join(dir, 'controls', `${engine}-conflicting-id-isolated.png`), isolated)
+          engineControls.conflictingId = { analysis: controlAnalysis, metrics }
+        }
+      } finally {
+        await controlPage.close()
+      }
+
+      for (const index of targetIndices) {
+        const instance = instances[index]
+        const expectedKey = ctx.caseKey(instance)
+        const rawClip = await cellClip(page, index)
+        const clip = integralClip(rawClip, instance.px)
+        addBrowserCase(ctx, id)
+        ctx.assert(id, clip !== null, `${engine} instance ${index}: target box is at integral screen coordinates with deviceScaleFactor 1`, { rawClip, instance })
+        if (!clip) continue
+        const before = await targetSnapshot(page, index)
+        addBrowserCase(ctx, id)
+        ctx.assert(id, before.missing === false && before.dpr === 1 && before.scrollX === 0 && before.scrollY === 0, `${engine} instance ${index}: target snapshot is present at deviceScaleFactor 1 with no scroll offset`, { before })
+        const populatedA = await captureClip(page, clip)
+        await settleRaster(page)
+        const populatedB = await captureClip(page, clip)
+        const baseline = compareFullPixels(populatedA, populatedB, ctx.PNG)
+        const removed = await removeOtherSvgs(page, index)
+        await settleRaster(page)
+        const afterRawClip = await cellClip(page, index)
+        const after = await targetSnapshot(page, index)
+        const afterClip = integralClip(afterRawClip, instance.px)
+        addBrowserCase(ctx, id)
+        ctx.assert(id, removed === instances.length - 1, `${engine} instance ${index}: every other avatar SVG is removed while every cell wrapper remains`, { removed, expected: instances.length - 1 })
+        addBrowserCase(ctx, id)
+        ctx.assert(id, JSON.stringify(afterClip) === JSON.stringify(clip), `${engine} instance ${index}: target clip coordinates are unchanged by sibling removal`, { before: clip, after: afterClip })
+        addBrowserCase(ctx, id)
+        ctx.assert(id, JSON.stringify(after) === JSON.stringify(before), `${engine} instance ${index}: target bounding box and computed font environment are unchanged by sibling removal`, { before, after })
+        const isolatedA = await captureClip(page, clip)
+        await settleRaster(page)
+        const isolatedB = await captureClip(page, clip)
+        const isolatedStability = compareFullPixels(isolatedA, isolatedB, ctx.PNG)
+        const restored = await restoreOtherSvgs(page)
+        await settleRaster(page)
+        const restoredSnapshot = await targetSnapshot(page, index)
+        addBrowserCase(ctx, id)
+        ctx.assert(id, restored === removed, `${engine} instance ${index}: removed sibling SVGs are restored`, { restored, removed })
+        addBrowserCase(ctx, id)
+        ctx.assert(id, JSON.stringify(restoredSnapshot) === JSON.stringify(before), `${engine} instance ${index}: target geometry/font environment is unchanged after restoration`, { before, restoredSnapshot })
+        const acceptance = compareFullPixels(populatedA, isolatedA, ctx.PNG)
+        addBrowserCase(ctx, id)
+        ctx.assert(id, acceptance.dimensionsEqual && acceptance.eligibleFraction === 1 && acceptance.eligiblePixels === instance.px * instance.px, `${engine} instance ${index}: full target box (${instance.px * instance.px} pixels) is eligible; no mask`, { instance, acceptance })
+        if (!baseline.accepted || !isolatedStability.accepted) {
+          ctx.block(id, `${engine} instance ${index}: repeated captures are not pixel-identical, so full-pixel isolation equality is not measurable`, { instance, baseline, isolatedStability })
+        } else {
+          addBrowserCase(ctx, id)
+          ctx.assert(id, acceptance.accepted, `${engine} instance ${index}: full target raster equals the sibling-removed render over every eligible pixel`, {
+            instance,
+            expectedKey,
+            populatedSha256: pngMetrics(populatedA, ctx.PNG).pixelSha256,
+            isolatedSha256: pngMetrics(isolatedA, ctx.PNG).pixelSha256,
+            baseline,
+            isolatedStability,
+            acceptance,
+            before,
+          })
+        }
+        const stem = `${engine}-${String(index).padStart(3, '0')}`
+        await fsp.writeFile(path.join(dir, 'matched', `${stem}-populated-a.png`), populatedA)
+        await fsp.writeFile(path.join(dir, 'matched', `${stem}-populated-b.png`), populatedB)
+        await fsp.writeFile(path.join(dir, 'matched', `${stem}-isolated-a.png`), isolatedA)
+        await fsp.writeFile(path.join(dir, 'matched', `${stem}-isolated-b.png`), isolatedB)
+        engineRows.push({
+          engine,
+          index,
+          style: instance.style,
+          seed: instance.seed,
+          name: instance.name,
+          px: instance.px,
+          clip,
+          populatedSha256: pngMetrics(populatedA, ctx.PNG).pixelSha256,
+          populatedRepeatSha256: pngMetrics(populatedB, ctx.PNG).pixelSha256,
+          isolatedSha256: pngMetrics(isolatedA, ctx.PNG).pixelSha256,
+          isolatedRepeatSha256: pngMetrics(isolatedB, ctx.PNG).pixelSha256,
+          baseline,
+          isolatedStability,
+          acceptance,
+          fullImageExact: acceptance.accepted,
+          targetGeometryAndFontUnchanged: JSON.stringify(after) === JSON.stringify(before),
+        })
+      }
+    } finally {
+      await context.close()
     }
-
-    // Negative control: two inline SVGs share one ID with different definitions.
-    const controlA = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 10 10"><defs><clipPath id="s2-dup-clip"><circle cx="5" cy="5" r="5"/></clipPath></defs><g clip-path="url(#s2-dup-clip)"><rect width="10" height="10" fill="#e8553e"/></g></svg>'
-    const controlB = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 10 10"><defs><clipPath id="s2-dup-clip"><rect x="0" y="0" width="10" height="4"/></clipPath></defs><g clip-path="url(#s2-dup-clip)"><rect width="10" height="10" fill="#62d96b"/></g></svg>'
-    const controlAnalysis = definitionAnalysis([
-      { label: 'control-a', doc: parseSvg(ctx.DOMParserCtor, controlA).doc },
-      { label: 'control-b', doc: parseSvg(ctx.DOMParserCtor, controlB).doc },
-    ])
-    addBrowserCase(ctx, id)
-    ctx.assert(id, controlAnalysis.conflicts.length > 0, 'negative control: conflicting duplicate-ID definitions are rejected by the definition analysis', { controlAnalysis })
-
-    await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent;font:10px system-ui,sans-serif}.wrap{display:block}</style></head><body><div class="wrap" id="solo-b" style="width:120px;height:120px">${controlB}</div></body></html>`)
-    const controlIsolated = await isolatedPage.locator('#solo-b svg').screenshot({ omitBackground: true })
-    await inlinePage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent;font:10px system-ui,sans-serif}.wrap{display:inline-block}</style></head><body><div class="wrap">${controlA}</div><div class="wrap" id="inline-b">${controlB}</div></body></html>`)
-    const controlInline = await inlinePage.locator('#inline-b svg').screenshot({ omitBackground: true })
-    const controlDiff = pixelDiff(controlInline, controlIsolated, ctx.PNG, 120)
-    addBrowserCase(ctx, id)
-    ctx.assert(id, controlDiff.interiorDifferingPixels > 0, 'negative control: conflicting-ID inline pollution is detected by the interior-pixel comparison', { controlDiff })
-    ctx.note(id, `crafted conflicting-ID inline-vs-isolated full-image differing pixels=${controlDiff.differingPixels}, interior differing=${controlDiff.interiorDifferingPixels}, max channel delta=${controlDiff.maxChannelDelta}`)
-    await fsp.writeFile(path.join(dir, 'control-conflict-inline.png'), controlInline)
-    await fsp.writeFile(path.join(dir, 'control-conflict-isolated.png'), controlIsolated)
-    return {
-      instances: instances.length,
-      duplicateIds: ctx.definitionAnalysis.duplicateIds,
-      conflicts: ctx.definitionAnalysis.conflicts,
-      withinDocumentConflicts: ctx.definitionAnalysis.withinDocumentConflicts,
-      definitionCount: ctx.definitionAnalysis.definitionCount,
-      idCount: ctx.definitionAnalysis.idCount,
-      rows,
-      control: { analysis: controlAnalysis, diff: controlDiff },
-      inlineContact: path.join(dir, 'inline-contact.png'),
+    rowsByEngine[engine] = engineRows
+    controlsByEngine[engine] = engineControls
+    const acceptedRows = engineRows.filter((row) => row.acceptance?.accepted)
+    const eligiblePixelsTotal = engineRows.reduce((sum, row) => sum + (row.acceptance?.eligiblePixels ?? 0), 0)
+    const differingPixelsTotal = engineRows.reduce((sum, row) => sum + (row.acceptance?.differingPixels ?? 0), 0)
+    summaries[engine] = {
+      browserVersion: await browsers[engine].version(),
+      targetIndices,
+      targetCount: engineRows.length,
+      stylesCovered: new Set(engineRows.map((row) => row.style)).size,
+      eligiblePixelsTotal,
+      eligibleFractionMinimum: engineRows.length ? Math.min(...engineRows.map((row) => row.acceptance?.eligibleFraction ?? 0)) : 0,
+      acceptedTargets: acceptedRows.length,
+      rejectedTargets: engineRows.length - acceptedRows.length,
+      baselineUnstableTargets: engineRows.filter((row) => !row.baseline.accepted).length,
+      isolatedUnstableTargets: engineRows.filter((row) => !row.isolatedStability.accepted).length,
+      differingPixelsTotal,
     }
-  } finally {
-    await inlineContext.close()
-    await isolatedContext.close()
+    ctx.note(id, `${engine}: ${engineRows.length} matched targets (${summaries[engine].stylesCovered} styles), ${acceptedRows.length} full-pixel equal, ${eligiblePixelsTotal} eligible pixels, ${differingPixelsTotal} differing`)
+  }
+  ctx.note(id, `controls use the same compareFullPixels acceptance; ${Object.keys(controlsByEngine.chromium).length} control groups per engine`)
+  await fsp.writeFile(path.join(dir, 'S2-05-matched.json'), `${JSON.stringify({ engines: summaries, rows: rowsByEngine, controls: controlsByEngine }, null, 2)}\n`)
+  return {
+    instances: instances.length,
+    duplicateIds: ctx.definitionAnalysis.duplicateIds,
+    conflicts: ctx.definitionAnalysis.conflicts,
+    withinDocumentConflicts: ctx.definitionAnalysis.withinDocumentConflicts,
+    definitionCount: ctx.definitionAnalysis.definitionCount,
+    idCount: ctx.definitionAnalysis.idCount,
+    engines: summaries,
+    rows: rowsByEngine,
+    controls: controlsByEngine,
+    matchedFile: path.join(dir, 'S2-05-matched.json'),
   }
 }
 

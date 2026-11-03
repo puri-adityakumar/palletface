@@ -133,6 +133,7 @@ for (const id of IDS) {
     cases: 0,
     assertions: 0,
     failures: [],
+    blocked: [],
     notes: [],
     durationMs: 0,
   }
@@ -170,6 +171,10 @@ function assert(id, condition, message, detail) {
 }
 function addCase(id, count = 1) {
   scenario(id).cases += count
+}
+function blockScenario(id, message, detail) {
+  const entry = scenario(id)
+  entry.blocked.push({ message, detail: normaliseDetail(detail) })
 }
 function note(id, message) {
   scenario(id).notes.push(message)
@@ -882,6 +887,7 @@ async function main() {
     transportSamples,
     assert,
     addCase,
+    block: blockScenario,
     note,
   }
   const browserObs = await runBrowserScenarios(browserCases)
@@ -896,8 +902,9 @@ async function main() {
 
   for (const id of IDS) {
     const entry = results.scenarios[id]
-    if (entry.cases === 0 || entry.assertions === 0) entry.status = 'NOT RUN'
-    else if (entry.failures.length > 0) entry.status = 'FAIL'
+    if (entry.failures.length > 0) entry.status = 'FAIL'
+    else if (entry.blocked.length > 0) entry.status = 'BLOCKED'
+    else if (entry.cases === 0 || entry.assertions === 0) entry.status = 'NOT RUN'
     else entry.status = 'PASS'
   }
   results.finishedAt = new Date().toISOString()
@@ -905,15 +912,17 @@ async function main() {
     scenarios: IDS.length,
     pass: IDS.filter((id) => results.scenarios[id].status === 'PASS').length,
     fail: IDS.filter((id) => results.scenarios[id].status === 'FAIL').length,
+    blocked: IDS.filter((id) => results.scenarios[id].status === 'BLOCKED').length,
     notRun: IDS.filter((id) => results.scenarios[id].status === 'NOT RUN').length,
     cases: IDS.reduce((sum, id) => sum + results.scenarios[id].cases, 0),
     assertions: IDS.reduce((sum, id) => sum + results.scenarios[id].assertions, 0),
     failures: IDS.reduce((sum, id) => sum + results.scenarios[id].failures.length, 0),
+    blockedEntries: IDS.reduce((sum, id) => sum + results.scenarios[id].blocked.length, 0),
   }
   for (const id of IDS) await writeJson(path.join(perIdDir, `${id}.json`), results.scenarios[id])
   await writeJson(path.join(outDir, 'environment.json'), results.environment)
   await writeJson(path.join(outDir, 'results.json'), results)
-  const failed = results.integrityFailures.length > 0 || results.totals.fail > 0 || results.totals.notRun > 0
+  const failed = results.integrityFailures.length > 0 || results.totals.fail > 0 || results.totals.blocked > 0 || results.totals.notRun > 0
   if (failed) process.exitCode = 1
   console.log(json({ totals: results.totals, integrityFailures: results.integrityFailures, tarballSha256: results.tarball.sha256, browserBundleSha256: results.browserBundle.sha256 }))
 }

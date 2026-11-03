@@ -2,14 +2,24 @@
   "stage": "S2",
   "productBaselineCommit": "e3c5ead",
   "createdBeforeExecution": "2026-11-03",
-  "note": "Written before the Stage 2 harness ran. Expected status is PASS for every assigned scenario. Any observed FAIL, BLOCKED or NOT RUN is a provisional agent result that requires parent review; this file is not self-signoff and makes no release claim. S2-03 expects raw string equality; canonicalization may be recorded as a diagnostic but can never convert a raw mismatch into PASS. Font rasterization is not promised to match across platforms, so S2-03/S2-07 evaluate generated SVG structure/bytes and nonblank rendering, not identical font pixels.",
-  "criterionRevision": {
-    "date": "2026-11-03",
-    "scenario": "S2-05",
-    "reason": "The initial strict full-image byte comparison was measured during harness development. The same SVG rendered inline in a multi-avatar page versus isolated in its own document produced (a) 0-45 differing pixels confined to the circular clip-edge antialias band for pixel styles, and (b) glyph-area differences for the three ASCII styles because inline SVG text and standalone-SVG text rasterize differently in the same engine and fonts. Definition analysis found zero conflicts. The product requirement (no cross-ID/cross-style pollution) is unchanged. The final criterion asserts every non-text interior pixel exactly, records every full-image/text-mask/non-text difference, and requires the crafted conflicting-ID control to fail the non-text interior comparison. No difference is hidden or normalized away.",
-    "originalExpectedSha256": "190f46c0b4d6e3d62a1e1bfec12ef93e8b58d1a9680fcd3a51233ccbb57ac89b",
-    "originalExpectedSha256Note": "Recorded by the three pre-final runs; only the S2-05 criterion wording changed, all expected statuses remained PASS."
-  },
+  "note": "Written before the Stage 2 harness ran. Expected status is PASS for every assigned scenario. Any observed FAIL, BLOCKED or NOT RUN is a provisional agent result that requires parent review; this file is not self-signoff and makes no release claim. S2-03 expects raw string equality; canonicalization may be recorded as a diagnostic but can never convert a raw mismatch into PASS. S2-05-R1 requires full-pixel equality of a matched-context target box with no text/edge mask; raster nondeterminism is reported as BLOCKED, never masked.",
+  "criterionRevision": [
+    {
+      "date": "2026-11-03",
+      "scenario": "S2-05",
+      "revision": "original",
+      "reason": "The initial strict full-image byte comparison was measured during harness development. The same SVG rendered inline in a multi-avatar page versus isolated in its own document produced (a) 0-45 differing pixels confined to the circular clip-edge antialias band for pixel styles, and (b) glyph-area differences for the three ASCII styles because inline SVG text and standalone-SVG text rasterize differently in the same engine and fonts. Definition analysis found zero conflicts. The product requirement (no cross-ID/cross-style pollution) is unchanged. The final criterion asserted every non-text interior pixel exactly, recorded every full-image/text-mask/non-text difference, and required the crafted conflicting-ID control to fail the non-text interior comparison. No difference was hidden or normalized away.",
+      "originalExpectedSha256": "190f46c0b4d6e3d62a1e1bfec12ef93e8b58d1a9680fcd3a51233ccbb57ac89b",
+      "originalExpectedSha256Note": "Recorded by the three pre-final runs; only the S2-05 criterion wording changed, all expected statuses remained PASS."
+    },
+    {
+      "date": "2026-11-03",
+      "scenario": "S2-05",
+      "revision": "S2-05-R1",
+      "reason": "Parent returned the prior S2-05 measurement: text and clip-edge exclusions were widened after raster mismatches, and the crafted control did not use the real masked acceptance function. The measurement is replaced, not the product or threshold: each target is captured in the same page, same HTML/CSS cell, same integral screen coordinates, deviceScaleFactor 1 and inherited font environment, once with all 82 mixed avatars present and once after removing only the other SVG elements while retaining every cell wrapper and changing no ancestor style. Target element/text bounding boxes and computed font properties must be identical across states. The full target box, every eligible pixel including text glyphs and clip edges, must match exactly; there is no mask and eligibleFraction is recorded (1.0 for a full box). Two captures of each state quantify raster stability; instability is BLOCKED/FAIL with metrics, never masked. Negative controls (clip geometry, gradient stop, flat color, ASCII text glyph, ASCII text opacity, and conflicting duplicate-ID pollution) are rejected by the exact same compareFullPixels acceptance function in separate disposable documents. Chromium runs all 82 instances; Firefox and WebKit run one target per style plus both exact repeats at the same matched coordinates.",
+      "previousExpectedSha256": "33ba6bb8aa4a5e013594150f411a0b5ea55daa7a94f55c7287292f5e41f2eba6"
+    }
+  ],
   "expectations": {
     "S2-01": {
       "title": "In-process determinism",
@@ -39,7 +49,7 @@
       "title": "Mixed repeated IDs",
       "severity": "S1",
       "expectedStatus": "PASS",
-      "expected": "At least 50 mixed/repeated avatars with different sizes and names: duplicate IDs are present and permitted only when every definition for that ID is byte-equivalent; no same-ID conflicting geometry/gradient definition exists. Chromium inline-vs-isolated element captures with the same engine and fonts are pixel-identical in the non-text avatar interior (2 px inside the circular clip and outside measured <text> boxes with 3 px antialias padding), so clip/ID/gradient resolution is not polluted across styles. Full-image, text-mask and non-text differences are counted and reported; any non-text difference inside the clip fails. A crafted conflicting-ID negative control must be detected by the definition analysis and by the non-text interior comparison."
+      "expected": "At least 50 mixed/repeated avatars with different sizes and names: duplicate IDs are present and permitted only when every definition for that ID is byte-equivalent; no same-ID conflicting geometry/gradient definition exists. Each target is compared in the exact same HTML/CSS cell on the same page, at the same integral screen coordinates, deviceScaleFactor 1 and inherited font environment: first with all other mixed avatars present, then after removing only the other SVG elements while retaining every cell wrapper and changing no ancestor style. Target element/text bounding boxes and computed font properties must be identical in both states. The full target raster, every eligible pixel including text glyphs and clip edges, must be pixel-identical; eligibleFraction is recorded and must be 1.0 (no text or edge mask). Two captures per state quantify raster stability; any nondeterministic residual is reported as BLOCKED/FAIL rather than masked. Chromium covers all 82 instances; Firefox and WebKit cover one target per style plus both exact repeats at the same coordinates. Negative controls corrupt clip geometry, a gradient stop, a flat color, ASCII text glyph and ASCII text opacity in separate disposable documents, plus a conflicting duplicate-ID pollution document; the exact same full-pixel acceptance function must reject each. Definition analysis independently requires byte-equivalent definitions for every repeated ID."
     },
     "S2-06": {
       "title": "Inline data URL",
