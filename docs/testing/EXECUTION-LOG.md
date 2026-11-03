@@ -15,6 +15,11 @@
 - Parent confirmed Q-001 by inspecting source, comparison logic, and raw scenario evidence. Stage FAIL; seven other scenarios passed on the tested revision only.
 - Next permitted work is a targeted implementation fix and complete Stage 1 recheck in a new sandbox. No Stage 2 dispatch until this blocker is resolved.
 
+## 2026-11-03 — Stage 1 recheck accepted
+
+- Parent accepted S1-R1 on `104195b`: 8/8 scenarios, 469 cases, 3,012 assertions, no failures; unit suite 117/117. Regression fails the old implementation. Harness/expectation files unchanged.
+- Q-001 closed. Retrieved artifact hashes verified locally. Dedicated recheck sandbox authorized for deletion. Stage 2 now authorized in its own fresh sandbox.
+
 ## 2026-11-03 — Stage 1 Q-001 fix rerun (provisional)
 
 - Fix commit `104195b`: `ascii-letter` consumes one dot decision per grid cell before glyph overlay.

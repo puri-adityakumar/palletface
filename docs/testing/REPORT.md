@@ -1,6 +1,6 @@
 # Release Qualification Report — dither-face 0.1.0
 
-**Status:** DRAFT — **8 of 80 scenarios executed provisionally** (Stage 1 rerun after the Q-001 fix). Parent review is **PENDING**; no final PASS claims. Q-001 remains open until parent verification.
+**Status:** DRAFT — **8 of 80 scenarios approved PASS** on product revision `104195b`. Parent accepted S1-R1 and closed Q-001 on 2026-11-03 after inspecting the fix, regression/oracle logic and retrieved artifact hashes. Remaining stages are not qualified. The provisional submission details below are historical and superseded by this parent disposition; no overall release approval is implied.
 
 **Baseline:** `test/release-qualification` at `3ca99d2`; Stage 1 fix revision `104195b`. Full plan: [PLAN.md](PLAN.md). Scenario matrix: [MATRIX.md](MATRIX.md). Findings: [FINDINGS.md](FINDINGS.md).
 

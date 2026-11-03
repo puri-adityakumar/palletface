@@ -1,6 +1,6 @@
 # Qualification Findings — dither-face 0.1.0
 
-**Status:** OPEN — **1 confirmed finding**, fix implemented and awaiting parent verification. Stage 1 rerun is provisional; later stages remain gated.
+**Status:** No open findings. **Q-001 CLOSED by parent review, 2026-11-03**: targeted fix and complete Stage 1 recheck accepted on product revision `104195b`; 8/8 scenarios PASS. The original finding and provisional agent submission below are retained for audit, superseded by this disposition.
 
 **Baseline:** `test/release-qualification` at `3ca99d2`; original S1 run at `7637956`; targeted fix at `104195b`.
 

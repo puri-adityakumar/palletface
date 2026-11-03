@@ -2,7 +2,7 @@
 
 **Baseline:** `test/release-qualification` at `3ca99d2`. **Latest run:** Stage 1 at `104195b` (Q-001 fix), provisional and parent review PENDING.
 
-**Status summary:** 80 scenarios — **8 provisional PASS (Stage 1; parent approval PENDING), 71 NOT RUN, 1 BLOCKED, 0 RUNNING, 0 current FAIL**. Stage 1 provisional PASS results are not final until parent review; Q-001's historical failure is fixed pending review. `S8-09` is BLOCKED because native Safari/macOS is unavailable. Historical 114 unit / 38 browser results from [VERIFICATION.md](../VERIFICATION.md) are **not** qualification rows and are not counted here.
+**Status summary:** 80 scenarios — **8 parent-approved PASS (Stage 1 on `104195b`), 71 NOT RUN, 1 BLOCKED**. Parent accepted S1-R1 and closed Q-001 on 2026-11-03. Stage 1 row annotations below preserve the provisional submission; this approval supersedes their PENDING labels. `S8-09` remains a native Safari coverage limitation. Historical preview results are not counted here.
 
 **Severity if failed:** S0 = integrity/security/secrets/determinism/package/false-claim blocker; S1 = required functional, compatibility, accessibility, or agreed-performance blocker; S2/S3 = release owner written acceptance only. No agent may self-approve. Every row requires the evidence fields in section 2, including commit, tarball SHA-256, versions, exact command, expected/actual, artifact, severity, and parent approval.
 
