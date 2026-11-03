@@ -1,5 +1,11 @@
 # Qualification execution log
 
+## 2026-11-04 — Stage 3 clean recheck accepted
+
+- Parent approved S3-R1 after checking raw hashes and a single non-resumed 98-second run: 8 scenarios, 68 cases, 319 assertions, no failures; all five controls detected.
+- Frozen tarball unchanged. Evidence retrieved; sandbox authorized for deletion.
+- 24/80 scenarios approved overall. Independent Stage 4 continues; Stage 5 may execute concurrently on the same frozen artifact with separate ownership/sandbox.
+
 ## 2026-11-04 — Stage 3 returned; independent tracks permitted
 
 - Stage 3 provisional evidence is retained but not approved: resumed cross-revision results and earlier overlapping processes require a clean full rerun.
