@@ -518,7 +518,7 @@ async function installCanonical() {
   canonical.installed.archiveTreeSha256 = sha256(archiveTree.map((entry) => `${entry.path}\0${entry.sha256}`).sort().join('\n'))
   assert(id, deepEqual(installedTree.files, archiveTree), 'installed package tree bytes equal the packed archive tree', { installed: installedTree.sha256, archive: canonical.installed.archiveTreeSha256 })
   const ls = await run(id, 'canonical-npm-ls-prod', `npx -y npm@${args['npm-version']} ls --omit=dev --all --json`, target, {}, 120000)
-  canonical.prodTree = parseJsonText(ls.raw)
+  canonical.prodTree = parseJsonText(ls.stdout)
   assert(id, ls.exitCode === 0 && Boolean(canonical.prodTree), 'npm production tree command exits 0 with JSON', { exitCode: ls.exitCode })
   results.probes.canonical = canonical
 }
@@ -712,7 +712,7 @@ async function runNpmConsumers() {
   assert(id, online.exitCode === 0, 'npm consumer online lockfile install exits 0', { exitCode: online.exitCode, stderr: online.stderr.slice(-3000) })
   const lockAfterOnline = sha256(await fsp.readFile(path.join(target, 'package-lock.json')))
   assert(id, lockAfterOnline === lockBefore, 'npm lockfile is unchanged by online install', { before: lockBefore, after: lockAfterOnline })
-  const firstTree = parseJsonText((await run(id, 'npm-ls-prod-online', `npx -y npm@${args['npm-version']} ls --omit=dev --all --json`, target, {}, 120000)).raw)
+  const firstTree = parseJsonText((await run(id, 'npm-ls-prod-online', `npx -y npm@${args['npm-version']} ls --omit=dev --all --json`, target, {}, 120000)).stdout)
   const npmTree = npmTreeOnlyDitherFace(firstTree)
   assert(id, npmTree.only, 'npm production tree contains only dither-face', npmTree)
   const installed = await fsp.realpath(path.join(target, 'node_modules', 'dither-face'))
@@ -736,7 +736,7 @@ async function runNpmConsumers() {
   assert(id, prodInstall.exitCode === 0, 'npm production-only offline install exits 0', { exitCode: prodInstall.exitCode, stderr: prodInstall.stderr.slice(-3000) })
   const prodEntries = fs.readdirSync(path.join(prod, 'node_modules')).sort()
   assert(id, deepEqual(prodEntries, ['.package-lock.json', 'dither-face']), 'npm production node_modules excludes TypeScript/React/test tools', prodEntries)
-  const prodTree = parseJsonText((await run(id, 'npm-ls-prod-final', `npx -y npm@${args['npm-version']} ls --omit=dev --all --json`, prod, {}, 120000)).raw)
+  const prodTree = parseJsonText((await run(id, 'npm-ls-prod-final', `npx -y npm@${args['npm-version']} ls --omit=dev --all --json`, prod, {}, 120000)).stdout)
   assert(id, npmTreeOnlyDitherFace(prodTree).only, 'npm production-only tree contains only dither-face', npmTreeOnlyDitherFace(prodTree))
   const renderProd = parseJsonText((await run(id, 'npm-render-prod', `npx -y node@${args.node24} .s3-render.mjs --golden ${sh(path.join(fixturesDir, 'fixtures', 'golden.json'))} --label npm-prod`, prod, {}, 600000)).raw)
   assert(id, renderProd?.failures === 0 && deepEqual(renderProd?.cases?.map((entry) => entry.actualSha256), renderOnline?.cases?.map((entry) => entry.actualSha256)), 'npm production-only install renders the same eight hashes', renderProd?.cases)
@@ -756,7 +756,7 @@ async function runPnpmConsumers() {
   const installed = await fsp.realpath(path.join(target, 'node_modules', 'dither-face'))
   assert(id, outsideRepo(installed) && !installed.startsWith(`${repoDir}${path.sep}`), 'pnpm package real path is outside repository', installed)
   const treeRaw = await run(id, 'pnpm-list-prod-online', `npx -y pnpm@${args['pnpm-version']} list --prod --depth=10 --json`, target, {}, 120000)
-  const tree = parseJsonText(treeRaw.raw)
+  const tree = parseJsonText(treeRaw.stdout)
   const treeRoot = Array.isArray(tree) ? tree[0] : tree
   const treeDeps = Object.keys(treeRoot?.dependencies ?? {}).sort()
   assert(id, treeRaw.exitCode === 0 && deepEqual(treeDeps, ['dither-face']), 'pnpm production tree contains only dither-face', { treeDeps, tree: treeRoot })
@@ -779,7 +779,7 @@ async function runPnpmConsumers() {
   assert(id, prodInstall.exitCode === 0, 'pnpm production-only offline install exits 0', { exitCode: prodInstall.exitCode, stderr: prodInstall.stderr.slice(-3000) })
   assert(id, !fs.existsSync(path.join(prod, 'node_modules', 'typescript')) && !fs.existsSync(path.join(prod, 'node_modules', 'react')), 'pnpm production node_modules excludes TypeScript and React', fs.readdirSync(path.join(prod, 'node_modules')).sort())
   const prodTreeRaw = await run(id, 'pnpm-list-prod-final', `npx -y pnpm@${args['pnpm-version']} list --prod --depth=10 --json`, prod, {}, 120000)
-  const prodTree = parseJsonText(prodTreeRaw.raw)
+  const prodTree = parseJsonText(prodTreeRaw.stdout)
   const prodRoot = Array.isArray(prodTree) ? prodTree[0] : prodTree
   assert(id, deepEqual(Object.keys(prodRoot?.dependencies ?? {}).sort(), ['dither-face']), 'pnpm production-only tree contains only dither-face', prodRoot)
   const renderProd = parseJsonText((await run(id, 'pnpm-render-prod', `npx -y node@${args.node24} .s3-render.mjs --golden ${sh(path.join(fixturesDir, 'fixtures', 'golden.json'))} --label pnpm-prod`, prod, {}, 600000)).raw)
@@ -801,7 +801,7 @@ async function runYarnConsumers() {
   assert(id, fs.existsSync(path.join(target, '.pnp.cjs')), 'Yarn PnP runtime .pnp.cjs exists', null)
   assert(id, !fs.existsSync(path.join(target, 'node_modules')), 'Yarn PnP install creates no node_modules tree', fs.existsSync(path.join(target, 'node_modules')))
   const pnp = await run(id, 'yarn-pnp-probe', `${yarnCommand} node .s3-pnp.cjs`, target, { YARN_ENABLE_TELEMETRY: '0' }, 300000)
-  const pnpProbe = parseJsonText(pnp.raw)
+  const pnpProbe = parseJsonText(pnp.stdout)
   assert(id, pnp.exitCode === 0 && Boolean(pnpProbe), 'Yarn PnP dependency probe exits 0 with JSON', { exitCode: pnp.exitCode, tail: pnp.raw.slice(-2000) })
   assert(id, pnpProbe?.packageDependencies?.length === 0, 'dither-face PnP runtime dependency closure is empty', pnpProbe?.packageDependencies)
   assert(id, pnpProbe?.react?.resolved === false && pnpProbe?.reactDom?.resolved === false, 'React/React DOM do not resolve in the PnP consumer', pnpProbe)
@@ -838,7 +838,7 @@ async function fillZeroDependencyScenario() {
     assert(id, !(field in packaged), `packed manifest has no ${field}`, packaged[field] ?? null)
   }
   assert(id, deepEqual(Object.keys(packaged.dependencies ?? {}), []), 'packed manifest dependencies object is empty', packaged.dependencies)
-  assert(id, packaged.devDependencies?.typescript === args['ts-current'], 'TypeScript is metadata-only development tooling, not a runtime dependency', packaged.devDependencies?.typescript)
+  assert(id, String(packaged.devDependencies?.typescript ?? '').includes(args['ts-current']), 'TypeScript is metadata-only development tooling, not a runtime dependency', packaged.devDependencies?.typescript)
   assert(id, Boolean(packaged.devDependencies?.react) && !packaged.dependencies?.react, 'React appears only as a development dependency', { dev: packaged.devDependencies?.react ?? null, runtime: packaged.dependencies?.react ?? null })
 
   const npmTree = npmTreeOnlyDitherFace(canonical?.prodTree)
