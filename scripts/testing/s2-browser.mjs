@@ -206,7 +206,7 @@ async function runS205(ctx, browsers, outRoot) {
       const inlineBuffer = await inlinePage.locator(`#cell-${index} svg`).screenshot({ omitBackground: true })
       await fsp.writeFile(path.join(dir, 'inline', `${String(index).padStart(3, '0')}.png`), inlineBuffer)
 
-      await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}.wrap{display:block;line-height:0;font-size:0}</style></head><body><div class="wrap" id="solo" style="width:${instance.px}px;height:${instance.px}px">${svgs[index]}</div></body></html>`)
+      await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent;font:10px system-ui,sans-serif}.wrap{display:block}</style></head><body><div class="wrap" id="solo" style="width:${instance.px}px;height:${instance.px}px">${svgs[index]}</div></body></html>`)
       await isolatedPage.evaluate(() => document.fonts.ready.then(() => true))
       const isolatedBuffer = await isolatedPage.locator('#solo svg').screenshot({ omitBackground: true })
       await fsp.writeFile(path.join(dir, 'isolated', `${String(index).padStart(3, '0')}.png`), isolatedBuffer)
@@ -253,9 +253,9 @@ async function runS205(ctx, browsers, outRoot) {
     addBrowserCase(ctx, id)
     ctx.assert(id, controlAnalysis.conflicts.length > 0, 'negative control: conflicting duplicate-ID definitions are rejected by the definition analysis', { controlAnalysis })
 
-    await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}.wrap{display:block;line-height:0;font-size:0}</style></head><body><div class="wrap" id="solo-b" style="width:120px;height:120px">${controlB}</div></body></html>`)
+    await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent;font:10px system-ui,sans-serif}.wrap{display:block}</style></head><body><div class="wrap" id="solo-b" style="width:120px;height:120px">${controlB}</div></body></html>`)
     const controlIsolated = await isolatedPage.locator('#solo-b svg').screenshot({ omitBackground: true })
-    await inlinePage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}.wrap{display:inline-block}</style></head><body><div class="wrap">${controlA}</div><div class="wrap" id="inline-b">${controlB}</div></body></html>`)
+    await inlinePage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent;font:10px system-ui,sans-serif}.wrap{display:inline-block}</style></head><body><div class="wrap">${controlA}</div><div class="wrap" id="inline-b">${controlB}</div></body></html>`)
     const controlInline = await inlinePage.locator('#inline-b svg').screenshot({ omitBackground: true })
     const controlDiff = pixelDiff(controlInline, controlIsolated, ctx.PNG, 120)
     addBrowserCase(ctx, id)
