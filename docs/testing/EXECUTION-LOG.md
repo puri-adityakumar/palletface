@@ -1,5 +1,11 @@
 # Qualification execution log
 
+## 2026-11-04 — Stage 5 accepted
+
+- Parent accepted seven framework/runtime scenarios: 54 cases, 455 assertions, no failures. Final fresh attempt only; 72 raw parity comparisons and controls verified, limitations recorded.
+- Results/archive hashes verified. Three retained task sandboxes authorized for deletion; fixture commits integrated. 38/80 scenarios approved overall.
+- Stage 6 continues. Stage 7 security/privacy authorized concurrently, separate ownership/worktree/sandbox, frozen product and sandbox-only workloads.
+
 ## 2026-11-04 — Stage 4 accepted
 
 - Parent approved independent Node/TS/vanilla-Vite/React-Vite consumer qualification: 7 scenarios, 750 assertions, no failures; Chromium+Firefox dev/production parity and real package resolution verified.
