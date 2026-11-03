@@ -1,0 +1,45 @@
+{
+  "stage": "S3",
+  "createdBeforeExecution": "2026-11-03",
+  "note": "Expected runtime value exports of the public package root, derived from the reviewed dist declarations and docs/API.md. Type-only exports are checked by TypeScript instead.",
+  "runtimeValueExports": [
+    "BAYER",
+    "DEEP",
+    "FONT",
+    "GRID",
+    "INK",
+    "MONO",
+    "ORB_POOL",
+    "PAPER",
+    "PASTEL",
+    "STYLES",
+    "asciiFace",
+    "asciiField",
+    "asciiGrid",
+    "asciiLetter",
+    "disc",
+    "ditherFace",
+    "ditherOrb",
+    "esc",
+    "fnv1a",
+    "glyph",
+    "initialOf",
+    "mulberry32",
+    "pixelLandscape",
+    "pixelLetter",
+    "pixelSprite",
+    "pixelifyLetter",
+    "rect"
+  ],
+  "unsupportedDeepImports": [
+    "dither-face/dist/index.js",
+    "dither-face/dist/seed.js",
+    "dither-face/dist/styles/pixel-sprite.js",
+    "dither-face/package.json",
+    "dither-face/README.md"
+  ],
+  "unsupportedDeepRequires": [
+    "dither-face/dist/index.js",
+    "dither-face/package.json"
+  ]
+}

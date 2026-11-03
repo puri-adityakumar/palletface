@@ -1,0 +1,89 @@
+{
+  "stage": "S3",
+  "package": "dither-face",
+  "version": "0.1.0",
+  "expectedTarballSha256": "ed4c359b1b023e9b68a584334faef914390372f5e589b8c28d569b6932c20021",
+  "expectedGzipBytes": 23220,
+  "createdBeforeExecution": "2026-11-03",
+  "note": "Exact allowlist for the real npm package. There are no optional entries and no pattern-only acceptance: every archive path must equal one entry, every entry must exist, and archive order is not significant. Root metadata is limited to package.json, README.md and LICENSE.",
+  "files": [
+    "package/LICENSE",
+    "package/README.md",
+    "package/package.json",
+    "package/dist/dither-face.js",
+    "package/dist/font.d.ts",
+    "package/dist/font.js",
+    "package/dist/grid.d.ts",
+    "package/dist/grid.js",
+    "package/dist/index.d.ts",
+    "package/dist/index.js",
+    "package/dist/palettes.d.ts",
+    "package/dist/palettes.js",
+    "package/dist/seed.d.ts",
+    "package/dist/seed.js",
+    "package/dist/styles/ascii-face.d.ts",
+    "package/dist/styles/ascii-face.js",
+    "package/dist/styles/ascii-field.d.ts",
+    "package/dist/styles/ascii-field.js",
+    "package/dist/styles/ascii-letter.d.ts",
+    "package/dist/styles/ascii-letter.js",
+    "package/dist/styles/dither-orb.d.ts",
+    "package/dist/styles/dither-orb.js",
+    "package/dist/styles/pixel-landscape.d.ts",
+    "package/dist/styles/pixel-landscape.js",
+    "package/dist/styles/pixel-letter.d.ts",
+    "package/dist/styles/pixel-letter.js",
+    "package/dist/styles/pixel-sprite.d.ts",
+    "package/dist/styles/pixel-sprite.js",
+    "package/dist/styles/pixelify-letter.d.ts",
+    "package/dist/styles/pixelify-letter.js",
+    "package/dist/validation.d.ts",
+    "package/dist/validation.js"
+  ],
+  "required": [
+    "package/package.json",
+    "package/README.md",
+    "package/LICENSE",
+    "package/dist/index.js",
+    "package/dist/index.d.ts",
+    "package/dist/dither-face.js"
+  ],
+  "forbiddenPatterns": [
+    "^package/(?:src|test|tests|scripts|site|playground|docs|examples|coverage|out|out-sheet|node_modules|\\.[^/]+)(?:/|$)",
+    "(?<!\\.d)\\.(?:ts|tsx|mjs|cjs|map|log|tgz|tar|gz|env|pem|key|p12|backup|bak)$",
+    "(?:^|/)\\.(?:env|git|npmrc|yarnrc|pnp\\.cjs|DS_Store)",
+    "sourceMappingURL",
+    "PRIVATE KEY",
+    "BEGIN RSA",
+    "BEGIN OPENSSH",
+    "npm_[A-Za-z0-9]{36}",
+    "ghp_[A-Za-z0-9]{36}",
+    "AKIA[0-9A-Z]{16}"
+  ],
+  "metadata": {
+    "name": "dither-face",
+    "version": "0.1.0",
+    "license": "MIT",
+    "type": "module",
+    "enginesNode": ">=22",
+    "sideEffects": false,
+    "files": [
+      "dist"
+    ],
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "runtimeDependencyFieldsAbsent": [
+      "dependencies",
+      "optionalDependencies",
+      "peerDependencies",
+      "bundledDependencies",
+      "bundleDependencies"
+    ]
+  }
+}

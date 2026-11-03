@@ -1,0 +1,14 @@
+{
+  "name": "dither-face-s3-yarn-consumer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Stage 3 independent Yarn modern PnP consumer. The tarball is copied in; there is no repository path, alias, workspace or symlink.",
+  "packageManager": "yarn@4.18.1",
+  "dependencies": {
+    "dither-face": "file:./dither-face-0.1.0.tgz"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}
