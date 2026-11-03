@@ -1218,8 +1218,32 @@ async function runPhaseTest() {
     s505.case('workerd health and globals')
     s505.assert(healthResponse.status === 200, 'workerd health returns 200', { status: healthResponse.status })
     s505.assert(health.ok === true && health.runtime === 'workerd', 'workerd runtime reports itself', { health })
-    s505.assert(health.hasNodeProcess === false, 'workerd runtime exposes no Node process version', { health })
     s505.assert(health.hasDocument === false, 'workerd runtime has no DOM document global', { health })
+    s505.note(
+      `workerd platform exposes a process shim (nodeVersion=${String(health.nodeVersion)}); the package does not use it. ` +
+        'The dependency checks below inspect the configured flags, bundle imports, and installed package source.',
+    )
+
+    s505.case('workerd no Node compatibility flag or Node/DOM package API')
+    const wranglerConfig = await fsp.readFile(path.join(appsDir, 'worker/wrangler.jsonc'), 'utf8')
+    s505.assert(!wranglerConfig.includes('nodejs_compat'), 'wrangler config does not enable nodejs_compat')
+    s505.assert(build.bundles.worker.hasNodeImport === false, 'workerd bundle has no node: import', {
+      bundle: build.bundles.worker,
+    })
+    const packageDistFiles = await listFiles(
+      path.join(appsDir, 'worker/node_modules/dither-face/dist'),
+      (file) => file.endsWith('.js'),
+    )
+    const nodeDomApiPattern = /\bprocess\.[A-Za-z_$]|\bdocument\.[A-Za-z_$]|\bwindow\.[A-Za-z_$]|\bBuffer\b|\brequire\s*\(|from\s*['"]node:/
+    const nodeDomApiHits = []
+    for (const file of packageDistFiles) {
+      const text = await fsp.readFile(file, 'utf8')
+      const match = text.match(nodeDomApiPattern)
+      if (match) nodeDomApiHits.push({ file: path.relative(appsDir, file), match: match[0] })
+    }
+    s505.assert(nodeDomApiHits.length === 0, 'installed package dist uses no Node/DOM API', {
+      hits: nodeDomApiHits,
+    })
 
     s505.case('workerd all eight SVG responses')
     const workerRaw = {}
@@ -1237,9 +1261,6 @@ async function runPhaseTest() {
       )
       s505.assert(response.headers.get('x-runtime') === 'workerd', `workerd ${style}: runtime header`, {
         runtime: response.headers.get('x-runtime'),
-      })
-      s505.assert(response.headers.get('x-runtime-node') === 'false', `workerd ${style}: no Node process version`, {
-        value: response.headers.get('x-runtime-node'),
       })
       s505.assert(response.headers.get('x-runtime-document') === 'undefined', `workerd ${style}: no DOM document`, {
         value: response.headers.get('x-runtime-document'),
