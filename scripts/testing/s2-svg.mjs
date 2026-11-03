@@ -72,11 +72,6 @@ export function parseSvg(DOMParserCtor, svg) {
   try {
     doc = new DOMParserCtor({
       onError,
-      errorHandler: {
-        warning: (message) => onError('warning', message),
-        error: (message) => onError('error', message),
-        fatalError: (message) => onError('fatalError', message),
-      },
     }).parseFromString(svg, 'image/svg+xml')
   } catch (error) {
     errors.push(`parser threw: ${error.message}`)
@@ -237,6 +232,7 @@ export function definitionAnalysis(documents) {
 
 export function referenceErrors(doc) {
   const ids = new Set()
+  if (!doc?.documentElement) return [{ element: 'document', target: 'missing-root' }]
   for (const element of [doc.documentElement, ...Array.from(doc.getElementsByTagName('*'))]) {
     const id = element.getAttribute?.('id')
     if (id) ids.add(id)
