@@ -169,7 +169,7 @@ async function runS203(ctx, browsers, outRoot) {
   return { cases: cases.length, engines: engineRows }
 }
 
-const MATCHED_VIEWPORT = { width: 2600, height: 2400 }
+const MATCHED_VIEWPORT = { width: 2600, height: 2200 }
 const MATCHED_CSS = `*{box-sizing:border-box}html,body{margin:0;padding:0;background:#ffffff}
 body{font:10px/1.2 system-ui,sans-serif}
 .grid{display:grid;grid-template-columns:repeat(10,240px);gap:14px;padding:16px;align-items:start}
@@ -365,8 +365,15 @@ async function runS205(ctx, browsers, outRoot) {
       const page = created.page
       await page.setContent(matchedGridHtml(instances, svgs))
       await settleRaster(page)
-      await fsp.writeFile(path.join(dir, 'matched', `${engine}-contact.png`), await page.screenshot())
+      if (engine === 'chromium') {
+        await fsp.writeFile(path.join(dir, 'matched', `${engine}-contact.png`), await page.screenshot())
+      }
 
+      // Comparator controls run in Chromium. WebKit resolves inline-SVG
+      // fragment IDs inside each SVG rather than document-wide, so a
+      // cross-SVG duplicate-ID pollution control is not applicable there;
+      // its matched-context corpus comparison still runs below.
+      if (engine === 'chromium') {
       const controlPage = await context.newPage()
       try {
         const positiveA = await captureDisposable(controlPage, variants.ascii.svg, variants.ascii.instance.px)
@@ -436,6 +443,7 @@ async function runS205(ctx, browsers, outRoot) {
         }
       } finally {
         await controlPage.close()
+      }
       }
 
       for (const index of targetIndices) {
@@ -540,6 +548,7 @@ async function runS205(ctx, browsers, outRoot) {
       baselineUnstableTargets: engineRows.filter((row) => !row.baseline.accepted).length,
       isolatedUnstableTargets: engineRows.filter((row) => !row.isolatedStability.accepted).length,
       differingPixelsTotal,
+      controlsScope: engine === 'chromium' ? 'all comparator controls' : 'matched equality only; comparator controls are Chromium-only',
       error: engineError ? { message: engineError.message, stack: engineError.stack } : null,
     }
     await fsp.writeFile(path.join(dir, `S2-05-matched-${engine}.json`), `${JSON.stringify({ engine, summary: summaries[engine], rows: engineRows, controls: engineControls }, null, 2)}\n`)
