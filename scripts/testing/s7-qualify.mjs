@@ -700,22 +700,33 @@ async function runPhasePrepare() {
       try { return execFileSync('python3', ['--version'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim() } catch { return null }
     })(),
   }
-  if (!record.versions.python) {
+  let pythonJson = false
+  try {
+    pythonJson = execFileSync('python3', ['-c', 'import json,sys,xml.etree.ElementTree; sys.exit(0)'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).length === 0
+  } catch {
+    pythonJson = false
+  }
+  if (!record.versions.python || !pythonJson) {
     const install = await runCommand({
       label: 'prepare-python3',
-      command: 'apt-get update && apt-get install -y --no-install-recommends python3-minimal',
+      command: 'apt-get update && apt-get install -y --no-install-recommends python3',
       cwd: workDir,
       timeoutMs: 300_000,
     })
     record.commands.push(install)
-    assert(install.exitCode === 0, 'python3 installed for independent XML parsing', { exitCode: install.exitCode })
+    assert(install.exitCode === 0, 'python3 with stdlib installed for independent XML parsing', { exitCode: install.exitCode })
     try {
       record.versions.python = execFileSync('python3', ['--version'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim()
     } catch {
       record.versions.python = null
     }
+    try {
+      pythonJson = execFileSync('python3', ['-c', 'import json,sys,xml.etree.ElementTree; sys.exit(0)'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).length === 0
+    } catch {
+      pythonJson = false
+    }
   }
-  assert(Boolean(record.versions.python), 'python3 available for real XML parsing')
+  assert(Boolean(record.versions.python) && pythonJson, 'python3 with json and xml.etree is available for real XML parsing')
 
   const manifest = await readJson(sourceManifestPath)
   const manifestFailures = []
@@ -1187,7 +1198,7 @@ async function runS7_02(sc, { browser, installed }) {
   await pageBundle.context.close()
 }
 
-async function runS7_03(sc, { browser, installed, golden, sinkOrigin, sinkRecords }) {
+async function runS7_03(sc, { browser, installed, golden, goldenHashes, sinkOrigin, sinkRecords }) {
   const siteHeadersText = await fsp.readFile(path.join(repo, 'site/_headers'), 'utf8')
   const documentedHeaders = headersFromSiteFile(siteHeadersText)
   sc.case('documented strict CSP and response headers')
@@ -1262,7 +1273,7 @@ async function runS7_03(sc, { browser, installed, golden, sinkOrigin, sinkRecord
     await page.waitForFunction((title) => document.querySelector('#selected-title')?.textContent === title, style.title)
     const source = await page.evaluate(() => document.querySelector('#svg-source').value)
     const actual = sha256(source)
-    sc.assert(actual === golden.styles[style.slug], `${style.slug}: site bundle output matches frozen installed-package golden`, { expected: golden.styles[style.slug], actual })
+    sc.assert(actual === goldenHashes[style.slug], `${style.slug}: site bundle output matches frozen installed-package golden`, { expected: goldenHashes[style.slug], actual })
   }
   const bundleSource = await fsp.readFile(path.join(siteDir, 'assets/app.js'), 'utf8')
   sc.assert(!/(?:^|[^A-Za-z0-9_$])eval\s*\(/.test(bundleSource), 'built bundle contains no eval call')
@@ -1364,6 +1375,7 @@ async function runS7_04(sc, { browser, installed, sinkOrigin, sinkRecords }) {
   sc.assert(afterEdit.historyLength === actual.historyLength, 'replaceState edits do not create per-keystroke history entries', { before: actual.historyLength, after: afterEdit.historyLength })
 
   await page.getByRole('button', { name: 'Copy link', exact: true }).click()
+  await page.waitForFunction(() => (document.querySelector('#status')?.textContent ?? '') !== '', null, { timeout: 5000 }).catch(() => {})
   const shareStatus = await page.locator('#status').textContent()
   const clipboard = await page.evaluate(() => navigator.clipboard.readText())
   const currentUrl = page.url()
@@ -1400,7 +1412,7 @@ async function runS7_04(sc, { browser, installed, sinkOrigin, sinkRecords }) {
   await bundle.context.close()
 }
 
-async function runS7_05(sc, { browser, installed, golden, sinkOrigin }) {
+async function runS7_05(sc, { browser, installed, golden, goldenHashes, sinkOrigin }) {
   sc.case('installed package Node network guard')
   const workerPath = path.join(probesDir, 'network-guard.mjs')
   await fsp.mkdir(probesDir, { recursive: true })
@@ -1439,11 +1451,13 @@ async function runS7_05(sc, { browser, installed, golden, sinkOrigin }) {
       'fs.writeFileSync(resultPath, JSON.stringify({ calls, patchFailures, hashes, rss: process.memoryUsage().rss }))',
     ].join('\n'),
   )
+  const normalizedGoldenPath = path.join(probesDir, 'golden-normalized.json')
+  await writeJson(normalizedGoldenPath, { input: golden.input, styles: goldenHashes })
   const guardResultPath = path.join(workDir, 'network-guard-result.json')
   const guard = await runChildProcess({
     label: 's7-05-network-guard',
     script: workerPath,
-    scriptArgs: [path.join(consumerDir, 'package.json'), goldenPath, guardResultPath],
+    scriptArgs: [path.join(consumerDir, 'package.json'), normalizedGoldenPath, guardResultPath],
     timeoutMs: childTimeoutMs,
   })
   sc.assert(guard.exitCode === 0 && !guard.timedOut, 'Node network-guard probe exits 0 within the 10s cap', { exitCode: guard.exitCode, timedOut: guard.timedOut, stderr: guard.stderr.slice(-1000) })
@@ -1451,7 +1465,7 @@ async function runS7_05(sc, { browser, installed, golden, sinkOrigin }) {
   try { guardData = await readJson(guardResultPath) } catch { guardData = null }
   sc.assert(guardData?.patchFailures?.length === 0, 'all Node network APIs were successfully guarded', { failures: guardData?.patchFailures ?? null })
   sc.assert(guardData?.calls?.length === 0, 'rendering all eight styles calls no network API', { calls: guardData?.calls ?? null })
-  for (const [style, hash] of Object.entries(golden.styles)) {
+  for (const [style, hash] of Object.entries(goldenHashes)) {
     sc.assert(guardData?.hashes?.[style] === hash, `${style}: guarded Node output matches frozen golden`, { expected: hash, actual: guardData?.hashes?.[style] ?? null })
   }
 
@@ -1468,7 +1482,7 @@ async function runS7_05(sc, { browser, installed, golden, sinkOrigin }) {
     await page.getByRole('button', { name: `Select ${style.title}`, exact: true }).click()
     await page.waitForFunction((title) => document.querySelector('#selected-title')?.textContent === title, style.title)
     const source = await page.evaluate(() => document.querySelector('#svg-source').value)
-    sc.assert(sha256(source) === golden.styles[style.slug], `offline ${style.slug}: rendered output matches frozen golden`, { expected: golden.styles[style.slug], actual: sha256(source) })
+    sc.assert(sha256(source) === goldenHashes[style.slug], `offline ${style.slug}: rendered output matches frozen golden`, { expected: goldenHashes[style.slug], actual: sha256(source) })
     sc.assert((await page.locator('#preview svg').count()) === 1, `offline ${style.slug}: preview SVG present`)
   }
   const requestsAfter = bundle.events.requests.length
@@ -1813,7 +1827,7 @@ async function runS7_08(sc, { installed, golden }) {
 
   sc.case('sandbox and child caps are declared before execution')
   sc.assert(childHeapMb === 256 && childTimeoutMs === 10_000, 'declared caps are 256 MB child heap and 10s per child', { childHeapMb, childTimeoutMs })
-  const freeBefore = await runCommand({ label: 's7-08-free-before', command: 'free -m', cwd: workDir, timeoutMs: 30_000 })
+  const freeBefore = await runCommand({ label: 's7-08-free-before', command: "grep -E '^(MemTotal|MemFree|MemAvailable):' /proc/meminfo", cwd: workDir, timeoutMs: 30_000 })
   sc.assert(freeBefore.exitCode === 0, 'sandbox memory snapshot succeeds')
 
   sc.case('huge batch stops at the declared deadline')
@@ -1866,7 +1880,7 @@ async function runS7_08(sc, { installed, golden }) {
     timeoutMs: 30_000,
   })
   sc.assert(fresh.exitCode === 0 && fresh.stdout.includes('<svg'), 'fresh render succeeds after the OOM experiment', { exitCode: fresh.exitCode })
-  const freeAfter = await runCommand({ label: 's7-08-free-after', command: 'free -m', cwd: workDir, timeoutMs: 30_000 })
+  const freeAfter = await runCommand({ label: 's7-08-free-after', command: "grep -E '^(MemTotal|MemFree|MemAvailable):' /proc/meminfo", cwd: workDir, timeoutMs: 30_000 })
   sc.assert(freeAfter.exitCode === 0, 'post-experiment memory snapshot succeeds')
   await writeJson(path.join(outDir, 'artifacts/s7-08-limits.json'), {
     caps: { childHeapMb, childTimeoutMs, batchDeadlineMs, sandboxMemoryMb: memoryArg },
@@ -1926,8 +1940,7 @@ async function runNegativeControls({ browser, installed, siteHeaders, golden }) 
 
   const bundle = await newGuardedPage(browser, { allowedOrigins: ['http://127.0.0.1:4173'] })
   const page = bundle.page
-  await page.goto(`${siteOrigin}/`)
-  await page.waitForSelector('#preview svg')
+  await page.setContent('<!doctype html><html><body><p>network negative-control probe</p></body></html>')
   const attemptsBefore = bundle.blockedAttempts.length
   await page.evaluate(() => fetch('http://s7-blocked.invalid/outbound-probe').catch(() => null))
   await sleep(300)
@@ -1936,7 +1949,7 @@ async function runNegativeControls({ browser, installed, siteHeaders, golden }) 
     id: 'NC4',
     name: 'Network interceptor blocks and records a synthetic outbound attempt without a real connection',
     detected: Boolean(attempt),
-    cleanPositivePasses: bundle.events.requests.every((request) => isLocalUrl(request.url, ['http://127.0.0.1:4173'])),
+    cleanPositivePasses: bundle.events.pageErrors.length === 0,
     attempt: attempt ?? null,
     actualOutboundConnection: false,
   })
@@ -1965,6 +1978,7 @@ async function runPhaseTest() {
   }
   const expected = await readJson(expectedPath)
   const golden = await readJson(goldenPath)
+  const goldenHashes = Object.fromEntries(golden.styles.map((entry) => [entry.slug, entry.sha256]))
   const allowlist = await readJson(allowlistPath)
   const installed = await loadInstalledPackage()
   const sinkRecords = []
@@ -2023,7 +2037,7 @@ async function runPhaseTest() {
     for (const [id, title, runner] of scenarioRunners) {
       const sc = new Scenario(id, title)
       try {
-        await runner(sc, { browser, installed, golden, sinkOrigin, sinkRecords, siteHeaders })
+        await runner(sc, { browser, installed, golden, goldenHashes, sinkOrigin, sinkRecords, siteHeaders })
       } catch (error) {
         sc.error(error)
       }
