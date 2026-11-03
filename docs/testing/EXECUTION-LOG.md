@@ -32,7 +32,7 @@
 - New dedicated sandbox `dither-face-q-s1-r1-202611031644-d6c686`; source manifest 91 files, tarball SHA-256 `ed4c359b1b023e9b68a584334faef914390372f5e589b8c28d569b6932c20021`.
 - Same unmodified harness and expected-results files; all eight scenarios provisional PASS (469 cases, 3,012 assertions, 0 failures). Complete unit suite 117/117.
 - New regression failed the old implementation (8 failed / 48 passed) in a disposable sandbox copy. Historical baseline fixture unchanged; ascii-letter preview migration old/new SHAs recorded.
-- Parent review **PENDING**; Q-001 remains open; sandbox left alive; no Stage 2 dispatch.
+- This provisional entry predates the parent acceptance recorded above: the parent subsequently accepted S1-R1 and closed Q-001. Stage 1 R1 remains the accepted Stage 1 record; no relabelling.
 
 ## 2026-11-03 — Stage 2 executed (provisional)
 
@@ -41,3 +41,13 @@
 - Final harness: 8/8 provisional PASS, 5,379 cases, 14,830 assertions, 0 failures, 0 integrity failures, 0 NOT RUN. Node 22.23.4/24.22.2 fresh processes, Chromium/Firefox/WebKit raw SVG parity, xmldom 0.9.12 adversarial XML, 82-instance repeated-ID analysis, data-URL/file/HTTP embedding, pairwise/size/name invariance.
 - Seven prior attempts in the same dedicated sandbox differed only in harness measurement/API defects (xmldom 0.9 `errorHandler`, capture box/background/font context, text-mask padding); all earlier evidence retained under `out/qualification/S2/run*/`. No source, site, dependency or product-output change was made.
 - Raw evidence retrieved (275 final-run files); sandbox left alive pending parent disposition. No push, PR, publish, deploy, DNS, or later stage. Parent disposition **PENDING**; no self-signoff or release claim.
+
+## 2026-11-03 — Stage 2 returned; focused R1 recheck (provisional)
+
+- Parent returned S2 (not approved) for S2-05 measurement only: text/clip-edge exclusions had been widened after raster mismatches and the crafted negative control did not use the same acceptance function. No product defect inferred; original sandbox deleted after evidence retrieval.
+- Product source unchanged at `e3c5ead`; harness/fixtures committed through `0016a1e`; tarball still `ed4c359b…` (23,220 bytes).
+- New dedicated sandbox `dither-face-q-s2-r1-202611031739-5c3627` (`blaxel/ts-app:latest`, `us-pdx-1`, 4096 MB, platform default CPU, no volumes; 30-minute authorised cap).
+- S2-05 now captures each target in the same page, cell, integral screen coordinates and font context, once with all 82 avatars and once with only the other SVG elements removed while wrappers/ancestors stay fixed. Full target pixels are compared with no text/edge mask: 1,130,816 eligible pixels, 0 differing (Chromium 82/82, Firefox 10/10, WebKit 10/10 representatives). Definition analysis: 0 conflicts.
+- Same `compareFullPixels` function rejects clip-geometry, gradient-stop, flat-colour, ASCII text-glyph and text-opacity corruptions, plus conflicting-ID pollution; the clean positive control accepts 14,400/14,400 pixels.
+- Final harness: 8/8 provisional PASS, 6,065 cases, 15,270 assertions, 0 failures, 0 blocked, 0 integrity failures, 0 NOT RUN. Five harness-only attempts retained; no product source change.
+- Evidence retrieved under ignored `out/qualification/S2-R1/`; sandbox left alive pending parent disposition. No push, PR, publish, deploy, DNS, or later stage. Parent disposition **PENDING**; no self-signoff or release claim.
