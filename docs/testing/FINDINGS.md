@@ -17,6 +17,8 @@ Agents cannot approve their own findings or accept risk. A finding is closed onl
 
 ## 2. Open findings
 
+**Current open issue Q-002 (S2, S6-09):** When the site JavaScript asset fails to load with scripting otherwise enabled, static content remains readable but the playground has no explanatory failure state. Evidence: [S6 report](evidence/S6.md), raw `out/qualification/S6/attempts/202611031953-71be63/retrieved/reports/S6-09.json`. Parent disposition: owner acceptance or targeted fix/recheck required; S6-09 not approved. Missing CSS alone is expected graceful degradation, not automatically a defect. Q-001 is closed per superseding parent disposition above. WebKit CSP warning is under separate security investigation, not yet a confirmed vulnerability.
+
 | Finding | Stage | Scenario | Severity | Observation | Evidence | Owner | Disposition |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Q-001 | 1 | S1-06 | S1 | ascii-letter consumed dot RNG conditionally on glyph coverage; changing name shifted dots outside both glyphs, violating documented background invariance. | [Original failure S1](evidence/S1.md), raw S1-06.json; [fix rerun S1-R1](evidence/S1-R1.md), raw S1-06.json | Implementation agent | **CLOSED — parent accepted the `104195b` fix and S1-R1 on 2026-11-03. Agent did not self-close.** |

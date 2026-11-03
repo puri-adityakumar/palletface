@@ -1,5 +1,11 @@
 # Qualification execution log
 
+## 2026-11-04 — Stage 6 partial acceptance
+
+- Concrete original-task evidence arrived after automatic continuation; replacement task cancelled to avoid duplicate work. Final original evidence integrated; archive hash verified.
+- S6-01…08 approved. S6-09 remains review required: Q-002 S2 missing JS-load failure explanation needs owner acceptance or fix/recheck. 46/80 approved overall.
+- WebKit CSP attribution not assumed benign; Stage 7 asked to investigate. All retrieved Stage 6 evidence retained; dedicated sandbox authorized for deletion.
+
 ## 2026-11-04 — Stage 5 accepted
 
 - Parent accepted seven framework/runtime scenarios: 54 cases, 455 assertions, no failures. Final fresh attempt only; 72 raw parity comparisons and controls verified, limitations recorded.
