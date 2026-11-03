@@ -1,5 +1,12 @@
 # Qualification execution log
 
+## 2026-11-04 — Stage 3 returned; independent tracks permitted
+
+- Stage 3 provisional evidence is retained but not approved: resumed cross-revision results and earlier overlapping processes require a clean full rerun.
+- Sandbox active budget was exceeded without escalation. Stop and retrieve on timeout/budget limits; never silently extend or relaunch an uncertain-running command.
+- Stage 3 sandbox authorized for deletion after retrieval. Fresh non-resumed recheck required.
+- Following the owner's request for parallel work, permit Stage 3 recheck and independent Stage 4 consumers concurrently, each on its own sandbox and separate file ownership. Both use frozen product tarball `ed4c359b1b023e9b68a584334faef914390372f5e589b8c28d569b6932c20021`. No local test/server workloads. Parent alone updates master dispositions.
+
 ## 2026-11-03 — Stage 1 GLM attempt rejected
 
 - Model: `gmicloud/zai-org/GLM-5.3-Flash`, reasoning `high`, through OpenCode.
