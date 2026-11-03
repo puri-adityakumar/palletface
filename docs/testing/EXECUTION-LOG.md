@@ -1,5 +1,11 @@
 # Qualification execution log
 
+## 2026-11-04 — Stage 7 accepted
+
+- Parent accepted 8 security/privacy/resource scenarios, 41 cases/2,827 assertions, with documented bounded scope. Results and CSP attribution hashes verified.
+- Native-select-only WebKit reproduction resolves earlier warning attribution; select function and all avatar SVGs work. No unsafe CSP relaxation approved.
+- Evidence integrated; four retained sandboxes authorized for deletion. 54/80 approved, Q-002 still open. Stage 8 accessibility/visual qualification authorized in a fresh sandbox.
+
 ## 2026-11-04 — Stage 6 partial acceptance
 
 - Concrete original-task evidence arrived after automatic continuation; replacement task cancelled to avoid duplicate work. Final original evidence integrated; archive hash verified.
