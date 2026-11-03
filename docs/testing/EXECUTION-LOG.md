@@ -1,5 +1,11 @@
 # Qualification execution log
 
+## 2026-11-04 — Stage 4 accepted
+
+- Parent approved independent Node/TS/vanilla-Vite/React-Vite consumer qualification: 7 scenarios, 750 assertions, no failures; Chromium+Firefox dev/production parity and real package resolution verified.
+- Results/control hashes checked; evidence integrated locally and sandbox authorized for deletion. 31/80 scenarios approved overall.
+- Stage 5 continues independently. Stage 6 playground testing authorized concurrently in separate worktree/sandbox, frozen product only, no local server/test workloads.
+
 ## 2026-11-04 — Stage 3 clean recheck accepted
 
 - Parent approved S3-R1 after checking raw hashes and a single non-resumed 98-second run: 8 scenarios, 68 cases, 319 assertions, no failures; all five controls detected.
