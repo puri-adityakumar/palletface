@@ -18,6 +18,7 @@
 import { fnv1a, mulberry32 } from '../seed.js'
 import { DEEP, PAPER, PASTEL } from '../palettes.js'
 import { BAYER, rect } from '../grid.js'
+import { validateRenderArgs } from '../validation.js'
 
 /** One rng draw: a uniformly random element of `list` (mockup `pick`). */
 const pick = <T>(r: () => number, list: readonly T[]): T =>
@@ -96,4 +97,3 @@ export function pixelLandscape(seed: string, px: number): string {
 
   return discSeeded('land-' + fnv1a('land' + seed).toString(16), px, out)
 }
-import { validateRenderArgs } from '../validation.js'

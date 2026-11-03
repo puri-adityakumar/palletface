@@ -13,6 +13,7 @@
 import { BAYER, disc, rect } from '../grid.js'
 import { DEEP, PASTEL } from '../palettes.js'
 import { fnv1a, mulberry32 } from '../seed.js'
+import { validateRenderArgs } from '../validation.js'
 
 /** Pixels per side. */
 export const GRID = 20
@@ -55,4 +56,3 @@ export function ditherOrb(seed: string, px: number): string {
   // one so the same seed renders byte-identical svg in every process.
   return disc(px, GRID, out, 'orb-' + fnv1a('orb' + seed).toString(16))
 }
-import { validateRenderArgs } from '../validation.js'

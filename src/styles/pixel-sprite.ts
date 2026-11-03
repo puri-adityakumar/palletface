@@ -6,6 +6,7 @@
 import { fnv1a, mulberry32 } from '../seed.js'
 import { DEEP, INK, PASTEL } from '../palettes.js'
 import { disc, rect } from '../grid.js'
+import { validateRenderArgs } from '../validation.js'
 
 /** One entry of `list`, chosen by the rng. */
 const pick = <T>(r: () => number, list: readonly T[]): T => list[Math.floor(r() * list.length)]!
@@ -61,4 +62,3 @@ export function pixelSprite(seed: string, px: number): string {
   const clipId = 'sprite-' + fnv1a('sprite' + seed).toString(36)
   return disc(px, n, out, clipId)
 }
-import { validateRenderArgs } from '../validation.js'

@@ -1,0 +1,53 @@
+{
+  "note": "Exact SVG bytes after intentional ASCII ID namespacing and 0-9 glyph addition; do not update without output review.",
+  "records": [
+    {
+      "style": "pixel-sprite",
+      "seed": "preview-output",
+      "name": "7even",
+      "sha256": "5414be3e1bbb2b9304c9c4a6c7f5f40bc3b4fc88db16397ca46b59315659619a"
+    },
+    {
+      "style": "pixel-letter",
+      "seed": "preview-output",
+      "name": "7even",
+      "sha256": "e8f2d8daacae04528d067dff9662ca3504257617c5a2b3001b8a398662dd04af"
+    },
+    {
+      "style": "dither-orb",
+      "seed": "preview-output",
+      "name": "7even",
+      "sha256": "aa34f938e15fa5118670d99f38e9e5688c42dce29c09f99832fe5e96037c6bf2"
+    },
+    {
+      "style": "pixel-landscape",
+      "seed": "preview-output",
+      "name": "7even",
+      "sha256": "7c4ce7ef787fb50b8f0c7912749f695dc56857a69698b884d32a19e1fa1be7d2"
+    },
+    {
+      "style": "ascii-letter",
+      "seed": "preview-output",
+      "name": "7even",
+      "sha256": "449be0cee10b1d7eca10002b468f0a51bcaa6571ecb2202947939bf132129bec"
+    },
+    {
+      "style": "ascii-field",
+      "seed": "preview-output",
+      "name": "7even",
+      "sha256": "4d24f0abd032e710e7bb6c8c128ed4e48a17ff763b6eebe7cf8bb92e43eb71b1"
+    },
+    {
+      "style": "ascii-face",
+      "seed": "preview-output",
+      "name": "7even",
+      "sha256": "ae48967cd0368741b830a70d6316a8d402b9da791e9830c5aa613a97a33502b2"
+    },
+    {
+      "style": "pixelify-letter",
+      "seed": "preview-output",
+      "name": "7even",
+      "sha256": "d0cc056ec36b95c5efcf06d538f721696e4113509e0b943d7fefd25200bdbd37"
+    }
+  ]
+}

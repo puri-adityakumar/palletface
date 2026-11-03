@@ -4,7 +4,7 @@
 
 Turn a user ID into a standalone SVG, on the server or in the browser. No avatar service, image storage, account, or network request required. An independent, MIT-licensed sister project of [Palletism](https://palletism.art).
 
-![Eight styles: pixel sprite, pixel letter, dither orb, pixel landscape, ASCII letter, ASCII field, ASCII face, and pixelify letter](docs/preview.svg)
+![Eight styles: pixel sprite, pixel letter, dither orb, pixel landscape, ASCII letter, ASCII field, ASCII face, and pixelify letter](https://raw.githubusercontent.com/puri-adityakumar/dither-face/main/docs/preview.svg)
 
 > **0.x preview.** This repository is preparing its public package and site launch. The intended site is `https://ditherface.palletism.art`; release and hosting availability are not implied by these instructions. Before 1.0, minor releases may change the API or avatar output. Pin an exact version when identities need to stay stable across upgrades.
 
@@ -140,7 +140,7 @@ npm run test:browser
 
 ## Project
 
-- [Contributing](CONTRIBUTING.md) · [API](docs/API.md) · [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md) · [API](docs/API.md) · [Changelog](CHANGELOG.md) · [Roadmap](docs/ROADMAP.md)
 - [Security](SECURITY.md) · [Release procedure](docs/RELEASING.md) · [MIT license](LICENSE)
 
 dither-face grew from Palletism's avatar experiments, but is independently installable and usable in any application. Palletism's existing avatars are not automatically migrated by this package.

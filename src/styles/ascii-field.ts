@@ -6,6 +6,7 @@
 import { fnv1a, mulberry32 } from '../seed.js'
 import { PASTEL } from '../palettes.js'
 import { asciiGrid, disc } from '../grid.js'
+import { validateRenderArgs } from '../validation.js'
 
 /** Field side in cells: an 11x11 field of characters. */
 const N = 11
@@ -63,13 +64,13 @@ export function asciiField(seed: string, px: number): string {
     }
     cells.push(row)
   }
+  const gradientId = 'afield-gradient-' + hash
   const bgFill =
-    `<defs><linearGradient id="g${hash}" x1="0" y1="0" x2="1" y2="1">` +
+    `<defs><linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="1">` +
     `<stop offset="0" stop-color="${bg}"/><stop offset="1" stop-color="${tint}"/></linearGradient></defs>` +
-    `<rect width="${N}" height="${N}" fill="url(#g${hash})"/>`
+    `<rect width="${N}" height="${N}" fill="url(#${gradientId})"/>`
   // The gradient and clip ids derive from the rng namespace hash, not the
   // per-process counter: the same seed must render byte-identical svg, even
   // twice in one process (disc's optional id, grid.ts).
-  return disc(px, N, `<g shape-rendering="auto">${bgFill}${asciiGrid(N, 'none', cells)}</g>`, 'c' + hash)
+  return disc(px, N, `<g shape-rendering="auto">${bgFill}${asciiGrid(N, 'none', cells)}</g>`, 'afield-clip-' + hash)
 }
-import { validateRenderArgs } from '../validation.js'

@@ -21,7 +21,9 @@ const run = async (command, args, cwd = root) => {
 try {
   // Exercise the actual prepack lifecycle, not an alternate release build.
   const packed = await run(npm, ['pack', '--json', '--pack-destination', temp])
-  const [manifest] = JSON.parse(packed.stdout)
+  // Some npm versions forward lifecycle test output before the JSON manifest.
+  const jsonStart = packed.stdout.lastIndexOf('\n[')
+  const [manifest] = JSON.parse(jsonStart >= 0 ? packed.stdout.slice(jsonStart + 1) : packed.stdout)
   const files = manifest.files.map(({ path }) => path)
   for (const required of ['package.json', 'README.md', 'LICENSE', 'dist/index.js', 'dist/index.d.ts', 'dist/dither-face.js']) {
     assert.ok(files.includes(required), `Missing package file: ${required}`)
