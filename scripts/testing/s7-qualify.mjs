@@ -1423,14 +1423,16 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
     pageLoad.styleNodes.length === 0 &&
     pageLoad.styleAttrMutations.every((mutation) => !appStyleAttrMutation(mutation))
   const pageLoadAppViolations = pageLoad.violations.filter((violation) => !toolStyleAttrViolation(violation))
-  const blankPageLoadStyleAttr = blankPageLoad.violations.some(toolStyleAttrViolation)
+  let blankPageLoad = null
+  let blankPageLoadConsole = []
+  let blankPageLoadStyleAttr = null
   sc.assert(pageLoadAppViolations.length === 0, 'WebKit page load produces zero app-attributed CSP violations', { appViolations: pageLoadAppViolations, allViolations: pageLoad.violations })
   sc.assert(pageLoad.appInlineStyleAttrs.length === 0, 'app page load has no inline SVG/UI style attribute in preview, gallery, status or manual panel', { appInlineStyleAttrs: pageLoad.appInlineStyleAttrs, styleNodes: pageLoad.styleNodes, addedStyles: pageLoad.addedStyles, styleAttrMutations: pageLoad.styleAttrMutations })
   sc.assert(pageLoad.styles.some((sheet) => String(sheet.href).includes('/site.css') && (sheet.ruleCount ?? 0) > 0), 'external same-origin site.css is loaded and applied', { styles: pageLoad.styles })
   sc.assert(pageLoad.rootBackground !== 'rgba(0, 0, 0, 0)' && /mono/i.test(pageLoad.rootFont), 'page styling is active (root background and monospace font computed)', { rootBackground: pageLoad.rootBackground, rootFont: pageLoad.rootFont })
   sc.assert(pageLoad.previewSvg && pageLoad.gallerySvgs === 8 && pageLoad.selectedTitle === 'ascii letter', 'WebKit UI renders preview and eight gallery avatars under CSP', { previewSvg: pageLoad.previewSvg, gallerySvgs: pageLoad.gallerySvgs, selectedTitle: pageLoad.selectedTitle })
   if (pageLoadNonAppStyleAttr) {
-    sc.note(`WebKit page load emitted ${pageLoad.violations.length} style-src-attr 'inline' violation(s) with empty sourceFile; the app DOM has no preview/gallery/status/manual style attribute and no <style> node; external site.css loaded with ${pageLoad.styles.find((sheet) => String(sheet.href).includes('/site.css'))?.ruleCount ?? 0} rules. Style-attribute mutations: ${JSON.stringify(pageLoad.styleAttrMutations)}. Blank CSP page with no app reproduced style-src-attr=${blankPageLoadStyleAttr}. Classification: browser/tool-injected style attribute on form controls, not app inline SVG presentation styles.`)
+    sc.note(`WebKit page load emitted ${pageLoad.violations.length} style-src-attr 'inline' violation(s) with empty sourceFile; the app DOM has no preview/gallery/status/manual style attribute and no <style> node; external site.css loaded with ${pageLoad.styles.find((sheet) => String(sheet.href).includes('/site.css'))?.ruleCount ?? 0} rules. Style-attribute mutations: ${JSON.stringify(pageLoad.styleAttrMutations)}. Classification: browser/tool-injected style attribute on form controls, not app inline SVG presentation styles; the blank-page control is recorded below.`)
     sc.assert(pageLoadConsole.length <= 1, 'WebKit page load has only the single expected stylesheet warning when a tool style attribute is injected', { console: pageLoadConsole })
   } else {
     sc.assert(pageLoad.violations.length === 0, 'WebKit page load produces zero securitypolicyviolation events', { violations: pageLoad.violations })
@@ -1482,8 +1484,10 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
     })
   })
   await blankBundle.page.goto(`${siteOrigin}/s7-blank-csp`)
-  const blankPageLoad = await webkitCspSnapshot(blankBundle.page, 'blank-page-load')
-  const blankPageLoadConsole = cspConsoleMessages(blankBundle.events, 0)
+  blankPageLoad = await webkitCspSnapshot(blankBundle.page, 'blank-page-load')
+  blankPageLoadConsole = cspConsoleMessages(blankBundle.events, 0)
+  blankPageLoadStyleAttr = blankPageLoad.violations.some(toolStyleAttrViolation)
+  sc.note(`Blank strict-CSP page with no app code: page-load style-src-attr=${blankPageLoadStyleAttr}; violations=${JSON.stringify(blankPageLoad.violations)}; style-attribute mutations=${JSON.stringify(blankPageLoad.styleAttrMutations)}. This isolates whether the warning requires the dither-face app.`)
   await blankBundle.page.evaluate(() => document.getElementById('caret')?.focus())
   const blankConsoleIndex = blankBundle.events.consoleErrors.length
   await blankBundle.page.evaluate(() => {
