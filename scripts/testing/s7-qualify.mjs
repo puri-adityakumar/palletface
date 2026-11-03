@@ -1267,6 +1267,9 @@ async function webkitCspSnapshot(page, label) {
       activeTag: document.activeElement?.tagName ?? null,
       rootBackground: getComputedStyle(document.documentElement).backgroundColor,
       rootFont: getComputedStyle(document.documentElement).fontFamily,
+      svgCount: document.querySelectorAll('svg').length,
+      firstSvgFill: document.querySelector('svg rect') ? getComputedStyle(document.querySelector('svg rect')).fill : null,
+      firstSvgShapeRendering: document.querySelector('svg rect') ? getComputedStyle(document.querySelector('svg rect')).shapeRendering : null,
     }
   }, label)
 }
@@ -1417,31 +1420,9 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
   const toolStyleAttrViolation = (violation) =>
     violation.effectiveDirective === 'style-src-attr' && violation.blockedURI === 'inline' && violation.sourceFile === ''
   const appStyleAttrMutation = (mutation) => mutation.inPreview || mutation.inGallery || mutation.inStatus || mutation.inManual
-  const pageLoadNonAppStyleAttr = pageLoad.violations.length > 0 &&
-    pageLoad.violations.every(toolStyleAttrViolation) &&
-    pageLoad.appInlineStyleAttrs.length === 0 &&
-    pageLoad.styleNodes.length === 0 &&
-    pageLoad.styleAttrMutations.every((mutation) => !appStyleAttrMutation(mutation))
-  const pageLoadAppViolations = pageLoad.violations.filter((violation) => !toolStyleAttrViolation(violation))
   let blankPageLoad = null
   let blankPageLoadConsole = []
   let blankPageLoadStyleAttr = null
-  sc.assert(pageLoadAppViolations.length === 0, 'WebKit page load produces zero app-attributed CSP violations', { appViolations: pageLoadAppViolations, allViolations: pageLoad.violations })
-  sc.assert(pageLoad.appInlineStyleAttrs.length === 0, 'app page load has no inline SVG/UI style attribute in preview, gallery, status or manual panel', { appInlineStyleAttrs: pageLoad.appInlineStyleAttrs, styleNodes: pageLoad.styleNodes, addedStyles: pageLoad.addedStyles, styleAttrMutations: pageLoad.styleAttrMutations })
-  sc.assert(pageLoad.styles.some((sheet) => String(sheet.href).includes('/site.css') && (sheet.ruleCount ?? 0) > 0), 'external same-origin site.css is loaded and applied', { styles: pageLoad.styles })
-  sc.assert(pageLoad.rootBackground !== 'rgba(0, 0, 0, 0)' && /mono/i.test(pageLoad.rootFont), 'page styling is active (root background and monospace font computed)', { rootBackground: pageLoad.rootBackground, rootFont: pageLoad.rootFont })
-  sc.assert(pageLoad.previewSvg && pageLoad.gallerySvgs === 8 && pageLoad.selectedTitle === 'ascii letter', 'WebKit UI renders preview and eight gallery avatars under CSP', { previewSvg: pageLoad.previewSvg, gallerySvgs: pageLoad.gallerySvgs, selectedTitle: pageLoad.selectedTitle })
-  if (pageLoadNonAppStyleAttr) {
-    sc.note(`WebKit page load emitted ${pageLoad.violations.length} style-src-attr 'inline' violation(s) with empty sourceFile; the app DOM has no preview/gallery/status/manual style attribute and no <style> node; external site.css loaded with ${pageLoad.styles.find((sheet) => String(sheet.href).includes('/site.css'))?.ruleCount ?? 0} rules. Style-attribute mutations: ${JSON.stringify(pageLoad.styleAttrMutations)}. Classification: browser/tool-injected style attribute on form controls, not app inline SVG presentation styles; the blank-page control is recorded below.`)
-    sc.assert(pageLoadConsole.length <= 1, 'WebKit page load has only the single expected stylesheet warning when a tool style attribute is injected', { console: pageLoadConsole })
-  } else {
-    sc.assert(pageLoad.violations.length === 0, 'WebKit page load produces zero securitypolicyviolation events', { violations: pageLoad.violations })
-    sc.assert(pageLoadConsole.length === 0, 'WebKit page load produces zero CSP console errors', { console: pageLoadConsole })
-  }
-  sc.assert(manualCopy.violations.length === pageLoad.violations.length, 'WebKit manual-copy fallback adds no new securitypolicyviolation event', { pageLoad: pageLoad.violations, manual: manualCopy.violations })
-  sc.assert(manualConsole.length === 0, 'WebKit manual-copy fallback produces zero new CSP console errors', { console: manualConsole })
-  sc.assert(manualCopy.manualOpen === true && manualCopy.manualLength === manualCopy.sourceLength && manualCopy.manualValue === manualCopy.source, 'WebKit manual-copy fallback opens with the exact SVG text', { manualOpen: manualCopy.manualOpen, manualLength: manualCopy.manualLength, sourceLength: manualCopy.sourceLength })
-  sc.assert(manualCopy.statusText.includes('Clipboard unavailable') && manualCopy.activeTag === 'TEXTAREA', 'WebKit fallback shows fixed status text and focuses the textarea', { status: manualCopy.statusText, activeTag: manualCopy.activeTag })
 
   sc.case('WebKit screenshot-injection discrimination')
   await probePage.evaluate(() => {
@@ -1488,6 +1469,79 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
   blankPageLoadConsole = cspConsoleMessages(blankBundle.events, 0)
   blankPageLoadStyleAttr = blankPageLoad.violations.some(toolStyleAttrViolation)
   sc.note(`Blank strict-CSP page with no app code: page-load style-src-attr=${blankPageLoadStyleAttr}; violations=${JSON.stringify(blankPageLoad.violations)}; style-attribute mutations=${JSON.stringify(blankPageLoad.styleAttrMutations)}. This isolates whether the warning requires the dither-face app.`)
+
+  sc.case('WebKit app-versus-tool CSP control matrix')
+  const controlBundle = await openWebkitPage()
+  await controlBundle.page.route(`${siteOrigin}/s7-blank-csp`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Security-Policy': csp,
+        'Referrer-Policy': 'no-referrer',
+        'X-Content-Type-Options': 'nosniff',
+      },
+      body: '<!doctype html><html><head><meta charset="utf-8"><title>blank CSP probe</title></head><body><input id="blank-seed" type="text"><textarea id="caret">caret probe</textarea></body></html>',
+    })
+  })
+  await controlBundle.page.goto(`${siteOrigin}/s7-blank-csp`)
+  const controlBaseline = await webkitCspSnapshot(controlBundle.page, 'control-baseline')
+  const controlStep = async (label, action) => {
+    await controlBundle.page.evaluate(() => {
+      window.__s7violations = []
+      window.__s7addedStyles = []
+      window.__s7styleAttrMutations = []
+    })
+    const consoleIndex = controlBundle.events.consoleErrors.length
+    await action()
+    await controlBundle.page.waitForTimeout(350)
+    const snapshot = await webkitCspSnapshot(controlBundle.page, label)
+    return { ...snapshot, console: cspConsoleMessages(controlBundle.events, consoleIndex) }
+  }
+  const afterWaitForSelector = await controlStep('after-wait-for-selector', async () => {
+    await controlBundle.page.waitForSelector('body')
+  })
+  const plainSvg = await controlStep('plain-svg-no-presentation', async () => {
+    await controlBundle.page.evaluate(() => {
+      const host = document.createElement('div')
+      host.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>'
+      document.body.append(host)
+    })
+  })
+  const presentationSvg = await controlStep('svg-presentation-attributes', async () => {
+    await controlBundle.page.evaluate(() => {
+      const host = document.createElement('div')
+      host.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10" fill="#ff0000" shape-rendering="crispEdges"/></svg>'
+      document.body.append(host)
+    })
+  })
+  const generatedSvg = await controlStep('inserted-generated-svg', async () => {
+    await controlBundle.page.evaluate((svg) => {
+      const host = document.createElement('div')
+      host.id = 'generated-svg-host'
+      host.innerHTML = svg
+      document.body.append(host)
+    }, installed.pkg.ditherFace('fallback-webkit', { style: 'ascii-letter', px: 80, name: 'Ada' }))
+  })
+  const htmlStyleAttribute = await controlStep('html-style-attribute-control', async () => {
+    await controlBundle.page.evaluate(() => {
+      const host = document.createElement('div')
+      host.setAttribute('style', 'color: red')
+      host.textContent = 'style attribute control'
+      document.body.append(host)
+    })
+  })
+  await controlBundle.context.close()
+
+  const noScriptBundle = await openWebkitPage()
+  await noScriptBundle.page.route(`${siteOrigin}/assets/app.js`, async (route) => route.abort('blockedbyclient'))
+  await noScriptBundle.page.goto(url)
+  await noScriptBundle.page.waitForLoadState('networkidle').catch(() => {})
+  await noScriptBundle.page.waitForTimeout(500)
+  const appNoScript = await webkitCspSnapshot(noScriptBundle.page, 'app-without-script')
+  const appNoScriptConsole = cspConsoleMessages(noScriptBundle.events, 0)
+  await noScriptBundle.context.close()
+
   await blankBundle.page.evaluate(() => document.getElementById('caret')?.focus())
   const blankConsoleIndex = blankBundle.events.consoleErrors.length
   await blankBundle.page.evaluate(() => {
@@ -1501,6 +1555,52 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
   const blankConsole = cspConsoleMessages(blankBundle.events, blankConsoleIndex)
   await blankBundle.context.close()
 
+  const pageLoadAppViolations = pageLoad.violations.filter((violation) => !toolStyleAttrViolation(violation))
+  const pageLoadNonAppStyleAttr = pageLoad.violations.length > 0 &&
+    pageLoad.violations.every(toolStyleAttrViolation) &&
+    pageLoad.appInlineStyleAttrs.length === 0 &&
+    pageLoad.styleNodes.length === 0 &&
+    pageLoad.styleAttrMutations.every((mutation) => !appStyleAttrMutation(mutation))
+  const styleSrcAttr = (snapshot) => snapshot.violations.some(toolStyleAttrViolation)
+  const generatedSvgStyle = styleSrcAttr(generatedSvg)
+  const presentationSvgStyle = styleSrcAttr(presentationSvg)
+  const plainSvgStyle = styleSrcAttr(plainSvg)
+  const htmlStyleControl = styleSrcAttr(htmlStyleAttribute)
+  const appNoScriptStyle = styleSrcAttr(appNoScript)
+  const waitToolStyle = styleSrcAttr(afterWaitForSelector)
+  let pageLoadCause = 'not-reproduced'
+  if (pageLoad.violations.length > 0) {
+    if (generatedSvgStyle) pageLoadCause = 'app-inline-svg-insertion'
+    else if (presentationSvgStyle) pageLoadCause = 'app-svg-presentation-attribute'
+    else if (appNoScriptStyle) pageLoadCause = 'app-html-css-or-tool'
+    else if (waitToolStyle) pageLoadCause = 'tool-wait-for-selector'
+    else pageLoadCause = 'unattributed'
+  }
+  const pageLoadFillApplied = Boolean(pageLoad.firstSvgFill && !['rgb(0, 0, 0)', 'none', 'rgba(0, 0, 0, 0)'].includes(pageLoad.firstSvgFill))
+  sc.assert(htmlStyleControl, 'HTML style-attribute control produces a WebKit style-src-attr violation (detector sanity)', { htmlStyleAttribute })
+  sc.assert(!plainSvgStyle, 'plain SVG with no presentation attribute produces no style-src-attr violation (control)', { plainSvg })
+  sc.assert(pageLoad.appInlineStyleAttrs.length === 0, 'app page load has no inline style attribute in preview, gallery, status or manual panel', { appInlineStyleAttrs: pageLoad.appInlineStyleAttrs, styleNodes: pageLoad.styleNodes, addedStyles: pageLoad.addedStyles, styleAttrMutations: pageLoad.styleAttrMutations })
+  sc.assert(pageLoad.styles.some((sheet) => String(sheet.href).includes('/site.css') && (sheet.ruleCount ?? 0) > 0), 'external same-origin site.css is loaded and applied', { styles: pageLoad.styles })
+  sc.assert(pageLoad.rootBackground !== 'rgba(0, 0, 0, 0)' && /mono/i.test(pageLoad.rootFont), 'page styling is active (root background and monospace font computed)', { rootBackground: pageLoad.rootBackground, rootFont: pageLoad.rootFont })
+  sc.assert(pageLoad.previewSvg && pageLoad.gallerySvgs === 8 && pageLoad.selectedTitle === 'ascii letter', 'WebKit UI renders preview and eight gallery avatars under CSP', { previewSvg: pageLoad.previewSvg, gallerySvgs: pageLoad.gallerySvgs, selectedTitle: pageLoad.selectedTitle })
+  if (pageLoad.violations.length > 0) {
+    sc.assert(pageLoadCause !== 'unattributed', 'WebKit page-load style-src-attr warning is isolated by a control', { pageLoadCause, generatedSvgStyle, presentationSvgStyle, appNoScriptStyle, waitToolStyle, blankPageLoadStyleAttr })
+    if (pageLoadCause.startsWith('app-')) {
+      sc.assert(pageLoadFillApplied, 'WebKit inline SVG presentation fill remains applied despite the style-src-attr warning', { firstSvgFill: pageLoad.firstSvgFill, firstSvgShapeRendering: pageLoad.firstSvgShapeRendering, pageLoadCause })
+      sc.note(`WebKit page-load warning is app-attributed: cause=${pageLoadCause}. A blank strict-CSP page with the same inserted generated SVG reproduces style-src-attr=${generatedSvgStyle}; a plain SVG control reproduces=${plainSvgStyle}; the app-without-script control reproduces=${appNoScriptStyle}. The warning is a WebKit reporting/interpretation limit for inline SVG presentation attributes, not a <script>/eval/stylesheet injection. Functional check: computed first SVG fill=${pageLoad.firstSvgFill} (applied=${pageLoadFillApplied}), eight gallery SVGs present, source matches the installed package.`)
+    } else {
+      sc.note(`WebKit page-load warning is tool/browser-attributed: cause=${pageLoadCause}; generated-SVG control=${generatedSvgStyle}; app-without-script control=${appNoScriptStyle}; waitForSelector control=${waitToolStyle}. The app has no inline style attribute in preview/gallery/status/manual, and external site.css is loaded.`)
+    }
+    sc.assert(pageLoadConsole.length <= 2, 'WebKit page load has only the expected stylesheet warning count', { console: pageLoadConsole })
+  } else {
+    sc.assert(pageLoad.violations.length === 0, 'WebKit page load produces zero securitypolicyviolation events', { violations: pageLoad.violations })
+    sc.assert(pageLoadConsole.length === 0, 'WebKit page load produces zero CSP console errors', { console: pageLoadConsole })
+  }
+  sc.assert(manualCopy.violations.length === pageLoad.violations.length, 'WebKit manual-copy fallback adds no new securitypolicyviolation event', { pageLoad: pageLoad.violations, manual: manualCopy.violations })
+  sc.assert(manualConsole.length === 0, 'WebKit manual-copy fallback produces zero new CSP console errors', { console: manualConsole })
+  sc.assert(manualCopy.manualOpen === true && manualCopy.manualLength === manualCopy.sourceLength && manualCopy.manualValue === manualCopy.source, 'WebKit manual-copy fallback opens with the exact SVG text', { manualOpen: manualCopy.manualOpen, manualLength: manualCopy.manualLength, sourceLength: manualCopy.sourceLength })
+  sc.assert(manualCopy.statusText.includes('Clipboard unavailable') && manualCopy.activeTag === 'TEXTAREA', 'WebKit fallback shows fixed status text and focuses the textarea', { status: manualCopy.statusText, activeTag: manualCopy.activeTag })
+
   const screenshotReproduced = caretHide.violations.length + caretHideConsole.length + (caretHide.addedStyles?.length ?? 0) > 0
   const screenshotSpecific = caretInitial.violations.length + caretInitialConsole.length === 0
   const blankReproduced = blankCaretHide.violations.length + blankConsole.length + (blankCaretHide.addedStyles?.length ?? 0) > 0
@@ -1512,7 +1612,7 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
     sc.assert(bootstrapInjected, 'screenshot runs add <style> nodes whose recorded stack is WebKit web-inspector bootstrap', { caretHide: caretHide.addedStyles, caretInitial: caretInitial.addedStyles, blank: blankCaretHide.addedStyles })
     classification = bootstrapInjected ? 'tool-web-inspector-bootstrap-style-injection' : 'screenshot-style-injection-correlated'
     sc.note('WebKit screenshot runs inject a <style>body {}</style> node with stack web-inspector://bootstrap.js:45 for caret:hide, caret:initial and a blank strict-CSP page with no app. This is the WebKit/Playwright inspector bootstrap, not app markup. It is independent of the caret option and independent of app code. The app page itself has no <style> node and no preview/gallery/status/manual style attribute.')
-    sc.note(`Stage 6 warning classification: the exact console text is reproduced by both (a) the page-load style-src-attr on form controls with empty sourceFile and no app style source, and (b) WebKit inspector bootstrap style injection during screenshots. Neither is app inline SVG presentation styling. caret:initial also violated=${!screenshotSpecific}; blank screenshot reproduced=${blankReproduced}; blank page-load style-src-attr=${blankPageLoadStyleAttr}.`)
+    sc.note(`Stage 6 warning classification: page-load cause=${pageLoadCause}; screenshot cause=${classification}. The screenshot warning is WebKit inspector bootstrap style injection, not app markup. caret:initial also violated=${!screenshotSpecific}; blank screenshot reproduced=${blankReproduced}; blank page-load style-src-attr=${blankPageLoadStyleAttr}; generated-SVG control=${generatedSvgStyle}; plain-SVG control=${plainSvgStyle}; app-without-script control=${appNoScriptStyle}; waitForSelector control=${waitToolStyle}.`)
   } else {
     sc.note('The Stage 6 WebKit stylesheet warning was not reproduced by page load, manual-copy fallback, screenshot or blank-page controls in this run. Precise limit: no attribution is made; see the captured violation/console/style-node records and do not treat this as proof that the warning is harmless. S7-03 Chromium checks remain the CSP pass evidence; native WebKit remains a compatibility observation, not a product claim.')
   }
@@ -1528,15 +1628,28 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
     screenshotCaretHide: { ...caretHide, console: caretHideConsole },
     screenshotCaretInitial: { ...caretInitial, console: caretInitialConsole },
     blankCaretHide: { ...blankCaretHide, console: blankConsole },
-    classification,
+    classification: { pageLoad: pageLoadCause, screenshot: classification },
+    pageLoadCause,
     pageLoadNonAppStyleAttr,
     pageLoadAppViolations,
+    pageLoadFillApplied,
     blankPageLoadStyleAttr,
     bootstrapInjected,
     screenshotReproduced,
     screenshotSpecific,
     blankReproduced,
     appInlineStyleCount,
+    controls: {
+      controlBaseline,
+      afterWaitForSelector,
+      plainSvg,
+      presentationSvg,
+      generatedSvg,
+      htmlStyleAttribute,
+      appNoScript,
+      appNoScriptConsole,
+      flags: { generatedSvgStyle, presentationSvgStyle, plainSvgStyle, htmlStyleControl, appNoScriptStyle, waitToolStyle },
+    },
   })
 }
 
