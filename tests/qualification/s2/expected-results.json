@@ -39,7 +39,7 @@
       "title": "Mixed repeated IDs",
       "severity": "S1",
       "expectedStatus": "PASS",
-      "expected": "At least 50 mixed/repeated avatars with different sizes and names: duplicate IDs are present and permitted only when every definition for that ID is byte-equivalent; no same-ID conflicting geometry/gradient definition exists. Chromium inline-vs-isolated element captures with the same engine and fonts are pixel-identical in the non-text avatar interior (2 px inside the circular clip and outside measured <text> boxes), so clip/ID/gradient resolution is not polluted across styles. Full-image, text-mask and non-text differences are counted and reported; any non-text difference inside the clip fails. A crafted conflicting-ID negative control must be detected by the definition analysis and by the non-text interior comparison."
+      "expected": "At least 50 mixed/repeated avatars with different sizes and names: duplicate IDs are present and permitted only when every definition for that ID is byte-equivalent; no same-ID conflicting geometry/gradient definition exists. Chromium inline-vs-isolated element captures with the same engine and fonts are pixel-identical in the non-text avatar interior (2 px inside the circular clip and outside measured <text> boxes with 3 px antialias padding), so clip/ID/gradient resolution is not polluted across styles. Full-image, text-mask and non-text differences are counted and reported; any non-text difference inside the clip fails. A crafted conflicting-ID negative control must be detected by the definition analysis and by the non-text interior comparison."
     },
     "S2-06": {
       "title": "Inline data URL",

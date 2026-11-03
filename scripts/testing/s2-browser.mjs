@@ -69,7 +69,7 @@ function canvasProbeSource() {
   }`
 }
 
-function buildTextMask(rects, px, pad = 2) {
+function buildTextMask(rects, px, pad = 3) {
   const mask = new Uint8Array(px * px)
   for (const rect of rects) {
     const x0 = Math.max(0, Math.floor(rect.x) - pad)
