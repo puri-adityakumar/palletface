@@ -536,7 +536,14 @@ function attachPageEvents(page) {
     badResponses: [],
   }
   page.on('console', (message) => {
-    const entry = { type: message.type(), text: message.text() }
+    let location = null
+    try {
+      const value = message.location()
+      location = value ? { url: value.url, line: value.lineNumber, column: value.columnNumber } : null
+    } catch {
+      location = null
+    }
+    const entry = { type: message.type(), text: message.text(), location }
     events.console.push(entry)
     if (entry.type === 'error') events.consoleErrors.push(entry)
   })
@@ -753,14 +760,14 @@ async function runPhasePrepare() {
   assert(toolsLockAfter === record.toolsLockSha256, 'tools lock unchanged by npm ci', { expected: record.toolsLockSha256, actual: toolsLockAfter })
 
   const browserInstall = await runCommand({
-    label: 'prepare-playwright-chromium',
-    command: './node_modules/.bin/playwright install --with-deps chromium',
+    label: 'prepare-playwright-chromium-webkit',
+    command: './node_modules/.bin/playwright install --with-deps chromium webkit',
     cwd: toolsDir,
     env: { PLAYWRIGHT_BROWSERS_PATH: browsersPath },
     timeoutMs: perCommandMs,
   })
   record.commands.push(browserInstall)
-  assert(browserInstall.exitCode === 0, 'Chromium installed with system dependencies', { exitCode: browserInstall.exitCode, stderr: browserInstall.stderr.slice(-3000) })
+  assert(browserInstall.exitCode === 0, 'Chromium and WebKit installed with system dependencies', { exitCode: browserInstall.exitCode, stderr: browserInstall.stderr.slice(-3000) })
 
   const lockBefore = await sha256File(path.join(repo, 'package-lock.json'))
   const rootCi = await runCommand({ label: 'prepare-repo-npm-ci', command: 'npm ci --no-audit --no-fund', cwd: repo, timeoutMs: perCommandMs })
@@ -1198,7 +1205,278 @@ async function runS7_02(sc, { browser, installed }) {
   await pageBundle.context.close()
 }
 
-async function runS7_03(sc, { browser, installed, golden, goldenHashes, sinkOrigin, sinkRecords }) {
+function cspConsoleMessages(events, fromIndex = 0) {
+  return events.consoleErrors
+    .slice(fromIndex)
+    .filter((entry) => /Content Security Policy|Refused to apply|style-src|script-src/i.test(entry.text))
+}
+
+async function webkitCspSnapshot(page, label) {
+  return page.evaluate((stage) => {
+    const styles = [...document.styleSheets].map((sheet) => {
+      let ruleCount = null
+      let rulesError = null
+      try {
+        ruleCount = sheet.cssRules ? sheet.cssRules.length : null
+      } catch (error) {
+        rulesError = String(error?.message ?? error).slice(0, 160)
+      }
+      const owner = sheet.ownerNode
+      return {
+        href: sheet.href ?? null,
+        ownerTag: owner?.tagName ?? null,
+        ownerId: owner?.id ?? null,
+        ownerClass: typeof owner?.className === 'string' ? owner.className : null,
+        disabled: sheet.disabled,
+        ruleCount,
+        rulesError,
+      }
+    })
+    const styleNodes = [...document.querySelectorAll('style')].map((node) => ({
+      id: node.id || null,
+      parent: node.parentElement?.tagName ?? null,
+      text: String(node.textContent ?? '').slice(0, 300),
+    }))
+    const inlineStyleAttrs = [...document.querySelectorAll('[style]')].slice(0, 30).map((node) => ({
+      tag: node.tagName,
+      id: node.id || null,
+      style: String(node.getAttribute('style') ?? '').slice(0, 200),
+      inPreview: Boolean(node.closest('#preview')),
+      inGallery: Boolean(node.closest('#gallery')),
+      inStatus: Boolean(node.closest('#status')),
+      inManual: Boolean(node.closest('#manual-panel')),
+    }))
+    return {
+      label: stage,
+      violations: (window.__s7violations ?? []).slice(),
+      addedStyles: (window.__s7addedStyles ?? []).slice(-30),
+      styles,
+      styleNodes,
+      inlineStyleAttrs,
+      appInlineStyleAttrs: inlineStyleAttrs.filter((entry) => entry.inPreview || entry.inGallery || entry.inStatus || entry.inManual),
+      previewSvg: Boolean(document.querySelector('#preview svg')),
+      gallerySvgs: document.querySelectorAll('#gallery svg').length,
+      selectedTitle: document.querySelector('#selected-title')?.textContent ?? null,
+      sourceLength: document.querySelector('#svg-source')?.value?.length ?? 0,
+      source: document.querySelector('#svg-source')?.value ?? '',
+      manualOpen: document.querySelector('#manual-panel')?.open ?? null,
+      manualLength: document.querySelector('#manual-copy')?.value?.length ?? 0,
+      manualValue: document.querySelector('#manual-copy')?.value ?? '',
+      statusText: document.querySelector('#status')?.textContent ?? '',
+      activeTag: document.activeElement?.tagName ?? null,
+      rootBackground: getComputedStyle(document.documentElement).backgroundColor,
+      rootFont: getComputedStyle(document.documentElement).fontFamily,
+    }
+  }, label)
+}
+
+async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHeaders }) {
+  const csp = siteHeaders['Content-Security-Policy']
+  const initProbe = () => {
+    window.__s7violations = []
+    window.__s7addedStyles = []
+    document.addEventListener('securitypolicyviolation', (event) => {
+      window.__s7violations.push({
+        violatedDirective: event.violatedDirective,
+        effectiveDirective: event.effectiveDirective,
+        blockedURI: event.blockedURI,
+        sourceFile: event.sourceFile,
+        lineNumber: event.lineNumber,
+        columnNumber: event.columnNumber,
+        sample: String(event.sample ?? '').slice(0, 200),
+        disposition: event.disposition,
+        at: Date.now(),
+      })
+    })
+    const record = (node, how) => {
+      if (!node || node.nodeType !== 1) return
+      const tag = node.tagName
+      if (tag === 'STYLE' || (tag === 'LINK' && /stylesheet/i.test(node.rel || ''))) {
+        window.__s7addedStyles.push({
+          how,
+          tag,
+          id: node.id || null,
+          rel: node.rel || null,
+          href: node.href || null,
+          text: String(node.textContent ?? '').slice(0, 300),
+          stack: String(new Error().stack ?? '').slice(0, 1200),
+          at: Date.now(),
+        })
+      }
+    }
+    const originalAppend = Node.prototype.appendChild
+    Node.prototype.appendChild = function patchedAppendChild(node) {
+      record(node, 'appendChild')
+      return originalAppend.call(this, node)
+    }
+    const originalInsert = Node.prototype.insertBefore
+    Node.prototype.insertBefore = function patchedInsertBefore(node, reference) {
+      record(node, 'insertBefore')
+      return originalInsert.call(this, node, reference)
+    }
+    new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) record(node, 'mutation')
+      }
+    }).observe(document, { childList: true, subtree: true })
+  }
+  const initClipboardDenied = () => {
+    const fail = async () => { throw new Error('S7 WebKit clipboard denied') }
+    try {
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: fail } })
+    } catch {
+      // Best-effort; the assertion records whether fallback actually opened.
+    }
+    try {
+      Object.defineProperty(Navigator.prototype, 'clipboard', { configurable: true, get: () => ({ writeText: fail }) })
+    } catch {
+      // Best-effort.
+    }
+  }
+  const openWebkitPage = async (extraInit = []) =>
+    newGuardedPage(webkit, { initScripts: [initProbe, ...extraInit], allowedOrigins: [siteOrigin] })
+  const url = `${siteOrigin}/?seed=fallback-webkit&style=ascii-letter&name=Ada`
+
+  sc.case('WebKit strict-CSP page load and manual-copy fallback')
+  const probeBundle = await openWebkitPage([initClipboardDenied])
+  const probePage = probeBundle.page
+  await probePage.goto(url)
+  await probePage.waitForLoadState('networkidle')
+  await probePage.waitForSelector('#preview svg')
+  const pageLoad = await webkitCspSnapshot(probePage, 'page-load')
+  const pageLoadConsole = cspConsoleMessages(probeBundle.events, 0)
+  const pageLoadConsoleIndex = probeBundle.events.consoleErrors.length
+
+  const webkitParity = []
+  for (const style of installed.pkg.STYLES) {
+    await probePage.getByRole('button', { name: `Select ${style.title}`, exact: true }).click()
+    await probePage.waitForFunction((title) => document.querySelector('#selected-title')?.textContent === title, style.title)
+    const source = await probePage.evaluate(() => document.querySelector('#svg-source').value)
+    webkitParity.push({ style: style.slug, expected: goldenHashes[style.slug], actual: sha256(source) })
+  }
+  sc.assert(webkitParity.every((entry) => entry.expected === entry.actual), 'WebKit renders all eight bundled styles matching the frozen installed-package golden', { parity: webkitParity })
+
+  const dataImage = await probePage.evaluate(async () => {
+    const svg = document.querySelector('#svg-source').value
+    const image = new Image()
+    const loaded = new Promise((resolve, reject) => {
+      image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight })
+      image.onerror = () => reject(new Error('WebKit data image failed'))
+    })
+    image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+    document.body.append(image)
+    return loaded
+  })
+  sc.assert(dataImage.width === 80 && dataImage.height === 80, 'WebKit data URL SVG image renders under img-src data:', dataImage)
+
+  await probePage.getByRole('button', { name: 'Select ascii letter', exact: true }).click()
+  await probePage.evaluate(() => {
+    const fail = async () => { throw new Error('S7 WebKit clipboard denied at click') }
+    try { navigator.clipboard.writeText = fail } catch { /* best effort */ }
+    try { Object.defineProperty(navigator.clipboard, 'writeText', { configurable: true, value: fail }) } catch { /* best effort */ }
+  })
+  await probePage.getByRole('button', { name: 'Copy SVG', exact: true }).click()
+  await probePage.waitForFunction(() => document.querySelector('#manual-panel')?.open === true || (document.querySelector('#status')?.textContent ?? '') !== '', null, { timeout: 5000 }).catch(() => {})
+  const manualCopy = await webkitCspSnapshot(probePage, 'manual-copy')
+  const manualConsole = cspConsoleMessages(probeBundle.events, pageLoadConsoleIndex)
+
+  sc.assert(pageLoad.violations.length === 0, 'WebKit page load produces zero securitypolicyviolation events', { violations: pageLoad.violations })
+  sc.assert(pageLoadConsole.length === 0, 'WebKit page load produces zero CSP console errors', { console: pageLoadConsole })
+  sc.assert(pageLoad.appInlineStyleAttrs.length === 0, 'app page load has no inline SVG/UI style attribute in preview, gallery, status or manual panel', { appInlineStyleAttrs: pageLoad.appInlineStyleAttrs, styleNodes: pageLoad.styleNodes, addedStyles: pageLoad.addedStyles })
+  sc.assert(pageLoad.styles.some((sheet) => String(sheet.href).includes('/site.css') && (sheet.ruleCount ?? 0) > 0), 'external same-origin site.css is loaded and applied', { styles: pageLoad.styles })
+  sc.assert(pageLoad.rootBackground !== 'rgba(0, 0, 0, 0)' && /mono/i.test(pageLoad.rootFont), 'page styling is active (root background and monospace font computed)', { rootBackground: pageLoad.rootBackground, rootFont: pageLoad.rootFont })
+  sc.assert(pageLoad.previewSvg && pageLoad.gallerySvgs === 8 && pageLoad.selectedTitle === 'ascii letter', 'WebKit UI renders preview and eight gallery avatars under CSP', { previewSvg: pageLoad.previewSvg, gallerySvgs: pageLoad.gallerySvgs, selectedTitle: pageLoad.selectedTitle })
+  sc.assert(manualCopy.violations.length === 0, 'WebKit manual-copy fallback produces zero securitypolicyviolation events', { violations: manualCopy.violations })
+  sc.assert(manualConsole.length === 0, 'WebKit manual-copy fallback produces zero CSP console errors', { console: manualConsole })
+  sc.assert(manualCopy.manualOpen === true && manualCopy.manualLength === manualCopy.sourceLength && manualCopy.manualValue === manualCopy.source, 'WebKit manual-copy fallback opens with the exact SVG text', { manualOpen: manualCopy.manualOpen, manualLength: manualCopy.manualLength, sourceLength: manualCopy.sourceLength })
+  sc.assert(manualCopy.statusText.includes('Clipboard unavailable') && manualCopy.activeTag === 'TEXTAREA', 'WebKit fallback shows fixed status text and focuses the textarea', { status: manualCopy.statusText, activeTag: manualCopy.activeTag })
+
+  sc.case('WebKit screenshot-injection discrimination')
+  await probePage.evaluate(() => {
+    window.__s7violations = []
+    window.__s7addedStyles = []
+  })
+  const consoleIndexBeforeCaretHide = probeBundle.events.consoleErrors.length
+  await probePage.screenshot({ path: path.join(artifactsDir, 's7-03-webkit-caret-hide.png'), caret: 'hide' })
+  await probePage.waitForTimeout(300)
+  const caretHide = await webkitCspSnapshot(probePage, 'screenshot-caret-hide')
+  const caretHideConsole = cspConsoleMessages(probeBundle.events, consoleIndexBeforeCaretHide)
+  await probeBundle.context.close()
+
+  const initialBundle = await openWebkitPage([initClipboardDenied])
+  await initialBundle.page.goto(url)
+  await initialBundle.page.waitForLoadState('networkidle')
+  await initialBundle.page.waitForSelector('#preview svg')
+  await initialBundle.page.getByLabel('Seed', { exact: true }).focus()
+  await initialBundle.page.evaluate(() => {
+    window.__s7violations = []
+    window.__s7addedStyles = []
+  })
+  await initialBundle.page.screenshot({ path: path.join(artifactsDir, 's7-03-webkit-caret-initial.png'), caret: 'initial' })
+  await initialBundle.page.waitForTimeout(300)
+  const caretInitial = await webkitCspSnapshot(initialBundle.page, 'screenshot-caret-initial')
+  const caretInitialConsole = cspConsoleMessages(initialBundle.events, 0)
+  await initialBundle.context.close()
+
+  const blankBundle = await openWebkitPage()
+  await blankBundle.page.route(`${siteOrigin}/s7-blank-csp`, async (route) => {
+    await route.fulfill({
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Security-Policy': csp,
+        'Referrer-Policy': 'no-referrer',
+        'X-Content-Type-Options': 'nosniff',
+      },
+      body: '<!doctype html><html><head><meta charset="utf-8"><title>blank CSP probe</title></head><body><textarea id="caret">caret probe</textarea></body></html>',
+    })
+  })
+  await blankBundle.page.goto(`${siteOrigin}/s7-blank-csp`)
+  await blankBundle.page.evaluate(() => document.getElementById('caret')?.focus())
+  await blankBundle.page.evaluate(() => {
+    window.__s7violations = []
+    window.__s7addedStyles = []
+  })
+  await blankBundle.page.screenshot({ path: path.join(artifactsDir, 's7-03-webkit-blank-caret-hide.png'), caret: 'hide' })
+  await blankBundle.page.waitForTimeout(300)
+  const blankCaretHide = await webkitCspSnapshot(blankBundle.page, 'blank-caret-hide')
+  const blankConsole = cspConsoleMessages(blankBundle.events, 0)
+  await blankBundle.context.close()
+
+  const screenshotReproduced = caretHide.violations.length + caretHideConsole.length + (caretHide.addedStyles?.length ?? 0) > 0
+  const screenshotSpecific = caretInitial.violations.length + caretInitialConsole.length === 0
+  const blankReproduced = blankCaretHide.violations.length + blankConsole.length + (blankCaretHide.addedStyles?.length ?? 0) > 0
+  const appInlineStyleCount = pageLoad.appInlineStyleAttrs.length
+  let classification = 'not-reproduced-precise-limit'
+  if (screenshotReproduced) {
+    sc.assert(screenshotSpecific, 'caret:initial screenshot produces no WebKit CSP violation (caret:hide is the differentiator)', { caretInitial, caretInitialConsole })
+    sc.assert((caretHide.addedStyles ?? []).length > 0, 'caret:hide screenshot correlates with an injected stylesheet node', { addedStyles: caretHide.addedStyles })
+    classification = screenshotSpecific && blankReproduced ? 'tool-screenshot-caret-hide-injection' : 'screenshot-caret-hide-correlated'
+    sc.note('WebKit CSP warning was reproduced only by Playwright page.screenshot({ caret: "hide" }): page load and the Stage 6 manual-copy fallback had zero violations, the app has no inline <style> node or app-region style attribute, and the violation correlates with an injected stylesheet node. Classification: browser/tool screenshot caret-hide stylesheet injection, not app inline SVG presentation styles. The default screenshot caret injection is a Playwright tool artifact; the app does not emit it.')
+    sc.note(`Blank strict-CSP page with a focused textarea reproduced under caret:hide screenshot: ${blankReproduced}. ${blankReproduced ? 'This independently confirms a tool/browser injection path with no app code present.' : 'The blank-page control did not reproduce; attribution to the screenshot tool is therefore recorded as correlated, not universal.'}`)
+  } else {
+    sc.assert(caretInitial.violations.length + caretInitialConsole.length === 0, 'WebKit caret:initial screenshot produces no CSP violation', { caretInitial })
+    sc.note('The Stage 6 WebKit stylesheet warning was not reproduced by page load, manual-copy fallback, caret:hide screenshot or caret:initial screenshot in this run. Precise limit: no attribution is made; see the captured violation/console/style-node records and do not treat this as proof that the warning is harmless. S7-03 Chromium checks remain the CSP pass evidence; native WebKit remains a compatibility observation, not a product claim.')
+  }
+  sc.assert(appInlineStyleCount === 0, 'no app inline SVG presentation styles appear as <style> nodes or style attributes', { appInlineStyleCount })
+  sc.note(`WebKit probe: app inline style sources=${appInlineStyleCount}; page-load violations=${pageLoad.violations.length}; manual-copy violations=${manualCopy.violations.length}; caret:hide violations=${caretHide.violations.length}; caret:initial violations=${caretInitial.violations.length}; blank caret:hide violations=${blankCaretHide.violations.length}; screenshotSpecific=${screenshotSpecific}; blankReproduced=${blankReproduced}.`)
+  await writeJson(path.join(artifactsDir, 's7-03-webkit-csp.json'), {
+    url,
+    csp,
+    pageLoad,
+    manualCopy,
+    screenshotCaretHide: { ...caretHide, console: caretHideConsole },
+    screenshotCaretInitial: { ...caretInitial, console: caretInitialConsole },
+    blankCaretHide: { ...blankCaretHide, console: blankConsole },
+    classification,
+    screenshotReproduced,
+    screenshotSpecific,
+    blankReproduced,
+    appInlineStyleCount,
+  })
+}
+
+async function runS7_03(sc, { browser, webkit, installed, golden, goldenHashes, sinkOrigin, sinkRecords, siteHeaders }) {
   const siteHeadersText = await fsp.readFile(path.join(repo, 'site/_headers'), 'utf8')
   const documentedHeaders = headersFromSiteFile(siteHeadersText)
   sc.case('documented strict CSP and response headers')
@@ -1321,6 +1599,7 @@ async function runS7_03(sc, { browser, installed, golden, goldenHashes, sinkOrig
   sc.note('The injected inline script, cross-origin script and inline handler are deliberate negative controls. Their CSP violations are expected and recorded separately; the normal page above had zero violations, so no violation was ignored or hidden.')
   await takeScreenshot(page, 's7-03-csp-normal')
   await bundle.context.close()
+  await runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHeaders })
 }
 
 async function runS7_04(sc, { browser, installed, sinkOrigin, sinkRecords }) {
@@ -1984,6 +2263,7 @@ async function runPhaseTest() {
   const sinkRecords = []
   let siteServer = null
   let browser = null
+  let webkit = null
   let sinkServer = null
   let sinkOrigin = null
   let html = null
@@ -2013,9 +2293,11 @@ async function runPhaseTest() {
     sinkOrigin = `http://127.0.0.1:${sinkServer.address().port}`
     const playwright = await import(pathToFileURL(path.join(toolsDir, 'node_modules/@playwright/test/index.mjs')).href)
     browser = await playwright.chromium.launch({ headless: true })
+    webkit = await playwright.webkit.launch({ headless: true })
     record.versions = {
       playwright: '1.64.1',
       chromium: browser.version(),
+      webkit: webkit.version(),
       node: process.version,
       npm: execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim(),
       python: (() => { try { return execFileSync('python3', ['--version'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim() } catch { return null } })(),
@@ -2037,7 +2319,7 @@ async function runPhaseTest() {
     for (const [id, title, runner] of scenarioRunners) {
       const sc = new Scenario(id, title)
       try {
-        await runner(sc, { browser, installed, golden, goldenHashes, sinkOrigin, sinkRecords, siteHeaders })
+        await runner(sc, { browser, webkit, installed, golden, goldenHashes, sinkOrigin, sinkRecords, siteHeaders })
       } catch (error) {
         sc.error(error)
       }
@@ -2052,6 +2334,7 @@ async function runPhaseTest() {
       note: 'All controls are synthetic/disposable. NC3 reports only redacted metadata; no canary value is written to this file. NC4 aborts at the Playwright route layer and makes no real outbound connection.',
     })
   } finally {
+    if (webkit) await webkit.close().catch(() => {})
     if (browser) await browser.close().catch(() => {})
     if (sinkServer) await new Promise((resolve) => sinkServer.close(() => resolve()))
     await stopProcess(siteServer)

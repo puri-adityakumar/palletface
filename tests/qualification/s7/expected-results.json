@@ -85,7 +85,7 @@
       "title": "CSP compatibility",
       "severity": "S1",
       "expectedStatus": "PASS",
-      "expected": "site/_headers and the local server both send the same strict CSP with no unsafe-inline, unsafe-eval or wildcard source, plus no-referrer/nosniff/DENY headers. The normal site UI and all eight bundled renderers match the frozen installed-package golden under that CSP with zero unexpected CSP violations, console errors or page errors; a data:image/svg+xml image loads under img-src data: with no violation. Deliberate inline script, cross-origin script and inline handler payloads are blocked and their expected violations are recorded separately; the cross-origin attempt never reaches the controlled sink. The site bundle contains no eval/new Function and no local/source-alias path."
+      "expected": "site/_headers and the local server both send the same strict CSP with no unsafe-inline, unsafe-eval or wildcard source, plus no-referrer/nosniff/DENY headers. The normal Chromium site UI and all eight bundled renderers match the frozen installed-package golden under that CSP with zero unexpected CSP violations, console errors or page errors; a data:image/svg+xml image loads under img-src data: with no violation. Deliberate inline script, cross-origin script and inline handler payloads are blocked and their expected violations are recorded separately; the cross-origin attempt never reaches the controlled sink. The site bundle contains no eval/new Function and no local/source-alias path. WebKit is additionally probed for the Stage 6 stylesheet warning: securitypolicyviolation fields (blockedURI, sourceFile, line, effectiveDirective), stylesheet origins and style nodes, all-eight-renderer parity, data URL image, and the Stage 6 manual-copy fallback are captured. The probe must distinguish app inline SVG presentation styles from browser/tool-injected stylesheets. If the warning is not reproduced, the precise no-attribution limit is recorded rather than ignored."
     },
     "S7-04": {
       "title": "Referrer and privacy",
@@ -135,7 +135,7 @@
     "cpu": "platform default (no CPU override)",
     "volumes": [],
     "node": ">=22 (exact sandbox preflight recorded)",
-    "browser": "Chromium via pinned @playwright/test 1.64.1",
+    "browser": "Chromium (primary) and WebKit (Stage 6 CSP diagnostic) via pinned @playwright/test 1.64.1",
     "xmlParser": "python3 xml.etree.ElementTree plus browser DOMParser"
   }
 }
