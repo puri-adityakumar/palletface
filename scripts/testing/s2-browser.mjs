@@ -150,7 +150,7 @@ async function runS203(ctx, browsers, outRoot) {
           const grid = document.getElementById('grid')
           grid.innerHTML = items.map((item, index) => `<figure><div class="avatar">${svgs[index]}</div><figcaption>${item.style} · ${item.px}px</figcaption></figure>`).join('')
         }, { items: cases, svgs: browserSvgs })
-        await sheetPage.evaluate(() => document.fonts.ready)
+        await sheetPage.evaluate(() => document.fonts.ready.then(() => true))
         const buffer = await sheetPage.screenshot({ fullPage: true })
         const file = path.join(outRoot, `S2-03-${engine}-contact.png`)
         await fsp.writeFile(file, buffer)
@@ -195,7 +195,7 @@ async function runS205(ctx, browsers, outRoot) {
         `<div class="cell" id="cell-${index}" style="width:${item.px}px;height:${item.px}px">${rendered[index]}</div>`,
       ).join('')
     }, { items: instances, rendered: svgs })
-    await inlinePage.evaluate(() => document.fonts.ready)
+    await inlinePage.evaluate(() => document.fonts.ready.then(() => true))
     const inlineSheet = await inlinePage.screenshot({ fullPage: true })
     await fsp.writeFile(path.join(dir, 'inline-contact.png'), inlineSheet)
 
@@ -205,8 +205,8 @@ async function runS205(ctx, browsers, outRoot) {
       const inlineBuffer = await inlinePage.locator(`#cell-${index}`).screenshot({ omitBackground: true })
       await fsp.writeFile(path.join(dir, 'inline', `${String(index).padStart(3, '0')}.png`), inlineBuffer)
 
-      await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}.wrap{display:inline-block}</style></head><body><div class="wrap" id="solo">${svgs[index]}</div></body></html>`)
-      await isolatedPage.evaluate(() => document.fonts.ready)
+      await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}.wrap{display:block;line-height:0;font-size:0}</style></head><body><div class="wrap" id="solo" style="width:${instance.px}px;height:${instance.px}px">${svgs[index]}</div></body></html>`)
+      await isolatedPage.evaluate(() => document.fonts.ready.then(() => true))
       const isolatedBuffer = await isolatedPage.locator('#solo').screenshot({ omitBackground: true })
       await fsp.writeFile(path.join(dir, 'isolated', `${String(index).padStart(3, '0')}.png`), isolatedBuffer)
 
@@ -247,7 +247,7 @@ async function runS205(ctx, browsers, outRoot) {
     addBrowserCase(ctx, id)
     ctx.assert(id, controlAnalysis.conflicts.length > 0, 'negative control: conflicting duplicate-ID definitions are rejected by the definition analysis', { controlAnalysis })
 
-    await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}.wrap{display:inline-block}</style></head><body><div class="wrap" id="solo-b">${controlB}</div></body></html>`)
+    await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}.wrap{display:block;line-height:0;font-size:0}</style></head><body><div class="wrap" id="solo-b" style="width:120px;height:120px">${controlB}</div></body></html>`)
     const controlIsolated = await isolatedPage.locator('#solo-b').screenshot({ omitBackground: true })
     await inlinePage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}.wrap{display:inline-block}</style></head><body><div class="wrap">${controlA}</div><div class="wrap" id="inline-b">${controlB}</div></body></html>`)
     const controlInline = await inlinePage.locator('#inline-b').screenshot({ omitBackground: true })
