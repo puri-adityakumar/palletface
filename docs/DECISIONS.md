@@ -20,3 +20,12 @@
 - No browser DOM, network, random system state, or external font download is required to generate SVG. ASCII SVGs use a system monospace stack and their appearance can vary by font and platform.
 - Capture existing output before rendering changes. Preserve existing nonnumeric glyphs and seeded designs where practical; document intentional clip-ID and digit-glyph changes.
 - The site imports the actual library, supports URL state, copy/download SVG, copyable usage code, keyboard access, and mobile layouts. Never expose raw seed/name input as HTML.
+
+## 2026-11-03 — release qualification execution
+
+- The parent approved a local main merge and the dedicated qualification test branch `test/release-qualification` at `3ca99d2`. Work remains local: no push, PR, publication, deployment, or DNS change.
+- For this qualification, use GMI **GLM-5.3 Flash high** (stages 1, 3, 5, 7, 9) and **DeepSeek V4.1 Flash 1017 max** (stages 2, 4, 6, 8, 10) through OpenCode. Run one active agent task at a time; the parent reviews each stage's evidence and records disposition before the next task. This supersedes the earlier Codex `gpt-6-luna` subagent allocation for qualification work only.
+- Each execution stage gets its **own dedicated Blaxel sandbox**, superseding the earlier single-sandbox rule for this qualification. Record an explicit resource allowance per stage; default to 4 GB RAM, Node 24, and the Debian image, with a 30-minute active budget and an extension request before expiry.
+- Upload only necessary tracked source at the recorded commit, the actual tarball, and pinned fixture manifests/lockfiles. Never upload secrets, `.env` files, auth material, backups, `.git` credentials, or `node_modules`. All test workloads run in the sandbox; local tools may orchestrate, edit qualification files, and commit.
+- Retrieve evidence before deleting a stage's own sandbox, and delete it only after parent disposition. Raw logs stay in ignored `out/qualification/<stage>/`; concise stage reports are tracked.
+- Public registry, staging, production, upgrade-path, DNS, and hosted-CI checks remain separate FUTURE launch activities requiring explicit permission; they are not prelaunch PASS criteria. All other earlier decisions remain unchanged.
