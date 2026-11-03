@@ -127,6 +127,21 @@ if (resumeFrom) {
 
 function scenario(id) {
   if (!results.scenarios[id]) throw new Error(`unknown scenario ${id}`)
+  const existing = results.scenarios[id]
+  if (existing.actualStatus) {
+    results.scenarios[id] = {
+      id,
+      title: TITLES[id],
+      expectedStatus: expected.expectations[id]?.expectedStatus ?? 'PASS',
+      actualStatus: null,
+      cases: 0,
+      assertions: 0,
+      failures: 0,
+      checks: [],
+      notes: [],
+      severityIfFailed: null,
+    }
+  }
   currentScenario = id
   return results.scenarios[id]
 }
