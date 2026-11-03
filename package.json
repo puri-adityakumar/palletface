@@ -13,6 +13,19 @@
     "url": "https://github.com/puri-adityakumar/dither-face/issues"
   },
   "homepage": "https://github.com/puri-adityakumar/dither-face#readme",
+  "keywords": [
+    "avatar",
+    "identicon",
+    "svg",
+    "pixel-art",
+    "ascii",
+    "dither",
+    "deterministic",
+    "palletism"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -27,15 +40,30 @@
   "sideEffects": false,
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "typecheck:site": "tsc --noEmit -p tsconfig.site.json",
+    "typecheck:examples": "tsc --noEmit -p tsconfig.examples.json",
     "test": "vitest run",
+    "test:browser": "playwright test",
     "build": "tsc",
     "build:web": "esbuild src/index.ts --bundle --format=iife --global-name=DitherFace --outfile=dist/dither-face.js",
+    "build:site": "node scripts/build-site.mjs",
+    "preview:site": "node scripts/serve-site.mjs",
     "sheet": "npm run build && node scripts/render-sheet.mjs",
+    "preview:render": "npm run build && node scripts/render-preview.mjs",
     "check": "npm run typecheck && npm run test && npm run build",
-    "prepack": "rm -rf dist && npm run check && npm run build:web"
+    "check:package": "node scripts/verify-package.mjs",
+    "check:all": "npm run check && npm run typecheck:site && npm run typecheck:examples && npm run check:package && npm run build:site && npm run test:browser",
+    "clean:dist": "node scripts/clean-dist.mjs",
+    "prepack": "npm run clean:dist && npm run check && npm run build:web"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "esbuild": "^0.28.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"
   }

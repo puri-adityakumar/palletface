@@ -8,22 +8,31 @@ on:
         type: string
 permissions:
   contents: read
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
 jobs:
   check:
     runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.source.outputs.commit }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag }}
+          ref: refs/tags/${{ inputs.tag }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: node scripts/check-release.mjs "${{ inputs.tag }}"
-      - run: npm run check
-      - run: npm run check:package
+      - run: node scripts/check-release.mjs
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+      - id: source
+        run: echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run check:all
   publish:
     needs: check
     runs-on: ubuntu-latest
@@ -34,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag }}
+          ref: ${{ needs.check.outputs.commit }}
       - uses: actions/setup-node@v4
         with:
           node-version: 24

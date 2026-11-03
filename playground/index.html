@@ -166,7 +166,7 @@ if (!lib || typeof lib.ditherFace !== 'function' || !Array.isArray(lib.STYLES)) 
   function render() {
     const seed = document.getElementById('seed').value
     for (const s of SLOTS) {
-      const svg = lib.ditherFace(seed + '-' + s.user, { style: s.style, px: s.px })
+      const svg = lib.ditherFace(seed + '-' + s.user, { style: s.style, px: s.px, name: s.user })
       s.el._svg = svg // exact bytes the button copies
       s.el.innerHTML = svg
     }
