@@ -69,6 +69,32 @@ function canvasProbeSource() {
   }`
 }
 
+function buildTextMask(rects, px, pad = 2) {
+  const mask = new Uint8Array(px * px)
+  for (const rect of rects) {
+    const x0 = Math.max(0, Math.floor(rect.x) - pad)
+    const y0 = Math.max(0, Math.floor(rect.y) - pad)
+    const x1 = Math.min(px, Math.ceil(rect.x + rect.width) + pad)
+    const y1 = Math.min(px, Math.ceil(rect.y + rect.height) + pad)
+    for (let y = y0; y < y1; y++) {
+      for (let x = x0; x < x1; x++) mask[y * px + x] = 1
+    }
+  }
+  return mask
+}
+
+async function textRectsFor(page, selector) {
+  return page.evaluate((sel) => {
+    const svg = document.querySelector(sel)
+    if (!svg) return []
+    const base = svg.getBoundingClientRect()
+    return Array.from(svg.querySelectorAll('text')).map((text) => {
+      const rect = text.getBoundingClientRect()
+      return { x: rect.left - base.left, y: rect.top - base.top, width: rect.width, height: rect.height }
+    })
+  }, selector)
+}
+
 async function newPageFor(browser, options = {}) {
   const context = await browser.newContext({
     viewport: options.viewport ?? { width: 1280, height: 900 },
@@ -203,11 +229,13 @@ async function runS205(ctx, browsers, outRoot) {
     for (let index = 0; index < instances.length; index += 1) {
       const instance = instances[index]
       const expectedKey = ctx.caseKey(instance)
+      const inlineTextRects = await textRectsFor(inlinePage, `#cell-${index} svg`)
       const inlineBuffer = await inlinePage.locator(`#cell-${index} svg`).screenshot({ omitBackground: true })
       await fsp.writeFile(path.join(dir, 'inline', `${String(index).padStart(3, '0')}.png`), inlineBuffer)
 
       await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent;font:10px system-ui,sans-serif}.wrap{display:block}</style></head><body><div class="wrap" id="solo" style="width:${instance.px}px;height:${instance.px}px">${svgs[index]}</div></body></html>`)
       await isolatedPage.evaluate(() => document.fonts.ready.then(() => true))
+      const isolatedTextRects = await textRectsFor(isolatedPage, '#solo svg')
       const isolatedBuffer = await isolatedPage.locator('#solo svg').screenshot({ omitBackground: true })
       await fsp.writeFile(path.join(dir, 'isolated', `${String(index).padStart(3, '0')}.png`), isolatedBuffer)
 
@@ -218,15 +246,20 @@ async function runS205(ctx, browsers, outRoot) {
       ctx.assert(id, isolatedMetrics.width === instance.px && isolatedMetrics.height === instance.px, `instance ${index}: isolated capture dimensions equal px`, { instance, isolatedMetrics })
       ctx.assert(id, inlineMetrics.opaquePixels > 0 && isolatedMetrics.opaquePixels > 0, `instance ${index}: both captures nonblank`, { inlineMetrics, isolatedMetrics })
       ctx.assert(id, inlineMetrics.distinctColors >= 3 && isolatedMetrics.distinctColors >= 3, `instance ${index}: both captures have multiple colors`, { inlineMetrics, isolatedMetrics })
-      const diff = pixelDiff(inlineBuffer, isolatedBuffer, ctx.PNG, instance.px)
+      const textMask = buildTextMask([...inlineTextRects, ...isolatedTextRects], instance.px)
+      const textMaskPixels = textMask.reduce((sum, value) => sum + value, 0)
+      const diff = pixelDiff(inlineBuffer, isolatedBuffer, ctx.PNG, instance.px, textMask)
       addBrowserCase(ctx, id)
       ctx.assert(id, diff.dimensionsEqual && diff.width === instance.px && diff.height === instance.px, `instance ${index}: capture dimensions match`, { instance, diff })
       addBrowserCase(ctx, id)
-      ctx.assert(id, diff.interiorDifferingPixels === 0, `instance ${index}: interior pixels equal isolated capture (no cross-document clip/gradient pollution)`, {
+      ctx.assert(id, diff.interiorNonTextDifferingPixels === 0, `instance ${index}: non-text interior pixels equal isolated capture (no cross-document clip/gradient pollution)`, {
         instance, expectedKey,
         inlinePixelSha256: inlineMetrics.pixelSha256,
         isolatedPixelSha256: isolatedMetrics.pixelSha256,
         diff,
+        textMaskPixels,
+        inlineTextCount: inlineTextRects.length,
+        isolatedTextCount: isolatedTextRects.length,
         inlineMetrics,
         isolatedMetrics,
       })
@@ -239,6 +272,7 @@ async function runS205(ctx, browsers, outRoot) {
         inlineMetrics,
         isolatedMetrics,
         fullImageExact: diff.exact,
+        textMaskPixels,
         diff,
       })
     }

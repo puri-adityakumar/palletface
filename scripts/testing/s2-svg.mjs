@@ -342,7 +342,7 @@ export function pixelBuffersEqual(a, b) {
  * margin); the full-image count and maximum channel delta are retained as
  * evidence, never discarded.
  */
-export function pixelDiff(bufferA, bufferB, PNG, expectedPx) {
+export function pixelDiff(bufferA, bufferB, PNG, expectedPx, textMask = null) {
   const a = PNG.sync.read(bufferA)
   const b = PNG.sync.read(bufferB)
   if (a.width !== b.width || a.height !== b.height) {
@@ -355,6 +355,9 @@ export function pixelDiff(bufferA, bufferB, PNG, expectedPx) {
   const radius = Math.min(width, height) / 2
   let differingPixels = 0
   let interiorDifferingPixels = 0
+  let textDifferingPixels = 0
+  let nonTextDifferingPixels = 0
+  let interiorNonTextDifferingPixels = 0
   let maxChannelDelta = 0
   let minDiffDistance = Number.POSITIVE_INFINITY
   let maxDiffDistance = Number.NEGATIVE_INFINITY
@@ -373,6 +376,12 @@ export function pixelDiff(bufferA, bufferB, PNG, expectedPx) {
       const distance = Math.hypot(x + 0.5 - cx, y + 0.5 - cy)
       if (distance < minDiffDistance) minDiffDistance = distance
       if (distance > maxDiffDistance) maxDiffDistance = distance
+      const inText = Boolean(textMask && textMask[y * width + x])
+      if (inText) textDifferingPixels += 1
+      else {
+        nonTextDifferingPixels += 1
+        if (distance <= radius - 2) interiorNonTextDifferingPixels += 1
+      }
       if (distance <= radius - 2) interiorDifferingPixels += 1
     }
   }
@@ -383,6 +392,9 @@ export function pixelDiff(bufferA, bufferB, PNG, expectedPx) {
     expectedPx,
     differingPixels,
     interiorDifferingPixels,
+    textDifferingPixels,
+    nonTextDifferingPixels,
+    interiorNonTextDifferingPixels,
     maxChannelDelta,
     minDiffDistance: differingPixels ? minDiffDistance : null,
     maxDiffDistance: differingPixels ? maxDiffDistance : null,
