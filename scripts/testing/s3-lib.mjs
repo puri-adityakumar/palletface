@@ -30,13 +30,44 @@ export function deepEqual(a, b) {
   return canonical(a) === canonical(b)
 }
 
+function extractJsonAt(raw, start) {
+  const opener = raw[start]
+  if (opener !== '[' && opener !== '{') return null
+  let depth = 0
+  let inString = false
+  let escaped = false
+  for (let index = start; index < raw.length; index++) {
+    const character = raw[index]
+    if (inString) {
+      if (escaped) escaped = false
+      else if (character === '\\') escaped = true
+      else if (character === '"') inString = false
+      continue
+    }
+    if (character === '"') {
+      inString = true
+      continue
+    }
+    if (character === '[' || character === '{') depth += 1
+    else if (character === ']' || character === '}') {
+      depth -= 1
+      if (depth === 0) return raw.slice(start, index + 1)
+    }
+  }
+  return null
+}
+
 export function parsePackJson(raw) {
-  for (let i = raw.lastIndexOf('['); i >= 0; i = raw.lastIndexOf('[', i - 1)) {
+  // npm lifecycle output can precede and follow the JSON document. Find a
+  // balanced array rather than parsing from an opening bracket to end-of-log.
+  for (let i = raw.indexOf('['); i >= 0; i = raw.indexOf('[', i + 1)) {
+    const document = extractJsonAt(raw, i)
+    if (!document) continue
     try {
-      const parsed = JSON.parse(raw.slice(i))
+      const parsed = JSON.parse(document)
       if (Array.isArray(parsed)) return parsed
     } catch {
-      // Keep scanning; lifecycle output can precede the JSON document.
+      // Keep scanning.
     }
   }
   return null
@@ -387,7 +418,9 @@ export function checkTypeScriptRun({ mode, version, valid, invalidRuns }) {
 }
 
 export async function ensureEmptyDirectory(directory) {
-  await fsp.rm(directory, { recursive: true, force: true })
+  // Use the platform rm rather than Node's recursive removal: pnpm's virtual
+  // store contains symlink loops that can make libuv's recursive walk spin.
+  execFileSync('rm', ['-rf', directory], { stdio: 'pipe' })
   await fsp.mkdir(directory, { recursive: true })
 }
 

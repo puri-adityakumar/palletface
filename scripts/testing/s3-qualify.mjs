@@ -82,6 +82,9 @@ await fsp.mkdir(logsDir, { recursive: true })
 await fsp.mkdir(perScenarioDir, { recursive: true })
 await fsp.mkdir(workDir, { recursive: true })
 
+const resumeFrom = args['resume-from'] ? path.resolve(args['resume-from']) : null
+const resumedIds = resumeFrom ? ['S3-05', 'S3-06', 'S3-08'] : []
+
 const results = {
   stage: 'S3',
   title: 'Packaging and consumers',
@@ -109,6 +112,15 @@ const results = {
   probes: {},
   artifacts: {},
   limitations: [],
+  resume: resumeFrom ? { from: resumeFrom, ids: resumedIds } : null,
+}
+
+if (resumeFrom) {
+  for (const id of resumedIds) {
+    const saved = JSON.parse(await fsp.readFile(path.join(resumeFrom, `${id}.json`), 'utf8'))
+    if (saved.actualStatus !== 'PASS' || saved.failures !== 0) throw new Error(`cannot resume ${id}: saved status ${saved.actualStatus}`)
+    results.scenarios[id] = { ...saved, resumedFrom: resumeFrom }
+  }
 }
 
 function scenario(id) {
@@ -320,11 +332,12 @@ async function runPackScenario() {
     ['build:web script invoked', '> dither-face@0.1.0 build:web'],
   ]
   for (const [name, marker] of lifecycle) assert(id, p1.raw.includes(marker), name, { marker })
-  const testsPassed = p1.raw.match(/Tests\s+(\d+)\s+passed/)
-  const testsFailed = p1.raw.match(/Tests\s+(\d+)\s+failed/)
+  const cleanLifecycleLog = p1.raw.replace(/\x1b\[[0-9;]*m/g, '')
+  const testsPassed = cleanLifecycleLog.match(/Tests\s+(\d+)\s+passed/)
+  const testsFailed = cleanLifecycleLog.match(/Tests\s+(\d+)\s+failed/)
   assert(id, Boolean(testsPassed) && Number(testsPassed[1]) > 0, 'prepack unit suite reports passing tests', testsPassed?.[1] ?? null)
   assert(id, !testsFailed || Number(testsFailed[1]) === 0, 'prepack unit suite reports zero failed tests', testsFailed?.[1] ?? null)
-  assert(id, /Test Files\s+\d+\s+passed/.test(p1.raw), 'prepack unit suite reports passed test files', p1.raw.match(/Test Files\s+\d+\s+passed/)?.[0] ?? null)
+  assert(id, /Test Files\s+\d+\s+passed/.test(cleanLifecycleLog), 'prepack unit suite reports passed test files', cleanLifecycleLog.match(/Test Files\s+\d+\s+passed/)?.[0] ?? null)
   assert(id, p1.raw.includes('dist/dither-face.js') || fs.existsSync(path.join(repoDir, 'dist/dither-face.js')), 'build:web produced the IIFE bundle', null)
 
   inspection1 = await inspectTarball(pack1.file, archive1Dir)
@@ -516,7 +529,8 @@ async function installCanonical() {
     .sort((a, b) => a.path.localeCompare(b.path))
   canonical.installed.treeSha256 = installedTree.sha256
   canonical.installed.archiveTreeSha256 = sha256(archiveTree.map((entry) => `${entry.path}\0${entry.sha256}`).sort().join('\n'))
-  assert(id, deepEqual(installedTree.files, archiveTree), 'installed package tree bytes equal the packed archive tree', { installed: installedTree.sha256, archive: canonical.installed.archiveTreeSha256 })
+  const installedFiles = [...installedTree.files].sort((a, b) => a.path.localeCompare(b.path))
+  assert(id, deepEqual(installedFiles, archiveTree), 'installed package tree bytes equal the packed archive tree', { installed: installedTree.sha256, archive: canonical.installed.archiveTreeSha256 })
   const ls = await run(id, 'canonical-npm-ls-prod', `npx -y npm@${args['npm-version']} ls --omit=dev --all --json`, target, {}, 120000)
   canonical.prodTree = parseJsonText(ls.stdout)
   assert(id, ls.exitCode === 0 && Boolean(canonical.prodTree), 'npm production tree command exits 0 with JSON', { exitCode: ls.exitCode })
@@ -719,7 +733,7 @@ async function runNpmConsumers() {
   assert(id, outsideRepo(installed), 'npm package real path is outside repository', installed)
   const renderOnline = parseJsonText((await run(id, 'npm-render-online', `npx -y node@${args.node24} .s3-render.mjs --golden ${sh(path.join(fixturesDir, 'fixtures', 'golden.json'))} --label npm-online`, target, {}, 600000)).raw)
   assert(id, renderOnline?.failures === 0 && renderOnline?.cases?.length === 8, 'npm consumer renders all eight styles to tarball golden', renderOnline?.cases)
-  await fsp.rm(path.join(target, 'node_modules'), { recursive: true, force: true })
+  execFileSync('rm', ['-rf', path.join(target, 'node_modules')], { stdio: 'pipe' })
   const offline = await run(id, 'npm-offline-ci', `npx -y npm@${args['npm-version']} ci --offline --ignore-scripts --no-audit --no-fund`, target, {}, 600000)
   assert(id, offline.exitCode === 0, 'npm offline lockfile reinstall after cache population exits 0', { exitCode: offline.exitCode, stderr: offline.stderr.slice(-3000) })
   const lockAfterOffline = sha256(await fsp.readFile(path.join(target, 'package-lock.json')))
@@ -762,7 +776,7 @@ async function runPnpmConsumers() {
   assert(id, treeRaw.exitCode === 0 && deepEqual(treeDeps, ['dither-face']), 'pnpm production tree contains only dither-face', { treeDeps, tree: treeRoot })
   const renderOnline = parseJsonText((await run(id, 'pnpm-render-online', `npx -y node@${args.node24} .s3-render.mjs --golden ${sh(path.join(fixturesDir, 'fixtures', 'golden.json'))} --label pnpm-online`, target, {}, 600000)).raw)
   assert(id, renderOnline?.failures === 0 && renderOnline?.cases?.length === 8, 'pnpm consumer renders all eight styles to tarball golden', renderOnline?.cases)
-  await fsp.rm(path.join(target, 'node_modules'), { recursive: true, force: true })
+  execFileSync('rm', ['-rf', path.join(target, 'node_modules')], { stdio: 'pipe' })
   const offline = await run(id, 'pnpm-offline-install', `npx -y pnpm@${args['pnpm-version']} install --offline --frozen-lockfile --ignore-scripts`, target, {}, 600000)
   assert(id, offline.exitCode === 0, 'pnpm offline frozen-lockfile reinstall exits 0', { exitCode: offline.exitCode, stderr: offline.stderr.slice(-3000) })
   const lockAfterOffline = sha256(await fsp.readFile(path.join(target, 'pnpm-lock.yaml')))
@@ -812,7 +826,7 @@ async function runYarnConsumers() {
   await fsp.rm(path.join(target, '.pnp.cjs'), { force: true })
   await fsp.rm(path.join(target, '.pnp.loader.mjs'), { force: true })
   await fsp.rm(path.join(target, '.yarn', 'install-state.gz'), { force: true })
-  await fsp.rm(path.join(target, 'node_modules'), { recursive: true, force: true })
+  execFileSync('rm', ['-rf', path.join(target, 'node_modules')], { stdio: 'pipe' })
   const offline = await run(id, 'yarn-offline-install', `${yarnCommand} install --immutable`, target, { YARN_ENABLE_TELEMETRY: '0', YARN_ENABLE_NETWORK: '0' }, 600000)
   assert(id, offline.exitCode === 0, 'Yarn offline PnP lockfile reinstall after cache population exits 0', { exitCode: offline.exitCode, stderr: offline.stderr.slice(-3000) })
   const lockAfterOffline = sha256(await fsp.readFile(path.join(target, 'yarn.lock')))
@@ -877,11 +891,11 @@ try {
   await verifyPrelude()
   await scenarioRunner('S3-02', runPackScenario)
   await scenarioRunner('S3-01', runManifestScenario)
-  await scenarioRunner('S3-08', runMetadataScenario)
+  if (!resumedIds.includes('S3-08')) await scenarioRunner('S3-08', runMetadataScenario)
   await installCanonical()
   await scenarioRunner('S3-03', runRenderers)
-  await scenarioRunner('S3-05', runExportsScenario)
-  await scenarioRunner('S3-06', runTypesScenario)
+  if (!resumedIds.includes('S3-05')) await scenarioRunner('S3-05', runExportsScenario)
+  if (!resumedIds.includes('S3-06')) await scenarioRunner('S3-06', runTypesScenario)
   await scenarioRunner('S3-07', runPackageManagers)
   await scenarioRunner('S3-04', fillZeroDependencyScenario)
 } catch (error) {
