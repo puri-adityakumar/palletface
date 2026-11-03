@@ -178,7 +178,7 @@ async function runS205(ctx, browsers, outRoot) {
   await fsp.mkdir(path.join(dir, 'isolated'), { recursive: true })
 
   const inlineHtml = `<!doctype html><html><head><meta charset="utf-8"><style>
-    *{box-sizing:border-box} body{margin:0;background:#ffffff;font:10px system-ui,sans-serif}
+    *{box-sizing:border-box} body{margin:0;background:transparent;font:10px system-ui,sans-serif}
     .grid{display:grid;grid-template-columns:repeat(10,var(--col));gap:14px;padding:16px;align-items:start}
     .cell{display:flex;align-items:center;justify-content:center;overflow:hidden}
     .cell svg{display:block;flex:0 0 auto}
