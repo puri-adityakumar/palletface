@@ -20,6 +20,7 @@ import {
   elementsByName,
   parseSvg,
   pngMetrics,
+  pixelDiff,
   rawCompare,
   removeDefs,
   rootInfo,
@@ -202,12 +203,12 @@ async function runS205(ctx, browsers, outRoot) {
     for (let index = 0; index < instances.length; index += 1) {
       const instance = instances[index]
       const expectedKey = ctx.caseKey(instance)
-      const inlineBuffer = await inlinePage.locator(`#cell-${index}`).screenshot({ omitBackground: true })
+      const inlineBuffer = await inlinePage.locator(`#cell-${index} svg`).screenshot({ omitBackground: true })
       await fsp.writeFile(path.join(dir, 'inline', `${String(index).padStart(3, '0')}.png`), inlineBuffer)
 
       await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}.wrap{display:block;line-height:0;font-size:0}</style></head><body><div class="wrap" id="solo" style="width:${instance.px}px;height:${instance.px}px">${svgs[index]}</div></body></html>`)
       await isolatedPage.evaluate(() => document.fonts.ready.then(() => true))
-      const isolatedBuffer = await isolatedPage.locator('#solo').screenshot({ omitBackground: true })
+      const isolatedBuffer = await isolatedPage.locator('#solo svg').screenshot({ omitBackground: true })
       await fsp.writeFile(path.join(dir, 'isolated', `${String(index).padStart(3, '0')}.png`), isolatedBuffer)
 
       const inlineMetrics = pngMetrics(inlineBuffer, ctx.PNG)
@@ -217,11 +218,15 @@ async function runS205(ctx, browsers, outRoot) {
       ctx.assert(id, isolatedMetrics.width === instance.px && isolatedMetrics.height === instance.px, `instance ${index}: isolated capture dimensions equal px`, { instance, isolatedMetrics })
       ctx.assert(id, inlineMetrics.opaquePixels > 0 && isolatedMetrics.opaquePixels > 0, `instance ${index}: both captures nonblank`, { inlineMetrics, isolatedMetrics })
       ctx.assert(id, inlineMetrics.distinctColors >= 3 && isolatedMetrics.distinctColors >= 3, `instance ${index}: both captures have multiple colors`, { inlineMetrics, isolatedMetrics })
+      const diff = pixelDiff(inlineBuffer, isolatedBuffer, ctx.PNG, instance.px)
       addBrowserCase(ctx, id)
-      ctx.assert(id, inlineMetrics.pixelSha256 === isolatedMetrics.pixelSha256, `instance ${index}: inline pixels equal isolated capture (no cross-document clip pollution)`, {
+      ctx.assert(id, diff.dimensionsEqual && diff.width === instance.px && diff.height === instance.px, `instance ${index}: capture dimensions match`, { instance, diff })
+      addBrowserCase(ctx, id)
+      ctx.assert(id, diff.interiorDifferingPixels === 0, `instance ${index}: interior pixels equal isolated capture (no cross-document clip/gradient pollution)`, {
         instance, expectedKey,
         inlinePixelSha256: inlineMetrics.pixelSha256,
         isolatedPixelSha256: isolatedMetrics.pixelSha256,
+        diff,
         inlineMetrics,
         isolatedMetrics,
       })
@@ -233,7 +238,8 @@ async function runS205(ctx, browsers, outRoot) {
         px: instance.px,
         inlineMetrics,
         isolatedMetrics,
-        pixelEqual: inlineMetrics.pixelSha256 === isolatedMetrics.pixelSha256,
+        fullImageExact: diff.exact,
+        diff,
       })
     }
 
@@ -248,11 +254,13 @@ async function runS205(ctx, browsers, outRoot) {
     ctx.assert(id, controlAnalysis.conflicts.length > 0, 'negative control: conflicting duplicate-ID definitions are rejected by the definition analysis', { controlAnalysis })
 
     await isolatedPage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}.wrap{display:block;line-height:0;font-size:0}</style></head><body><div class="wrap" id="solo-b" style="width:120px;height:120px">${controlB}</div></body></html>`)
-    const controlIsolated = await isolatedPage.locator('#solo-b').screenshot({ omitBackground: true })
+    const controlIsolated = await isolatedPage.locator('#solo-b svg').screenshot({ omitBackground: true })
     await inlinePage.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}.wrap{display:inline-block}</style></head><body><div class="wrap">${controlA}</div><div class="wrap" id="inline-b">${controlB}</div></body></html>`)
-    const controlInline = await inlinePage.locator('#inline-b').screenshot({ omitBackground: true })
-    const controlPixelEqual = pngMetrics(controlInline, ctx.PNG).pixelSha256 === pngMetrics(controlIsolated, ctx.PNG).pixelSha256
-    ctx.note(id, `crafted conflicting-ID inline-vs-isolated pixels ${controlPixelEqual ? 'equal (browser scoped IDs per SVG)' : 'differ (pollution detected)'}`)
+    const controlInline = await inlinePage.locator('#inline-b svg').screenshot({ omitBackground: true })
+    const controlDiff = pixelDiff(controlInline, controlIsolated, ctx.PNG, 120)
+    addBrowserCase(ctx, id)
+    ctx.assert(id, controlDiff.interiorDifferingPixels > 0, 'negative control: conflicting-ID inline pollution is detected by the interior-pixel comparison', { controlDiff })
+    ctx.note(id, `crafted conflicting-ID inline-vs-isolated full-image differing pixels=${controlDiff.differingPixels}, interior differing=${controlDiff.interiorDifferingPixels}, max channel delta=${controlDiff.maxChannelDelta}`)
     await fsp.writeFile(path.join(dir, 'control-conflict-inline.png'), controlInline)
     await fsp.writeFile(path.join(dir, 'control-conflict-isolated.png'), controlIsolated)
     return {
@@ -263,7 +271,7 @@ async function runS205(ctx, browsers, outRoot) {
       definitionCount: ctx.definitionAnalysis.definitionCount,
       idCount: ctx.definitionAnalysis.idCount,
       rows,
-      control: { analysis: controlAnalysis, pixelEqual: controlPixelEqual },
+      control: { analysis: controlAnalysis, diff: controlDiff },
       inlineContact: path.join(dir, 'inline-contact.png'),
     }
   } finally {

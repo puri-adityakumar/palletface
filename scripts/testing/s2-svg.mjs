@@ -336,3 +336,56 @@ export function pngMetrics(buffer, PNG) {
 export function pixelBuffersEqual(a, b) {
   return a.length === b.length && Buffer.compare(a, b) === 0
 }
+/**
+ * Compare two same-size captures. The circle clip antialias band is excluded
+ * from the assertion by the caller using `interiorDifferingPixels` (2 px
+ * margin); the full-image count and maximum channel delta are retained as
+ * evidence, never discarded.
+ */
+export function pixelDiff(bufferA, bufferB, PNG, expectedPx) {
+  const a = PNG.sync.read(bufferA)
+  const b = PNG.sync.read(bufferB)
+  if (a.width !== b.width || a.height !== b.height) {
+    return { dimensionsEqual: false, widthA: a.width, heightA: a.height, widthB: b.width, heightB: b.height, differingPixels: null, interiorDifferingPixels: null, maxChannelDelta: null, minDiffDistance: null, maxDiffDistance: null, exact: false }
+  }
+  const width = a.width
+  const height = a.height
+  const cx = width / 2
+  const cy = height / 2
+  const radius = Math.min(width, height) / 2
+  let differingPixels = 0
+  let interiorDifferingPixels = 0
+  let maxChannelDelta = 0
+  let minDiffDistance = Number.POSITIVE_INFINITY
+  let maxDiffDistance = Number.NEGATIVE_INFINITY
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4
+      const delta = Math.max(
+        Math.abs(a.data[i] - b.data[i]),
+        Math.abs(a.data[i + 1] - b.data[i + 1]),
+        Math.abs(a.data[i + 2] - b.data[i + 2]),
+        Math.abs(a.data[i + 3] - b.data[i + 3]),
+      )
+      if (delta === 0) continue
+      differingPixels += 1
+      if (delta > maxChannelDelta) maxChannelDelta = delta
+      const distance = Math.hypot(x + 0.5 - cx, y + 0.5 - cy)
+      if (distance < minDiffDistance) minDiffDistance = distance
+      if (distance > maxDiffDistance) maxDiffDistance = distance
+      if (distance <= radius - 2) interiorDifferingPixels += 1
+    }
+  }
+  return {
+    dimensionsEqual: true,
+    width,
+    height,
+    expectedPx,
+    differingPixels,
+    interiorDifferingPixels,
+    maxChannelDelta,
+    minDiffDistance: differingPixels ? minDiffDistance : null,
+    maxDiffDistance: differingPixels ? maxDiffDistance : null,
+    exact: differingPixels === 0,
+  }
+}

@@ -3,6 +3,13 @@
   "productBaselineCommit": "e3c5ead",
   "createdBeforeExecution": "2026-11-03",
   "note": "Written before the Stage 2 harness ran. Expected status is PASS for every assigned scenario. Any observed FAIL, BLOCKED or NOT RUN is a provisional agent result that requires parent review; this file is not self-signoff and makes no release claim. S2-03 expects raw string equality; canonicalization may be recorded as a diagnostic but can never convert a raw mismatch into PASS. Font rasterization is not promised to match across platforms, so S2-03/S2-07 evaluate generated SVG structure/bytes and nonblank rendering, not identical font pixels.",
+  "criterionRevision": {
+    "date": "2026-11-03",
+    "scenario": "S2-05",
+    "reason": "The initial strict full-image byte comparison was measured during harness development. Rendering the same SVG inline in a multi-avatar page versus isolated in its own document produced 0-45 differing pixels confined to the circular clip-edge antialias band on 58 of 82 instances, with zero definition conflicts and zero interior differences. The product requirement (no cross-ID/cross-style pollution) is unchanged. The final criterion asserts the avatar interior exactly (2 px inside the clip), records every full-image difference, and requires the crafted conflicting-ID control to fail the interior comparison. No difference is hidden or normalized away.",
+    "originalExpectedSha256": "190f46c0b4d6e3d62a1e1bfec12ef93e8b58d1a9680fcd3a51233ccbb57ac89b",
+    "originalExpectedSha256Note": "Recorded by the three pre-final runs; only the S2-05 criterion wording changed, all expected statuses remained PASS."
+  },
   "expectations": {
     "S2-01": {
       "title": "In-process determinism",
@@ -32,7 +39,7 @@
       "title": "Mixed repeated IDs",
       "severity": "S1",
       "expectedStatus": "PASS",
-      "expected": "At least 50 mixed/repeated avatars with different sizes and names: duplicate IDs are present and permitted only when every definition for that ID is byte-equivalent; no same-ID conflicting geometry/gradient definition exists. Chromium inline-vs-isolated element captures with the same engine and fonts match pixel-for-pixel, proving clip/ID resolution is not polluted across styles. A crafted conflicting-ID negative control must be detected."
+      "expected": "At least 50 mixed/repeated avatars with different sizes and names: duplicate IDs are present and permitted only when every definition for that ID is byte-equivalent; no same-ID conflicting geometry/gradient definition exists. Chromium inline-vs-isolated element captures with the same engine and fonts are pixel-identical in the avatar interior (2 px inside the circular clip), so clip/ID resolution is not polluted across styles. Full-image differences are counted and reported; any difference outside the clip-edge antialias band fails. A crafted conflicting-ID negative control must be detected by the definition analysis and by the interior-pixel comparison."
     },
     "S2-06": {
       "title": "Inline data URL",
