@@ -1542,6 +1542,57 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
   const appNoScriptConsole = cspConsoleMessages(noScriptBundle.events, 0)
   await noScriptBundle.context.close()
 
+  const siteIndexHtml = await fsp.readFile(path.join(repo, 'site/index.html'), 'utf8')
+  const withoutAppScript = siteIndexHtml.replace(/<script[^>]*src="\/assets\/app\.js"[^>]*><\/script>/, '')
+  const variantBodies = {
+    fullNoScript: withoutAppScript,
+    fullNoScriptNoCss: withoutAppScript.replace(/<link rel="stylesheet"[^>]*>/, ''),
+    fullNoScriptNoControls: withoutAppScript.replace(/<div class="controls">[\s\S]*?<\/div>/, ''),
+    fullNoScriptNoDetails: withoutAppScript.replace(/<details[\s\S]*?<\/details>/g, ''),
+    fullNoScriptNoFormFields: withoutAppScript.replace(/<(?:input|select|textarea)\b[^>]*>/g, ''),
+    controlsOnly: '<!doctype html><html><head><meta charset="utf-8"></head><body><div class="controls"><label for="seed"><span>Seed</span><input id="seed" type="text" autocomplete="off" spellcheck="false" placeholder="anything, even empty" aria-describedby="privacy"></label><label for="name"><span>Display name <span class="optional">(optional)</span></span><input id="name" type="text" autocomplete="off" spellcheck="false" placeholder="blank uses the seed"></label><label for="size"><span id="size-label">Size</span><select id="size" aria-labelledby="size-label"><option value="48">48 px</option><option value="80" selected>80 px</option><option value="128">128 px</option><option value="192">192 px</option></select></label></div></body></html>',
+    selectOnly: '<!doctype html><html><head><meta charset="utf-8"></head><body><select id="size"><option>80 px</option></select></body></html>',
+    inputsOnly: '<!doctype html><html><head><meta charset="utf-8"></head><body><input id="seed" type="text" autocomplete="off" spellcheck="false"><input id="name" type="text" autocomplete="off" spellcheck="false"></body></html>',
+    detailsOnly: '<!doctype html><html><head><meta charset="utf-8"></head><body><details id="manual-panel" open><summary>Manual copy</summary><textarea id="manual-copy" readonly spellcheck="false"></textarea></details></body></html>',
+    cssOnly: '<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/site.css"></head><body><p>css only</p></body></html>',
+  }
+  const variants = {}
+  for (const [label, body] of Object.entries(variantBodies)) {
+    const variantBundle = await openWebkitPage()
+    const variantUrl = `${siteOrigin}/s7-variant-${label}`
+    await variantBundle.page.route(variantUrl, async (route) => {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Content-Security-Policy': csp,
+          'Referrer-Policy': 'no-referrer',
+          'X-Content-Type-Options': 'nosniff',
+        },
+        body,
+      })
+    })
+    await variantBundle.page.goto(variantUrl)
+    await variantBundle.page.waitForTimeout(500)
+    const snapshot = await webkitCspSnapshot(variantBundle.page, label)
+    variants[label] = { ...snapshot, console: cspConsoleMessages(variantBundle.events, 0) }
+    await variantBundle.context.close()
+  }
+  const variantFlag = (label) => variants[label]?.violations.some((violation) =>
+    violation.effectiveDirective === 'style-src-attr' && violation.blockedURI === 'inline') ?? false
+  const variantFlags = {
+    fullNoScript: variantFlag('fullNoScript'),
+    fullNoScriptNoCss: variantFlag('fullNoScriptNoCss'),
+    fullNoScriptNoControls: variantFlag('fullNoScriptNoControls'),
+    fullNoScriptNoDetails: variantFlag('fullNoScriptNoDetails'),
+    fullNoScriptNoFormFields: variantFlag('fullNoScriptNoFormFields'),
+    controlsOnly: variantFlag('controlsOnly'),
+    selectOnly: variantFlag('selectOnly'),
+    inputsOnly: variantFlag('inputsOnly'),
+    detailsOnly: variantFlag('detailsOnly'),
+    cssOnly: variantFlag('cssOnly'),
+  }
+
   await blankBundle.page.evaluate(() => document.getElementById('caret')?.focus())
   const blankConsoleIndex = blankBundle.events.consoleErrors.length
   await blankBundle.page.evaluate(() => {
@@ -1561,7 +1612,8 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
     pageLoad.appInlineStyleAttrs.length === 0 &&
     pageLoad.styleNodes.length === 0 &&
     pageLoad.styleAttrMutations.every((mutation) => !appStyleAttrMutation(mutation))
-  const styleSrcAttr = (snapshot) => snapshot.violations.some(toolStyleAttrViolation)
+  const styleSrcAttr = (snapshot) => snapshot.violations.some((violation) =>
+    violation.effectiveDirective === 'style-src-attr' && violation.blockedURI === 'inline')
   const generatedSvgStyle = styleSrcAttr(generatedSvg)
   const presentationSvgStyle = styleSrcAttr(presentationSvg)
   const plainSvgStyle = styleSrcAttr(plainSvg)
@@ -1572,8 +1624,15 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
   if (pageLoad.violations.length > 0) {
     if (generatedSvgStyle) pageLoadCause = 'app-inline-svg-insertion'
     else if (presentationSvgStyle) pageLoadCause = 'app-svg-presentation-attribute'
-    else if (appNoScriptStyle) pageLoadCause = 'app-html-css-or-tool'
-    else if (waitToolStyle) pageLoadCause = 'tool-wait-for-selector'
+    else if (appNoScriptStyle) {
+      if (variantFlags.fullNoScript && !variantFlags.fullNoScriptNoCss) pageLoadCause = 'app-css'
+      else if (variantFlags.controlsOnly) pageLoadCause = 'app-form-controls'
+      else if (variantFlags.selectOnly) pageLoadCause = 'app-select-control'
+      else if (variantFlags.inputsOnly) pageLoadCause = 'app-input-controls'
+      else if (variantFlags.detailsOnly) pageLoadCause = 'app-details-textarea'
+      else if (variantFlags.fullNoScript && !variantFlags.fullNoScriptNoFormFields) pageLoadCause = 'app-form-fields'
+      else pageLoadCause = 'app-html-layout'
+    } else if (waitToolStyle) pageLoadCause = 'tool-wait-for-selector'
     else pageLoadCause = 'unattributed'
   }
   const pageLoadFillApplied = Boolean(pageLoad.firstSvgFill && !['rgb(0, 0, 0)', 'none', 'rgba(0, 0, 0, 0)'].includes(pageLoad.firstSvgFill))
@@ -1584,12 +1643,12 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
   sc.assert(pageLoad.rootBackground !== 'rgba(0, 0, 0, 0)' && /mono/i.test(pageLoad.rootFont), 'page styling is active (root background and monospace font computed)', { rootBackground: pageLoad.rootBackground, rootFont: pageLoad.rootFont })
   sc.assert(pageLoad.previewSvg && pageLoad.gallerySvgs === 8 && pageLoad.selectedTitle === 'ascii letter', 'WebKit UI renders preview and eight gallery avatars under CSP', { previewSvg: pageLoad.previewSvg, gallerySvgs: pageLoad.gallerySvgs, selectedTitle: pageLoad.selectedTitle })
   if (pageLoad.violations.length > 0) {
-    sc.assert(pageLoadCause !== 'unattributed', 'WebKit page-load style-src-attr warning is isolated by a control', { pageLoadCause, generatedSvgStyle, presentationSvgStyle, appNoScriptStyle, waitToolStyle, blankPageLoadStyleAttr })
+    sc.assert(pageLoadCause !== 'unattributed', 'WebKit page-load style-src-attr warning is isolated by a control', { pageLoadCause, generatedSvgStyle, presentationSvgStyle, appNoScriptStyle, waitToolStyle, blankPageLoadStyleAttr, variantFlags })
     if (pageLoadCause.startsWith('app-')) {
       sc.assert(pageLoadFillApplied, 'WebKit inline SVG presentation fill remains applied despite the style-src-attr warning', { firstSvgFill: pageLoad.firstSvgFill, firstSvgShapeRendering: pageLoad.firstSvgShapeRendering, pageLoadCause })
-      sc.note(`WebKit page-load warning is app-attributed: cause=${pageLoadCause}. A blank strict-CSP page with the same inserted generated SVG reproduces style-src-attr=${generatedSvgStyle}; a plain SVG control reproduces=${plainSvgStyle}; the app-without-script control reproduces=${appNoScriptStyle}. The warning is a WebKit reporting/interpretation limit for inline SVG presentation attributes, not a <script>/eval/stylesheet injection. Functional check: computed first SVG fill=${pageLoad.firstSvgFill} (applied=${pageLoadFillApplied}), eight gallery SVGs present, source matches the installed package.`)
+      sc.note(`WebKit page-load warning is app-attributed: cause=${pageLoadCause}. A blank strict-CSP page with the same inserted generated SVG reproduces style-src-attr=${generatedSvgStyle}; a plain SVG control reproduces=${plainSvgStyle}; app-without-script reproduces=${appNoScriptStyle}. Reduced HTML variants: ${JSON.stringify(variantFlags)}. Functional check: computed first SVG fill=${pageLoad.firstSvgFill} (applied=${pageLoadFillApplied}), eight gallery SVGs present, source matches the installed package.`)
     } else {
-      sc.note(`WebKit page-load warning is tool/browser-attributed: cause=${pageLoadCause}; generated-SVG control=${generatedSvgStyle}; app-without-script control=${appNoScriptStyle}; waitForSelector control=${waitToolStyle}. The app has no inline style attribute in preview/gallery/status/manual, and external site.css is loaded.`)
+      sc.note(`WebKit page-load warning is tool/browser-attributed: cause=${pageLoadCause}; generated-SVG control=${generatedSvgStyle}; app-without-script control=${appNoScriptStyle}; waitForSelector control=${waitToolStyle}; reduced HTML variants=${JSON.stringify(variantFlags)}. The app has no inline style attribute in preview/gallery/status/manual, and external site.css is loaded.`)
     }
     sc.assert(pageLoadConsole.length <= 2, 'WebKit page load has only the expected stylesheet warning count', { console: pageLoadConsole })
   } else {
@@ -1648,6 +1707,8 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
       htmlStyleAttribute,
       appNoScript,
       appNoScriptConsole,
+      variants,
+      variantFlags,
       flags: { generatedSvgStyle, presentationSvgStyle, plainSvgStyle, htmlStyleControl, appNoScriptStyle, waitToolStyle },
     },
   })
