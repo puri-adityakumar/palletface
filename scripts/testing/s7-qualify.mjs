@@ -1383,6 +1383,17 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
   const pageLoadConsole = cspConsoleMessages(probeBundle.events, 0)
   const pageLoadConsoleIndex = probeBundle.events.consoleErrors.length
 
+  await probePage.selectOption('#size', '128')
+  await probePage.waitForFunction(() => document.querySelector('#svg-source')?.value?.includes('width="128"'))
+  const select128 = await probePage.evaluate(() => ({
+    size: document.querySelector('#size').value,
+    width128: document.querySelector('#svg-source').value.includes('width="128"'),
+    previewWidth: document.querySelector('#preview svg')?.getAttribute('width') ?? null,
+  }))
+  await probePage.selectOption('#size', '80')
+  await probePage.waitForFunction(() => document.querySelector('#svg-source')?.value?.includes('width="80"'))
+  sc.assert(select128.size === '128' && select128.width128 && select128.previewWidth === '128', 'WebKit select control still changes the SVG size under strict CSP despite the style-src-attr warning', select128)
+
   const webkitParity = []
   for (const style of installed.pkg.STYLES) {
     await probePage.getByRole('button', { name: `Select ${style.title}`, exact: true }).click()
@@ -1626,8 +1637,8 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
     else if (presentationSvgStyle) pageLoadCause = 'app-svg-presentation-attribute'
     else if (appNoScriptStyle) {
       if (variantFlags.fullNoScript && !variantFlags.fullNoScriptNoCss) pageLoadCause = 'app-css'
+      else if (variantFlags.selectOnly && !variantFlags.inputsOnly) pageLoadCause = 'app-native-select-control'
       else if (variantFlags.controlsOnly) pageLoadCause = 'app-form-controls'
-      else if (variantFlags.selectOnly) pageLoadCause = 'app-select-control'
       else if (variantFlags.inputsOnly) pageLoadCause = 'app-input-controls'
       else if (variantFlags.detailsOnly) pageLoadCause = 'app-details-textarea'
       else if (variantFlags.fullNoScript && !variantFlags.fullNoScriptNoFormFields) pageLoadCause = 'app-form-fields'
@@ -1646,7 +1657,7 @@ async function runWebkitCspProbe(sc, { webkit, installed, goldenHashes, siteHead
     sc.assert(pageLoadCause !== 'unattributed', 'WebKit page-load style-src-attr warning is isolated by a control', { pageLoadCause, generatedSvgStyle, presentationSvgStyle, appNoScriptStyle, waitToolStyle, blankPageLoadStyleAttr, variantFlags })
     if (pageLoadCause.startsWith('app-')) {
       sc.assert(pageLoadFillApplied, 'WebKit inline SVG presentation fill remains applied despite the style-src-attr warning', { firstSvgFill: pageLoad.firstSvgFill, firstSvgShapeRendering: pageLoad.firstSvgShapeRendering, pageLoadCause })
-      sc.note(`WebKit page-load warning is app-attributed: cause=${pageLoadCause}. A blank strict-CSP page with the same inserted generated SVG reproduces style-src-attr=${generatedSvgStyle}; a plain SVG control reproduces=${plainSvgStyle}; app-without-script reproduces=${appNoScriptStyle}. Reduced HTML variants: ${JSON.stringify(variantFlags)}. Functional check: computed first SVG fill=${pageLoad.firstSvgFill} (applied=${pageLoadFillApplied}), eight gallery SVGs present, source matches the installed package.`)
+      sc.note(`WebKit page-load warning is app-attributed to a native form control: cause=${pageLoadCause}. Blank-page controls: select-only=${variantFlags.selectOnly}, inputs-only=${variantFlags.inputsOnly}, details-only=${variantFlags.detailsOnly}, css-only=${variantFlags.cssOnly}. Full-site controls: no-controls=${variantFlags.fullNoScriptNoControls}, no-form-fields=${variantFlags.fullNoScriptNoFormFields}; no-css still warns=${variantFlags.fullNoScriptNoCss}. Generated-SVG insertion=${generatedSvgStyle}; simple-SVG presentation=${presentationSvgStyle}; app-without-script=${appNoScriptStyle}. Therefore the warning is not app inline SVG presentation style and not web-inspector/tool injection: a bare <select> under strict CSP reproduces it. The native select still functions (128/80 size change); computed first SVG fill=${pageLoad.firstSvgFill} (applied=${pageLoadFillApplied}); eight gallery SVGs present; source matches installed package.`)
     } else {
       sc.note(`WebKit page-load warning is tool/browser-attributed: cause=${pageLoadCause}; generated-SVG control=${generatedSvgStyle}; app-without-script control=${appNoScriptStyle}; waitForSelector control=${waitToolStyle}; reduced HTML variants=${JSON.stringify(variantFlags)}. The app has no inline style attribute in preview/gallery/status/manual, and external site.css is loaded.`)
     }
