@@ -654,6 +654,8 @@ async function runS609(ctx, runCase, state) {
   })
   let cssBlocked = null
   let disabled = null
+  let bootThrow = null
+  let goodLoad = null
   await jsBlocked.page.waitForTimeout(1_500)
   await runCase('js-blocked-static-fallback', async (c) => {
       const view = await jsBlocked.page.evaluate(() => ({
@@ -662,6 +664,16 @@ async function runS609(ctx, runCase, state) {
         galleryButtons: document.querySelectorAll('#gallery button').length,
         previewSvgs: document.querySelectorAll('#preview svg').length,
         status: document.getElementById('status')?.textContent ?? '',
+        statusState: document.getElementById('status')?.getAttribute('data-state') ?? null,
+        statusRole: document.getElementById('status')?.getAttribute('role') ?? null,
+        statusVisible: (() => {
+          const element = document.getElementById('status')
+          if (!element) return false
+          const style = getComputedStyle(element)
+          return element.offsetParent !== null && style.display !== 'none' && style.visibility !== 'hidden'
+        })(),
+        controlsDisabled: ['seed', 'name', 'size', 'copy-svg', 'download-svg', 'copy-code', 'share']
+          .every((id) => document.getElementById(id)?.disabled === true),
         noscriptVisible: (() => {
           const element = document.querySelector('noscript')
           if (!element) return null
@@ -675,12 +687,37 @@ async function runS609(ctx, runCase, state) {
       c.check(view.text.includes('Plain SVG. Clear rules.'), 'documentation remains visible')
       c.equal(view.galleryButtons, 0, 'playground controls do not render without the JS bundle')
       c.equal(view.previewSvgs, 0, 'avatar preview does not render without the JS bundle')
-      c.equal(view.status, '', 'no explicit in-page status exists for this failure')
+      c.check(view.status.includes('could not start'), 'explicit in-page failure status is shown', { status: view.status })
+      c.equal(view.statusState, 'failed', 'failure status is marked failed')
+      c.equal(view.statusRole, 'status', 'failure status uses the existing status role')
+      c.check(view.statusVisible, 'failure status is rendered', { status: view.status })
+      c.check(view.controlsDisabled, 'playground controls stay disabled when the bundle fails')
       c.check(view.noscriptVisible === false, 'noscript notice is not shown while scripting is enabled')
       state.notes.push({
-        severity: 'S2',
-        message: 'JS bundle blocked: static hero/docs/footer remain readable and the page is not blank, but the playground is unavailable and no in-page failure status is shown. User impact recorded for parent review; no non-existent error UI was required.',
+        severity: 'info',
+        message: 'JS bundle blocked: static hero/docs/footer remain readable, the existing status region shows explicit failure feedback, controls stay disabled, and no gallery is presented as active. Q-002 recheck evidence recorded; disposition remains parent-owned.',
       })
+    })
+
+    await runCase('js-blocked-explicit-status', async (c) => {
+      const view = await jsBlocked.page.evaluate(() => ({
+        message: document.getElementById('status')?.textContent ?? '',
+        state: document.getElementById('status')?.getAttribute('data-state') ?? null,
+        appReady: document.documentElement.dataset.appReady ?? null,
+        ariaBusy: document.querySelector('.playground')?.getAttribute('aria-busy') ?? null,
+        galleryButtons: document.querySelectorAll('#gallery button').length,
+        previewSvgs: document.querySelectorAll('#preview svg').length,
+        seedValue: document.getElementById('seed')?.value ?? null,
+        nameValue: document.getElementById('name')?.value ?? null,
+      }))
+      c.check(view.message.includes('could not start'), 'failure message explains the app did not start', { message: view.message })
+      c.equal(view.state, 'failed', 'failure message state remains failed')
+      c.equal(view.appReady, null, 'app never marked itself ready')
+      c.equal(view.ariaBusy, 'true', 'playground remains busy while unavailable')
+      c.equal(view.galleryButtons, 0, 'no falsely active blank gallery')
+      c.equal(view.previewSvgs, 0, 'no blank preview is presented as rendered')
+      c.equal(view.seedValue, '', 'static seed stays empty before the app initializes')
+      c.equal(view.nameValue, '', 'static name stays empty before the app initializes')
     })
 
     await runCase('js-blocked-network-vs-pageerror', async (c) => {
@@ -772,14 +809,75 @@ async function runS609(ctx, runCase, state) {
       c.check(bodyText.includes('This playground needs JavaScript'), 'visible body text includes the noscript explanation')
       c.check(heading.includes('One seed'), 'static hero remains visible with JavaScript disabled')
       c.equal(galleryButtons, 0, 'no gallery without JavaScript')
+      c.check((await disabled.page.locator('#status').innerText()).includes('Loading the interactive playground'), 'static status explains the app has not loaded')
+      c.check(await disabled.page.locator('#seed').isDisabled(), 'controls stay disabled without JavaScript')
       c.equal(disabled.rec.pageErrors.length, 0, 'no page error with JavaScript disabled')
       const shot = await captureScreenshot(disabled.page, ctx.screenshotsDir, 'S6-09-js-disabled')
       state.screenshots.push(shot)
       state.notes.push({
         severity: 'info',
-        message: 'JavaScript disabled: the documented noscript notice is visible and static content remains; no defect observed for this documented limitation.',
+        message: 'JavaScript disabled: the documented noscript notice is visible, the static status explains the app is unavailable, controls stay disabled, and static content remains.',
       })
     })
+
+  bootThrow = await openPage(ctx.chromium, {
+    origin: ctx.origin,
+    url: '/?seed=boot-throw',
+    waitReady: false,
+    routes: [{
+      glob: '**/assets/app.js',
+      handler: (route) => route.fulfill({
+        status: 200,
+        contentType: 'text/javascript; charset=utf-8',
+        body: 'throw new Error("S6 boot regression")',
+      }),
+    }],
+  })
+  await bootThrow.page.waitForTimeout(1_000)
+  await runCase('js-bootthrow-explicit-status', async (c) => {
+    const view = await bootThrow.page.evaluate(() => ({
+      message: document.getElementById('status')?.textContent ?? '',
+      state: document.getElementById('status')?.getAttribute('data-state') ?? null,
+      appReady: document.documentElement.dataset.appReady ?? null,
+      galleryButtons: document.querySelectorAll('#gallery button').length,
+      previewSvgs: document.querySelectorAll('#preview svg').length,
+      controlsDisabled: ['seed', 'name', 'size', 'copy-svg', 'download-svg', 'copy-code', 'share']
+        .every((id) => document.getElementById(id)?.disabled === true),
+    }))
+    c.check(view.message.includes('could not start'), 'boot error produces readable failure feedback', { message: view.message })
+    c.equal(view.state, 'failed', 'boot error marks the status failed')
+    c.equal(view.appReady, null, 'boot error never marks the app ready')
+    c.equal(view.galleryButtons, 0, 'boot error leaves no falsely active gallery')
+    c.equal(view.previewSvgs, 0, 'boot error leaves no blank preview')
+    c.check(view.controlsDisabled, 'boot error keeps controls disabled')
+    c.equal(bootThrow.rec.failed.length, 0, 'boot error is not a network failure')
+    c.equal(bootThrow.rec.pageErrors.length, 1, 'boot error is recorded as one page error', { pageErrors: bootThrow.rec.pageErrors })
+    c.check(bootThrow.rec.pageErrors.some((message) => message.includes('S6 boot regression')), 'recorded boot error matches the injected throw')
+  })
+
+  goodLoad = await openPage(ctx.chromium, { origin: ctx.origin, url: '/?seed=good-load' })
+  await runCase('good-load-loading-cleared', async (c) => {
+    const view = await goodLoad.page.evaluate(() => ({
+      statusText: document.getElementById('status')?.textContent ?? '',
+      statusState: document.getElementById('status')?.getAttribute('data-state') ?? null,
+      appReady: document.documentElement.dataset.appReady ?? null,
+      ariaBusy: document.querySelector('.playground')?.getAttribute('aria-busy') ?? null,
+      controlsDisabled: ['seed', 'name', 'size', 'copy-svg', 'download-svg', 'copy-code', 'share']
+        .some((id) => document.getElementById(id)?.disabled === true),
+      galleryButtons: document.querySelectorAll('#gallery button').length,
+      previewSvgs: document.querySelectorAll('#preview svg').length,
+      bodyHasLoadingText: document.body.innerText.includes('Loading the interactive playground'),
+    }))
+    c.equal(view.statusText, '', 'successful initial render clears the loading status')
+    c.equal(view.statusState, null, 'successful render removes the loading state marker')
+    c.equal(view.appReady, 'true', 'successful render marks the app ready')
+    c.equal(view.ariaBusy, 'false', 'successful render clears the playing busy flag')
+    c.check(!view.controlsDisabled, 'successful render enables every playground control')
+    c.equal(view.galleryButtons, 8, 'successful render exposes all eight gallery buttons')
+    c.equal(view.previewSvgs, 1, 'successful render exposes one preview SVG')
+    c.check(!view.bodyHasLoadingText, 'no loading text remains after a good load')
+    assertClean(c, goodLoad.rec, { label: 'good load' })
+  })
 
   await runCase('no-permanent-blank-both-modes', async (c) => {
     const jsText = await jsBlocked.page.evaluate(() => document.body.innerText.length)
@@ -793,9 +891,13 @@ async function runS609(ctx, runCase, state) {
   state.traces.push(traceRecord('js-blocked', jsBlocked.rec))
   if (cssBlocked) state.traces.push(traceRecord('css-blocked', cssBlocked.rec))
   if (disabled) state.traces.push(traceRecord('js-disabled', disabled.rec))
+  if (bootThrow) state.traces.push(traceRecord('js-bootthrow', bootThrow.rec))
+  if (goodLoad) state.traces.push(traceRecord('good-load', goodLoad.rec))
   await closePage(jsBlocked)
   await closePage(cssBlocked)
   await closePage(disabled)
+  await closePage(bootThrow)
+  await closePage(goodLoad)
 }
 
 export async function runScenariosB(ctx) {

@@ -4,13 +4,20 @@
   "createdBeforeExecution": "2026-11-04",
   "productSourceCommitAtCreation": "a521e78bc8fb4855781feffded0167996bbee65a",
   "productFreezeBase": "5cdf36450516d9f4af31d882f1191aeeec892e3e",
-  "note": "Written before the Stage 8 sandbox harness ran. It records expected status and method, not observed results. It is not self-approval and makes no release claim. Expected PASS does not override an actual FAIL; any FAIL/BLOCKED is reported as observed.",
+  "note": "Written before the Stage 8 sandbox harness ran, then updated before the S8-R1 execution only for the parent-authorized site-only Q-002/Q-003 correction. It records expected status and method, not observed results. It is not self-approval and makes no release claim. Expected PASS does not override an actual FAIL; any FAIL/BLOCKED is reported as observed. The library/package freeze remains unchanged; site changes are limited to the authorized contrast and fallback correction.",
+  "siteFixAuthorized": {
+    "scope": "site/**, scripts/build-site.mjs, small S6/S8 fallback harness additions, browser regression checks and S8-R1 evidence/CHANGELOG site entry only",
+    "libraryUntouched": true,
+    "tarball": "ed4c359b1b023e9b68a584334faef914390372f5e589b8c28d569b6932c20021",
+    "q002": "rechecked against the new static failure feedback; parent disposition remains PENDING",
+    "q003": "rechecked against the new computed contrast values; parent disposition remains PENDING"
+  },
   "expectations": {
     "S8-01": {
       "title": "Automated accessibility",
       "severity": "S1",
       "expectedStatus": "PASS",
-      "expected": "Pinned axe-core 4.11.0 default rules run in Chromium, Firefox, WebKit and mobile Chromium on the default page, and in Chromium on selected-style, clipboard-fallback, source-expanded, narrow-view and JS-asset-blocked states. No serious or critical axe violations. Moderate/minor violations and incomplete results are reported, not hidden. Negative controls with a missing label and low-contrast text are detected by the same scanner. The pre-existing Q-002 missing-JS-asset failure state remains OPEN and is not waived by any S8 result."
+      "expected": "Pinned axe-core 4.11.0 default rules run in Chromium, Firefox, WebKit and mobile Chromium on the default page, and in Chromium on selected-style, clipboard-fallback, source-expanded, narrow-view and JS-asset-blocked states. No serious or critical axe violations. Moderate/minor violations and incomplete results are reported, not hidden. Negative controls with a missing label and low-contrast text are detected by the same scanner. Q-002 is rechecked against the new static failure feedback: blocking the app script or throwing during boot leaves a readable failure in the existing status region and disabled controls, with no falsely active blank gallery. Q-002 remains parent-owned and is not self-closed or waived by any S8 result."
     },
     "S8-02": {
       "title": "Keyboard operation",
@@ -22,13 +29,13 @@
       "title": "Labels and roles",
       "severity": "S1",
       "expectedStatus": "PASS",
-      "expected": "Every interactive control has a non-empty accessible name and the expected role/state. The size select is named 'Size' and does not absorb its option text. The preview has role img and an updating accessible label; generated decorative SVG and gallery thumbnails are hidden from assistive technology. State buttons expose aria-pressed. The static HTML with the JS asset blocked still labels seed, name, size and both textareas."
+      "expected": "Every interactive control has a non-empty accessible name and the expected role/state. The size select is named 'Size' and does not absorb its option text. The preview has role img and an updating accessible label; generated decorative SVG and gallery thumbnails are hidden from assistive technology. The gallery is a valid named group whose accessible name comes from its visible heading. State buttons expose aria-pressed. The static HTML with the JS asset blocked still labels seed, name, size and both textareas, keeps controls disabled, and exposes the static loading/failure status in the single existing status region."
     },
     "S8-04": {
       "title": "Status announcements",
       "severity": "S1",
       "expectedStatus": "PASS",
-      "expected": "One live DOM status region has role=status and aria-live=polite. Copy success, clipboard fallback/failure and download success set the fixed visible messages and do not duplicate the live region. Render updates clear the status without noisy announcements. No screen-reader speech verification is claimed because no assistive technology is available; that manual subcheck is BLOCKED. A synthetic download-exception probe is recorded as an explicit limitation, not a speech claim. Q-002 remains OPEN and is not waived."
+      "expected": "One live DOM status region has role=status and aria-live=polite. The same region holds the static loading message until a successful initial render clears it, and holds readable failure feedback if the app does not start. Copy success, clipboard fallback/failure and download success set the fixed visible messages and do not duplicate the live region. Render updates clear the status without noisy announcements. No screen-reader speech verification is claimed because no assistive technology is available; that manual subcheck is BLOCKED. The synthetic download-exception probe now verifies the bounded failure status and URL cleanup instead of accepting an empty status. Q-002 remains parent-owned and is not self-closed or waived."
     },
     "S8-05": {
       "title": "Zoom and reflow",
@@ -46,7 +53,7 @@
       "title": "Contrast and forced colors",
       "severity": "S1",
       "expectedStatus": "PASS",
-      "expected": "Computed WCAG AA checks require 4.5:1 for normal text and 3:1 for large text. Control boundaries and focus indicators require 3:1 against the adjacent background; selected state must not rely on colour alone and must expose aria-pressed. Text, control boundaries, focus and selected state are measured from actual computed colours and inspected in screenshots. Chromium forced-colors emulation is checked for visible boundaries, focus and selected state without colour alone. A synthetic low-contrast negative control must be detected by the same checker. If any required ratio is unmet, the scenario is FAIL and is not waived."
+      "expected": "Computed WCAG AA checks require 4.5:1 for normal text and 3:1 for large text, with explicitly opaque placeholder colours and a margin above the 4.5 minimum. Control boundaries require 3:1 against the adjacent background in normal, hover and selected states; focus indicators require 3:1 and at least 2 px; selected state must not rely on colour alone and must expose aria-pressed. Text, control boundaries, focus and selected state are measured from actual computed colours and inspected in screenshots. Chromium forced-colors emulation is checked for visible boundaries, focus and selected state without colour alone. A synthetic low-contrast negative control must be detected by the same checker. If any required ratio is unmet, the scenario is FAIL and is not waived."
     },
     "S8-08": {
       "title": "Reduced motion",

@@ -3,7 +3,7 @@
   "title": "Playground URL, history, parameters, rapid input, copy/download, snippets and asset failure",
   "createdBeforeExecution": "2026-11-04",
   "productSourceCommit": "104195bfd5107378d95e7ff081275e14a8db5fe7",
-  "baselineNote": "Product source src/ and site/ are unchanged between 104195b and the Stage 6 checkout 668e381; only docs and qualification files changed. The approved tarball is ed4c359b... and the site bundle is built from the unchanged site source in the dedicated sandbox.",
+  "baselineNote": "Product source src/ is unchanged between 104195b and the Stage 6 checkout 668e381; only docs and qualification files changed. The approved tarball is ed4c359b... and the library output is unchanged. Site R1 authorizes the scoped Q-002/Q-003 site-only correction (static loading/failure status, disabled-until-ready controls, gallery group semantics, AA contrast, bounded download failure/cleanup); the S6-09 expectation was updated before execution to require that new fallback behavior, and no failing assertion was removed or relaxed.",
   "note": "Written before the Stage 6 sandbox harness ran. Every assigned scenario is expected to PASS. Any observed FAIL, BLOCKED or NOT RUN is a provisional agent result requiring parent review; this file is not self-approval and makes no release claim. The golden hashes are the parent-accepted Stage 2 R1 S2-08 fixed-fixture values (including the approved Q-001 ascii-letter hash), not Stage 6 observations.",
   "expectedTarball": {
     "filename": "dither-face-0.1.0.tgz",
@@ -56,10 +56,10 @@
     ],
     "server": "node scripts/serve-site.mjs --port 4173 bound to 127.0.0.1 only inside the sandbox"
   },
-  "caseCountRule": "Exactly 87 logical cases across the nine scenarios; each scenario's expected case count is the length of its cases array. The checker records the actual count, names and order and fails on any mismatch. Assertion counts are observed and recorded, not predeclared.",
+  "caseCountRule": "Exactly 90 logical cases across the nine scenarios; each scenario's expected case count is the length of its cases array. The checker records the actual count, names and order and fails on any mismatch. Assertion counts are observed and recorded, not predeclared.",
   "expectedTotals": {
     "scenarios": 9,
-    "cases": 87,
+    "cases": 90,
     "expectedStatuses": {
       "PASS": 9
     },
@@ -214,14 +214,17 @@
       "title": "Asset failure",
       "severity": "S2",
       "expectedStatus": "PASS",
-      "expected": "Blocking the JavaScript bundle and the CSS stylesheet separately produces one bounded failed request each, with no retry loop and no application unhandled exception. The static HTML fallback remains meaningful and is never a permanent blank page. With JavaScript blocked the static hero, docs and footer remain readable but the playground cannot render; no explicit in-page failure status exists, so this is recorded as an S2 user-impact observation rather than demanding a non-existent error UI. With CSS blocked the playground remains fully functional but unstyled, recorded as S3. With JavaScript disabled entirely, the noscript message explains that JavaScript is required and static content remains visible. Broken-asset network failures are counted separately from application page errors.",
+      "expected": "Blocking the JavaScript bundle and the CSS stylesheet separately produces one bounded failed request each, with no retry loop and no application unhandled exception. The static HTML fallback remains meaningful and is never a permanent blank page. With JavaScript blocked the static hero, docs and footer remain readable and the pre-existing status region shows explicit, readable failure feedback; playground controls stay disabled, the playground remains aria-busy, and no blank gallery or preview is presented as rendered. A synthetic runtime boot throw produces the same readable failure state and one bounded page error, not a network failure. A good load clears the loading status only after a successful render, clears the busy flag, and enables every control. With CSS blocked the playground remains fully functional but unstyled, recorded as S3. With JavaScript disabled entirely, the noscript message and static loading status explain that JavaScript is required, controls stay disabled, and static content remains visible. Broken-asset network failures are counted separately from application page errors.",
       "cases": [
         "js-blocked-static-fallback",
+        "js-blocked-explicit-status",
         "js-blocked-network-vs-pageerror",
         "js-blocked-no-retry-no-blank",
         "css-blocked-playground-functional",
         "css-blocked-no-retry-unstyled",
         "js-disabled-noscript",
+        "js-bootthrow-explicit-status",
+        "good-load-loading-cleared",
         "no-permanent-blank-both-modes"
       ]
     }

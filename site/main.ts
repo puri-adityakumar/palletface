@@ -16,9 +16,26 @@ const usage = byId<HTMLElement>('usage')
 const source = byId<HTMLTextAreaElement>('svg-source')
 const manualCopy = byId<HTMLTextAreaElement>('manual-copy')
 const manualPanel = byId<HTMLDetailsElement>('manual-panel')
+const copySvg = byId<HTMLButtonElement>('copy-svg')
+const downloadSvg = byId<HTMLButtonElement>('download-svg')
+const copyCode = byId<HTMLButtonElement>('copy-code')
+const share = byId<HTMLButtonElement>('share')
+const playground = document.querySelector<HTMLElement>('.playground')
+const interactiveControls: Array<HTMLInputElement | HTMLSelectElement | HTMLButtonElement | HTMLTextAreaElement> = [
+  seed,
+  name,
+  size,
+  copySvg,
+  downloadSvg,
+  copyCode,
+  share,
+  manualCopy,
+  source,
+]
 const sizes = new Set(['48', '80', '128', '192'])
 let selected: StyleSlug = 'pixel-sprite'
 let currentSvg = ''
+let ready = false
 
 function restoreState() {
   const params = new URLSearchParams(location.search)
@@ -65,6 +82,15 @@ function refresh() {
   render()
 }
 
+function markReady() {
+  if (ready) return
+  ready = true
+  document.documentElement.dataset.appReady = 'true'
+  status.removeAttribute('data-state')
+  for (const control of interactiveControls) control.disabled = false
+  playground?.setAttribute('aria-busy', 'false')
+}
+
 restoreState()
 for (const style of STYLES) {
   const button = document.createElement('button')
@@ -104,20 +130,37 @@ async function copy(text: string, message: string) {
   }
 }
 
-byId('copy-svg').addEventListener('click', () => { void copy(currentSvg, 'SVG copied.') })
-byId('copy-code').addEventListener('click', () => { void copy(usage.textContent ?? '', 'Usage code copied.') })
-byId('share').addEventListener('click', () => { void copy(location.href, 'Share link copied.') })
-byId('download-svg').addEventListener('click', () => {
-  const url = URL.createObjectURL(new Blob([currentSvg], { type: 'image/svg+xml;charset=utf-8' }))
-  const anchor = document.createElement('a')
-  anchor.href = url
-  anchor.download = 'dither-face.svg'
-  document.body.append(anchor)
-  anchor.click()
-  anchor.remove()
-  // Revoking synchronously can race the download in some engines.
-  window.setTimeout(() => URL.revokeObjectURL(url), 1_000)
-  status.textContent = 'SVG downloaded.'
+copySvg.addEventListener('click', () => { void copy(currentSvg, 'SVG copied.') })
+copyCode.addEventListener('click', () => { void copy(usage.textContent ?? '', 'Usage code copied.') })
+share.addEventListener('click', () => { void copy(location.href, 'Share link copied.') })
+downloadSvg.addEventListener('click', () => {
+  let url: string | null = null
+  let anchor: HTMLAnchorElement | null = null
+  let failed = false
+  try {
+    url = URL.createObjectURL(new Blob([currentSvg], { type: 'image/svg+xml;charset=utf-8' }))
+    anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = 'dither-face.svg'
+    document.body.append(anchor)
+    anchor.click()
+    status.textContent = 'SVG downloaded.'
+  } catch {
+    failed = true
+    status.textContent = 'Download unavailable. Use Copy SVG or the manual copy panel instead.'
+  } finally {
+    anchor?.remove()
+    if (url !== null) {
+      const objectUrl = url
+      if (failed) {
+        URL.revokeObjectURL(objectUrl)
+      } else {
+        // Revoking synchronously can race the download in some engines.
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1_000)
+      }
+    }
+  }
 })
 
 refresh()
+markReady()

@@ -16,7 +16,7 @@ await build({
   target: ['es2022'],
   outfile: fileURLToPath(new URL('assets/app.js', output)),
 })
-for (const path of ['index.html', 'site.css', 'favicon.svg', 'robots.txt', 'sitemap.xml', '_headers']) {
+for (const path of ['index.html', 'bootstrap.js', 'site.css', 'favicon.svg', 'robots.txt', 'sitemap.xml', '_headers']) {
   await cp(new URL(`../site/${path}`, import.meta.url), new URL(path, output))
 }
 await cp(new URL('../site/assets/social-preview.svg', import.meta.url), new URL('social-preview.svg', output))

@@ -873,28 +873,86 @@ async function scenarioS801(ctx) {
   try {
     await q002Opened.page.route('**/assets/app.js', route => route.abort())
     await gotoSite(q002Opened.page, '/', { waitForApp: false })
+    await q002Opened.page.waitForFunction(() => document.querySelector('#status')?.getAttribute('data-state') === 'failed', null, { timeout: 5000 }).catch(() => {})
     const state = await q002Opened.page.evaluate(() => ({
       title: document.title,
       staticHeading: document.querySelector('h1')?.textContent?.replace(/\s+/g, ' ').trim() ?? null,
       controlsPresent: Boolean(document.querySelector('#seed') && document.querySelector('#size')),
+      controlsDisabled: ['seed', 'name', 'size', 'copy-svg', 'download-svg', 'copy-code', 'share']
+        .every(id => document.getElementById(id)?.disabled === true),
       statusText: document.querySelector('#status')?.textContent ?? null,
       statusRole: document.querySelector('#status')?.getAttribute('role') ?? null,
+      statusState: document.querySelector('#status')?.getAttribute('data-state') ?? null,
+      statusVisible: (() => {
+        const element = document.querySelector('#status')
+        if (!element) return false
+        const style = getComputedStyle(element)
+        return element.offsetParent !== null && style.display !== 'none' && style.visibility !== 'hidden'
+      })(),
+      appReady: document.documentElement.dataset.appReady ?? null,
+      busy: document.querySelector('.playground')?.getAttribute('aria-busy') ?? null,
       previewChildren: document.querySelector('#preview')?.children.length ?? null,
       galleryChildren: document.querySelector('#gallery')?.children.length ?? null,
       bodyTextLength: document.body.innerText.length
     }))
-    ctx.q002 = {
-      status: 'OPEN',
-      source: 'S6-09',
-      expectedFailureMessage: false,
-      note: 'Blocking the site JavaScript asset with scripting enabled leaves static content readable, but no explanatory failure state or status message is shown. Stage 8 did not fix or waive Q-002.',
-      state,
-      console: q002Opened.logs.console,
-      pageErrors: q002Opened.logs.pageErrors,
-      requestFailed: q002Opened.logs.requestFailed
+    await runCase('S8-01', 'q002 js asset blocked fallback chromium', async chk => {
+      chk.ok(state.statusVisible, 'failure status is visible when the JS asset is blocked', state)
+      chk.eq(state.statusRole, 'status', 'failure feedback uses the single status role')
+      chk.ok(String(state.statusText).includes('could not start'), 'failure status explains the app did not start', { statusText: state.statusText })
+      chk.eq(state.statusState, 'failed', 'failure status is marked failed')
+      chk.ok(state.controlsDisabled, 'playground controls stay disabled when the JS asset is blocked')
+      chk.eq(state.appReady, null, 'blocked asset never marks the app ready')
+      chk.eq(state.busy, 'true', 'playground remains busy while unavailable')
+      chk.eq(state.galleryChildren, 0, 'no falsely active blank gallery')
+      chk.eq(state.previewChildren, 0, 'no blank preview is presented as rendered')
+      chk.ok(state.controlsPresent, 'static labelled controls remain present')
+      chk.ok(state.bodyTextLength > 500, 'static content remains readable', { length: state.bodyTextLength })
+      return state
+    })
+    const q002Boot = await openPage(ctx.browsers.chromium, { viewport: { width: 1280, height: 800 } })
+    try {
+      await q002Boot.page.route('**/assets/app.js', route => route.fulfill({
+        status: 200,
+        contentType: 'text/javascript; charset=utf-8',
+        body: 'throw new Error("s8 q002 boot throw")'
+      }))
+      await q002Boot.page.goto(`${baseUrl}/`, { waitUntil: 'load', timeout: 30000 })
+      await q002Boot.page.waitForFunction(() => document.querySelector('#status')?.getAttribute('data-state') === 'failed', null, { timeout: 5000 }).catch(() => {})
+      const bootState = await q002Boot.page.evaluate(() => ({
+        statusText: document.querySelector('#status')?.textContent ?? null,
+        statusState: document.querySelector('#status')?.getAttribute('data-state') ?? null,
+        controlsDisabled: ['seed', 'name', 'size', 'copy-svg', 'download-svg', 'copy-code', 'share']
+          .every(id => document.getElementById(id)?.disabled === true),
+        galleryChildren: document.querySelector('#gallery')?.children.length ?? null,
+        previewChildren: document.querySelector('#preview')?.children.length ?? null,
+        appReady: document.documentElement.dataset.appReady ?? null
+      }))
+      await runCase('S8-01', 'q002 boot throw fallback chromium', async chk => {
+        chk.ok(String(bootState.statusText).includes('could not start'), 'boot throw produces readable failure feedback', bootState)
+        chk.eq(bootState.statusState, 'failed', 'boot throw marks the status failed')
+        chk.ok(bootState.controlsDisabled, 'boot throw keeps controls disabled')
+        chk.eq(bootState.galleryChildren, 0, 'boot throw leaves no false gallery')
+        chk.eq(bootState.previewChildren, 0, 'boot throw leaves no blank preview')
+        chk.eq(bootState.appReady, null, 'boot throw never marks the app ready')
+        return bootState
+      })
+      ctx.q002 = {
+        status: 'FIXED_PENDING_PARENT_REVIEW',
+        source: 'S6-09',
+        expectedFailureMessage: true,
+        note: 'Blocked JS asset and runtime boot throw both show readable failure feedback in the single existing status region and keep controls disabled. The fix is scoped to site markup/bootstrap/main/CSS; Q-002 disposition remains parent-owned and is not self-closed.',
+        state,
+        bootState,
+        console: q002Opened.logs.console,
+        pageErrors: q002Opened.logs.pageErrors,
+        requestFailed: q002Opened.logs.requestFailed,
+        bootPageErrors: q002Boot.logs.pageErrors
+      }
+    } finally {
+      await q002Boot.context.close()
     }
     await writeJson(path.join(out, 'artifacts', 's8-01-q002-js-asset-blocked.json'), ctx.q002)
-    scenarios['S8-01'].notes.push('Q-002 rechecked under S8-01: JS asset blocked, static content readable, no explanatory failure message; remains OPEN and is not counted as an S8 PASS.')
+    scenarios['S8-01'].notes.push('Q-002 rechecked under S8-01: JS asset blocked and boot throw both show readable failure feedback with disabled controls; remains parent-owned PENDING, not self-closed.')
   } finally {
     await q002Opened.context.close()
   }
@@ -1348,7 +1406,10 @@ async function scenarioS803(ctx) {
         manual: document.querySelector('label[for="manual-copy"]')?.textContent,
         source: document.querySelector('label[for="svg-source"]')?.textContent,
         galleryChildren: document.querySelector('#gallery')?.children.length,
-        statusText: document.querySelector('#status')?.textContent
+        statusText: document.querySelector('#status')?.textContent,
+        statusState: document.querySelector('#status')?.getAttribute('data-state'),
+        controlsDisabled: ['seed', 'name', 'size', 'copy-svg', 'download-svg', 'copy-code', 'share']
+          .every(id => document.getElementById(id)?.disabled === true)
       }))
       chk.ok(staticLabels.seed.includes('Seed'), 'static seed input is labelled', staticLabels)
       chk.ok(staticLabels.name.includes('Display name (optional)'), 'static name input is labelled', staticLabels)
@@ -1358,10 +1419,13 @@ async function scenarioS803(ctx) {
       chk.ok(staticLabels.manual === 'Text to copy', 'static manual textarea is labelled', staticLabels)
       chk.ok(staticLabels.source === 'SVG source', 'static source textarea is labelled', staticLabels)
       chk.eq(staticLabels.galleryChildren, 0, 'static gallery has no JS-created buttons')
-      chk.eq(staticLabels.statusText, '', 'static status is empty before JS')
+      chk.ok(staticLabels.statusText.includes('Loading the interactive playground'), 'static status explains the app has not loaded', staticLabels)
+      chk.eq(staticLabels.statusState, 'loading', 'static status is marked loading')
+      chk.ok(staticLabels.controlsDisabled, 'static playground controls stay disabled until a successful render', staticLabels)
       chk.eq(await roleNameCount(opened.page, 'textbox', 'Seed'), 1, 'static HTML exposes named Seed textbox')
       chk.eq(await roleNameCount(opened.page, 'combobox', 'Size'), 1, 'static HTML exposes named Size combobox')
       chk.eq(await roleNameCount(opened.page, 'combobox', /48 px|80 px/), 0, 'static HTML size name excludes options')
+      chk.eq(await roleNameCount(opened.page, 'group', 'All eight styles'), 1, 'static gallery is a group named by its visible heading')
       await writeJson(path.join(out, 'artifacts', 's8-03-static-nojs.json'), staticLabels)
       return staticLabels
     } finally {
@@ -1520,7 +1584,7 @@ async function scenarioS804(ctx) {
     }
   })
 
-  await runCase('S8-04', 'synthetic download exception probe chromium', async chk => {
+  await runCase('S8-04', 'synthetic download failure status and cleanup chromium', async chk => {
     const opened = await openPage(ctx.browsers.chromium, { viewport: { width: 1280, height: 800 } })
     try {
       await gotoSite(opened.page, '/?seed=download-failure')
@@ -1530,15 +1594,33 @@ async function scenarioS804(ctx) {
       await opened.page.click('#download-svg')
       await opened.page.waitForTimeout(300)
       const state = await liveRegionState(opened.page)
-      const errors = opened.logs.pageErrors
-      chk.ok(errors.length > 0, 'synthetic download exception is observable as a page error', { errors })
-      chk.note(`Synthetic download exception probe: status="${state.statusText ?? ''}", pageErrors=${errors.length}. This is reported as a limitation/observation, not as a passed fixed-failure-message contract.`)
-      ctx.limitations.push({
-        id: 'S8-L1-download-exception',
-        text: 'A synthetic URL.createObjectURL exception produced no fixed download-failure status message; this edge is not part of the documented site contract and was not fixed in this stage. It is recorded rather than silently passed.'
+      const errorsAfterCreate = opened.logs.pageErrors.length
+      chk.ok(String(state.statusText).includes('Download unavailable'), 'createObjectURL failure produces a bounded visible status', state)
+      chk.eq(errorsAfterCreate, 0, 'createObjectURL failure is caught without an unhandled page error', { pageErrors: opened.logs.pageErrors })
+
+      await opened.page.reload()
+      await opened.page.evaluate(() => {
+        window.__s8Revoked = []
+        const original = URL.revokeObjectURL.bind(URL)
+        URL.revokeObjectURL = (url) => {
+          window.__s8Revoked.push(url)
+          original(url)
+        }
+        HTMLAnchorElement.prototype.click = () => { throw new Error('s8 synthetic download click failure') }
       })
-      await writeJson(path.join(out, 'artifacts', 's8-04-download-exception.json'), { state, errors, console: opened.logs.console })
-      return { state, errors }
+      await opened.page.click('#download-svg')
+      await opened.page.waitForTimeout(300)
+      const clickState = await liveRegionState(opened.page)
+      const cleanup = await opened.page.evaluate(() => ({
+        revoked: window.__s8Revoked ?? [],
+        errors: window.__s8PageErrors ?? null
+      }))
+      chk.ok(String(clickState.statusText).includes('Download unavailable'), 'download click failure produces a bounded visible status', clickState)
+      chk.eq(cleanup.revoked.length, 1, 'created object URL is revoked when the download click fails', cleanup)
+      chk.ok(String(cleanup.revoked[0]).startsWith('blob:'), 'revoked URL is the created blob URL', cleanup)
+      chk.eq(opened.logs.pageErrors.length, 0, 'download failures do not produce unhandled page errors', { pageErrors: opened.logs.pageErrors })
+      await writeJson(path.join(out, 'artifacts', 's8-04-download-exception.json'), { state, clickState, errorsAfterCreate, cleanup, errors: opened.logs.pageErrors, console: opened.logs.console })
+      return { state, clickState, cleanup }
     } finally {
       await opened.context.close()
     }
@@ -1997,6 +2079,7 @@ async function collectTextContrast(page) {
         id: input.id || null,
         placeholder: input.getAttribute('placeholder'),
         color: style.color,
+        opacity: style.opacity,
         background: helpers.rgbString(background),
         ratio: Math.round(ratio * 100) / 100,
         required: 4.5
@@ -2071,6 +2154,34 @@ async function collectFocusContrast(page) {
   }))
 }
 
+async function controlBoundaryRecord(page, selector) {
+  await installHelpers(page)
+  return page.evaluate((target) => {
+    const helpers = window.__s8
+    const element = document.querySelector(target)
+    if (!element) return null
+    const style = getComputedStyle(element)
+    const background = helpers.backgroundColor(element)
+    const parentBackground = helpers.backgroundColor(element.parentElement)
+    const border = helpers.composite(helpers.parseColor(style.borderTopColor), parentBackground)
+    const borderContrast = helpers.contrast(border, parentBackground)
+    const backgroundContrast = helpers.contrast(background, parentBackground)
+    return {
+      tag: element.tagName.toLowerCase(),
+      id: element.id || null,
+      className: typeof element.className === 'string' ? element.className : null,
+      borderStyle: style.borderTopStyle,
+      borderWidth: Number.parseFloat(style.borderTopWidth) || 0,
+      borderColor: style.borderTopColor,
+      background: helpers.rgbString(background),
+      parentBackground: helpers.rgbString(parentBackground),
+      borderContrast: Math.round(borderContrast * 100) / 100,
+      backgroundContrast: Math.round(backgroundContrast * 100) / 100,
+      best: Math.round(Math.max(borderContrast, backgroundContrast) * 100) / 100
+    }
+  }, selector)
+}
+
 async function scenarioS807(ctx) {
   await runCase('S8-07', 'text contrast chromium', async chk => {
     const opened = await openPage(ctx.browsers.chromium, { viewport: { width: 1280, height: 800 } })
@@ -2081,6 +2192,9 @@ async function scenarioS807(ctx) {
       const textFailures = result.failures.filter(failure => failure.kind !== 'control-boundary')
       chk.eq(textFailures.length, 0, 'all measured text meets WCAG AA contrast', textFailures)
       chk.ok(result.measured > 20, 'text contrast measurement covered the page', { measured: result.measured })
+      chk.ok(result.placeholders.length >= 2, 'both input placeholders were measured', { placeholders: result.placeholders })
+      chk.ok(result.placeholders.every(placeholder => placeholder.opacity === '1'), 'placeholder opacity is explicitly 1', result.placeholders)
+      chk.ok(result.placeholders.every(placeholder => placeholder.ratio >= 4.6), 'placeholder contrast has margin above the 4.5 minimum', result.placeholders)
       chk.note(`placeholder measurements: ${JSON.stringify(result.placeholders)}`)
       await writeJson(path.join(out, 'artifacts', 's8-07-text-contrast.json'), result)
       return { measured: result.measured, failures: textFailures, placeholders: result.placeholders }
@@ -2100,6 +2214,45 @@ async function scenarioS807(ctx) {
       chk.ok(result.controls.length > 8, 'control boundary measurement covered the controls', { count: result.controls.length })
       await writeJson(path.join(out, 'artifacts', 's8-07-control-boundaries.json'), result)
       return { controls: result.controls.length, failures: boundaryFailures }
+    } finally {
+      await opened.context.close()
+    }
+  })
+
+  await runCase('S8-07', 'control boundary hover and selected chromium', async chk => {
+    const opened = await openPage(ctx.browsers.chromium, { viewport: { width: 1280, height: 800 } })
+    try {
+      await gotoSite(opened.page, '/')
+      await opened.page.evaluate(() => document.querySelectorAll('details').forEach(details => { details.open = true }))
+      const selectors = ['#seed', '#name', '#size', '#manual-copy', '#svg-source', '#download-svg', '#copy-code', '#share']
+      const records = []
+      for (const selector of selectors) {
+        const normal = await controlBoundaryRecord(opened.page, selector)
+        chk.ok(normal && normal.borderStyle !== 'none' && normal.borderWidth > 0, `${selector}: border present`, normal)
+        chk.ok(normal && normal.best >= 3, `${selector}: normal boundary is 3:1`, normal)
+        await opened.page.hover(selector)
+        const hover = await controlBoundaryRecord(opened.page, selector)
+        chk.ok(hover && hover.best >= 3, `${selector}: hover boundary is 3:1`, hover)
+        records.push({ selector, normal, hover })
+      }
+      for (let index = 1; index <= 8; index += 1) {
+        const selector = `#gallery .style-card:nth-child(${index})`
+        const normal = await controlBoundaryRecord(opened.page, selector)
+        chk.ok(normal && normal.best >= 3, `${selector}: normal boundary is 3:1`, normal)
+        await opened.page.hover(selector)
+        const hover = await controlBoundaryRecord(opened.page, selector)
+        chk.ok(hover && hover.best >= 3, `${selector}: hover boundary is 3:1`, hover)
+        records.push({ selector, normal, hover })
+      }
+      await opened.page.click('#gallery .style-card[data-style="ascii-letter"]')
+      const selectedSelector = '#gallery .style-card[aria-pressed="true"]'
+      const selected = await controlBoundaryRecord(opened.page, selectedSelector)
+      chk.ok(selected && selected.best >= 3, 'selected style card boundary is 3:1', selected)
+      await opened.page.hover(selectedSelector)
+      const selectedHover = await controlBoundaryRecord(opened.page, selectedSelector)
+      chk.ok(selectedHover && selectedHover.best >= 3, 'selected and hovered style card boundary is 3:1', selectedHover)
+      await writeJson(path.join(out, 'artifacts', 's8-07-control-boundaries-states.json'), { records, selected, selectedHover })
+      return { records: records.length, selected, selectedHover }
     } finally {
       await opened.context.close()
     }

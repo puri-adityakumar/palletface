@@ -10,6 +10,10 @@
 - CI and manually approved npm-release tooling; no public deployment is performed by these changes.
 - API, contributor, security, and release documentation.
 
+### Fixed
+
+- Site-only Q-002/Q-003 correction: placeholder and control-boundary contrast now meet WCAG AA, the playground exposes a static loading/failure status and stays disabled until a successful render, the gallery is a named group, and download failures get bounded status feedback with object-URL cleanup. Library output and the published package tarball are unchanged.
+
 ### Changed
 
 - Numeric initials have dedicated bitmap glyphs instead of the `?` fallback.

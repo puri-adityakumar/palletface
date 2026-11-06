@@ -72,6 +72,7 @@ export async function openPage(browser, {
   permissions = null,
   initScripts = [],
   blocks = [],
+  routes = [],
   loadTimeout = 30_000,
   waitTimeout = 15_000,
 }) {
@@ -87,6 +88,9 @@ export async function openPage(browser, {
   for (const script of initScripts) await context.addInitScript(script)
   for (const block of blocks) {
     await context.route(block.glob, (route) => route.abort(block.error ?? 'failed'))
+  }
+  for (const route of routes) {
+    await context.route(route.glob, route.handler)
   }
   const page = await context.newPage()
   const rec = attachRecorder(page, origin)
