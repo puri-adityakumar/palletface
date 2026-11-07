@@ -1,0 +1,10 @@
+{
+  "name": "dither-face-s9-library-tools",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pinned Stage 9 library/performance harness tools. Not part of the published package.",
+  "dependencies": {
+    "esbuild": "0.28.2",
+    "playwright": "1.64.1"
+  }
+}
