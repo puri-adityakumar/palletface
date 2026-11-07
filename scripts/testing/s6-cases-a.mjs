@@ -768,10 +768,14 @@ async function runS605(ctx, runCase, state) {
           pwned: window.__pwned ?? null,
           previewScripts: document.querySelectorAll('#preview script, #gallery script').length,
           scripts: document.scripts.length,
+          scriptSources: Array.from(document.scripts, (script) => script.src ? new URL(script.src, location.href).pathname : 'inline'),
+          inlineScripts: Array.from(document.scripts).filter((script) => !script.src && script.textContent.trim() !== '').length,
         }))
         c.equal(injected.pwned, null, 'script payload did not execute')
         c.equal(injected.previewScripts, 0, 'no script nodes in preview or gallery')
-        c.check(injected.scripts <= 1, 'only the legitimate module script exists', injected)
+        c.equal(injected.scripts, 2, 'exactly the two legitimate site scripts exist', injected)
+        c.equal(injected.scriptSources.join(','), '/bootstrap.js,/assets/app.js', 'only bootstrap.js and assets/app.js scripts are present', injected)
+        c.equal(injected.inlineScripts, 0, 'no injected inline script content', injected)
         c.check(!st.source.includes('<script>'), 'SVG source contains no raw script tag')
         c.check(st.usage.includes(JSON.stringify(name)), 'usage JSON-encodes the script payload as data')
         assertClean(c, opened.rec, { label: 'script tag' })
