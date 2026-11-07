@@ -190,6 +190,10 @@ The p95 long-task monitoring limit was exceeded; the maximum single long task di
 
 ## S9-07 — failure resilience and cancellation
 
+## Disposition
+
+**Parent review — 2026-11-07: PARTIALLY ACCEPTED.** S9-04 functional bundle/tree-shaking, S9-05 cleanup/revocation functional behavior, S9-07 resilience, negative controls, and all measured baselines are accepted as evidence. S9-01/02/03/06 remain **BASELINE**, not PASS, because no release performance budget was agreed; predeclared monitoring thresholds were exceeded for Node 24 RSS and throttled p95 long task. No product defect is inferred, but parent must set/accept budgets before any performance PASS. Final sandbox authorized for deletion after evidence retrieval.
+
 | Probe | Actual |
 | --- | --- |
 | Forced `URL.createObjectURL` failure ×5 | Fixed status `Download unavailable. Use Copy SVG or the manual copy panel instead.` each time; no uncaught page errors; URL failure path left no live URL |

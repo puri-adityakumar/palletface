@@ -1,5 +1,11 @@
 # Qualification execution log
 
+## 2026-11-07 — Stage 9 library track partial disposition
+
+- Library performance track produced 152 cases / 1,060 assertions with no failed assertions. Functional size/tree-shaking, cleanup, resilience and negative controls accepted as evidence.
+- Rendering/batch/response-time/memory rows remain measured BASELINE, not PASS: no release budget was agreed; Node 24 RSS and throttled p95 monitoring thresholds exceeded.
+- Final performance sandbox authorized for deletion. Site performance and harness challenge tracks remain independent and pending.
+
 ## 2026-11-04 — Stage 8 failure confirmed
 
 - Q-003 contrast failure confirmed by parent: placeholders and control boundaries below agreed thresholds. Native Safari and actual assistive-technology speech untested.
