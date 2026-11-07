@@ -1,10 +1,10 @@
 # Release Qualification Matrix — dither-face 0.1.0
 
-**Latest parent disposition (2026-11-03): 16/80 scenarios approved PASS** — S1-01…08 at `104195b`, S2-01…08 at `0016a1e`, unchanged product tarball `ed4c359b…`. **Stage 3 is 8 provisional agent-observed PASS, parent disposition PENDING.** **55 NOT RUN, 1 BLOCKED** (native Safari coverage). This disposition supersedes stale provisional summary/row labels below; detailed evidence is in S1-R1, S2-R1 and S3 reports. Stage 3 was executed by DeepSeek max following repeated GLM execution failures.
+**Latest parent disposition (2026-11-07): 54/80 scenarios approved PASS; 9 remain unapproved in executed/review states; 1 is BLOCKED.** S1–S7 accepted where documented; S6-09/Q-002 and S8-R2/Q-003 accepted after fresh rechecks; S3-R1, Stage 4, Stage 5, Stage 7 and Stage 8 R2 evidence are incorporated as parent-approved records. Stage 10 found audit gaps F-01…F-03; Stage 9 and final integrated qualification remain outstanding. Native Safari is BLOCKED.
 
 **Baseline:** `test/release-qualification` at `3ca99d2`. **Latest run:** Stage 3 at product source `a9685b7` / final harness `704309e`; S3-01…08 provisional PASS, 68 cases, 351 counted assertions, 0 failures, tarball unchanged `ed4c359b…`. Parent review is PENDING. Stage 2 R1 was parent-accepted; Stage 1 R1 was parent-accepted at `104195b` and Q-001 is closed.
 
-**Status summary:** 80 scenarios — **16 parent-approved PASS (Stages 1–2), 8 provisional Stage 3 PASS, 55 NOT RUN, 1 BLOCKED**. Stage 3 rows are agent-observed provisional results and are not final PASS until parent disposition. `S8-09` remains a native Safari coverage limitation. Historical preview results are not counted here.
+**Status summary:** 80 scenarios — **54 parent-approved PASS, 25 NOT RUN/unfinished, 1 BLOCKED**. Stage 6/S8 R2 and executed stage evidence are reconciled in their reports. S9 performance, S10 final disposition cleanup, and S11 final integrated suite remain.
 
 **Severity if failed:** S0 = integrity/security/secrets/determinism/package/false-claim blocker; S1 = required functional, compatibility, accessibility, or agreed-performance blocker; S2/S3 = release owner written acceptance only. No agent may self-approve. Every row requires the evidence fields in section 2, including commit, tarball SHA-256, versions, exact command, expected/actual, artifact, severity, and parent approval.
 

@@ -1,8 +1,8 @@
 # Release Qualification Report — dither-face 0.1.0
 
-**Latest parent disposition (2026-11-03): 16/80 approved PASS.** Stages 1 and 2 accepted; Q-001 closed. Stage 2 R1: 6,065 cases / 15,270 assertions, exact raw SVG agreement and matched-context full-pixel checks with documented platform/sample limits. Stage 3 is **8 provisional agent-observed PASS**, 68 cases / 351 counted assertions, 0 failures, unchanged tarball `ed4c359b…`; parent disposition PENDING. Remaining 55 scenarios NOT RUN and native Safari BLOCKED. Earlier summaries below are submission history, superseded by this disposition; no release approval.
+**Latest parent disposition (2026-11-07): 54/80 approved PASS.** Q-001/Q-002/Q-003 closed after accepted rechecks. Stages 1–8 are approved within their documented scope, except native Safari/screen-reader speech coverage limitations; S9/S10/S11 remain. S10 identified audit gaps F-01…F-03 that must be reconciled before release readiness. No release approval.
 
-**Status:** DRAFT — **16 of 80 scenarios parent-approved PASS** (Stage 1 R1 on `104195b`; Stage 2 R1 on `0016a1e`). **Stage 3 is 8 of 80 provisional PASS**, executed at product source `a9685b7` with final harness `704309e`; parent disposition is **PENDING**. The tarball remained `ed4c359b…`. Remaining stages are not qualified. No overall release approval is implied.
+**Status:** DRAFT — **54 of 80 scenarios parent-approved PASS**. Remaining work is performance/resilience, audit cleanup, final integrated qualification, and deferred launch checks. No overall release approval is implied.
 
 **Baseline:** `test/release-qualification` at `3ca99d2`; Stage 1 fix revision `104195b`. Full plan: [PLAN.md](PLAN.md). Scenario matrix: [MATRIX.md](MATRIX.md). Findings: [FINDINGS.md](FINDINGS.md).
 
