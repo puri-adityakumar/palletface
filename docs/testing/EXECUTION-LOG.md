@@ -1,5 +1,11 @@
 # Qualification execution log
 
+## 2026-11-07 — Stage 9 site track partial disposition
+
+- Site track produced 596 assertions and 91/91 derived-budget checks with functional PASS across load, batch, size/tree-shaking, cleanup, throttling and resilience.
+- S9-01/02/03/06 are baselines, not release PASS claims; no agreed performance budget exists. S9-O1 remains open: Linux WebKit emitted 905 `replaceState` rate-limit errors under a 1,000-event synthetic burst. S9-O2 Firefox bounded retry is recorded.
+- Evidence integrated; sandbox authorized for deletion after retrieval. S10 remains under audit; final integrated qualification still pending.
+
 ## 2026-11-07 — Stage 9 library track partial disposition
 
 - Library performance track produced 152 cases / 1,060 assertions with no failed assertions. Functional size/tree-shaking, cleanup, resilience and negative controls accepted as evidence.

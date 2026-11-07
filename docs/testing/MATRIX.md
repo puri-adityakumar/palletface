@@ -1,6 +1,6 @@
 # Release Qualification Matrix — dither-face 0.1.0
 
-**Latest parent disposition (2026-11-07): 54/80 scenarios approved PASS; 9 remain unapproved in executed/review states; 1 is BLOCKED.** S1–S7 accepted where documented; S6-09/Q-002 and S8-R2/Q-003 accepted after fresh rechecks; S3-R1, Stage 4, Stage 5, Stage 7 and Stage 8 R2 evidence are incorporated as parent-approved records. Stage 10 found audit gaps F-01…F-03; Stage 9 and final integrated qualification remain outstanding. Native Safari is BLOCKED.
+**Latest parent disposition (2026-11-07): 54/80 scenarios approved PASS; 25 remain NOT RUN/unfinished; 1 is BLOCKED.** S1–S8 affected records and S6/S8 R2 are accepted within scope. Stage 9 functional/baseline evidence is recorded but performance rows remain baseline; S9-O1/S9-O2 are open observations. Stage 10 audit gaps F-01…F-03 remain open. Final integrated qualification remains outstanding. Native Safari is BLOCKED.
 
 **Baseline:** `test/release-qualification` at `3ca99d2`. **Latest run:** Stage 3 at product source `a9685b7` / final harness `704309e`; S3-01…08 provisional PASS, 68 cases, 351 counted assertions, 0 failures, tarball unchanged `ed4c359b…`. Parent review is PENDING. Stage 2 R1 was parent-accepted; Stage 1 R1 was parent-accepted at `104195b` and Q-001 is closed.
 

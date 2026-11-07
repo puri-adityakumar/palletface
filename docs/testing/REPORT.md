@@ -1,6 +1,6 @@
 # Release Qualification Report — dither-face 0.1.0
 
-**Latest parent disposition (2026-11-07): 54/80 approved PASS.** Q-001/Q-002/Q-003 closed after accepted rechecks. Stages 1–8 are approved within their documented scope, except native Safari/screen-reader speech coverage limitations; S9/S10/S11 remain. S10 identified audit gaps F-01…F-03 that must be reconciled before release readiness. No release approval.
+**Latest parent disposition (2026-11-07): 54/80 approved PASS.** Q-001/Q-002/Q-003 closed after accepted rechecks. Stages 1–8 are approved within scope, except native Safari/screen-reader coverage. Stage 9 has functional/baseline performance evidence, but no release performance budget has been accepted; S9-O1/S9-O2 remain open observations. S10 audit gaps F-01…F-03 remain open. No release approval.
 
 **Status:** DRAFT — **54 of 80 scenarios parent-approved PASS**. Remaining work is performance/resilience, audit cleanup, final integrated qualification, and deferred launch checks. No overall release approval is implied.
 

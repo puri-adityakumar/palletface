@@ -21,6 +21,10 @@ Agents cannot approve their own findings or accept risk. A finding is closed onl
 
 **Q-002 (S2, S6-09) CLOSED 2026-11-07:** blocked/boot-failure startup feedback, disabled controls and no false preview/gallery passed the fresh S6/S8 recheck. Missing CSS remains documented graceful degradation; WebKit select CSP behavior remains documented.
 
+**S9-O1 (S2 observation, open):** Linux WebKit 27.2 produced 905 `history.replaceState` rate-limit `SecurityError`s during a 1,000-event synthetic rapid burst; other engines produced none. No current product defect disposition; parent may accept as browser/platform limitation or require throttling/recheck. See S9-SITE evidence.
+
+**S9-O2 (S2/S3 observation):** Firefox made one bounded duplicate app.js request when the asset was blocked; no infinite retry. Parent review required.
+
 | Finding | Stage | Scenario | Severity | Observation | Evidence | Owner | Disposition |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Q-001 | 1 | S1-06 | S1 | ascii-letter consumed dot RNG conditionally on glyph coverage; changing name shifted dots outside both glyphs, violating documented background invariance. | [Original failure S1](evidence/S1.md), raw S1-06.json; [fix rerun S1-R1](evidence/S1-R1.md), raw S1-06.json | Implementation agent | **CLOSED — parent accepted the `104195b` fix and S1-R1 on 2026-11-03. Agent did not self-close.** |
