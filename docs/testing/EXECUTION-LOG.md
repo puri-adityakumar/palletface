@@ -1,5 +1,11 @@
 # Qualification execution log
 
+## 2026-11-09 — Comparator integration accepted
+
+- Parent reviewed clean S3-COMPARATOR-R1 run: eight scenarios, 68 cases, 319 assertions, no failures, five controls detected; approved package hash unchanged.
+- Shared comparator is exercised by real positive, mutated output, wrong expected hash and faulty-comparator controls. Helper copied beside every consumer renderer; F-02 closed without retroactive credit to the old NC5.
+- Both comparator sandboxes were deleted after retrieval. Final integrated verification may now run, but cannot claim release readiness while S9/performance decisions and remaining integrity review are unresolved.
+
 ## 2026-11-09 — Documentation reconciliation (current parent disposition)
 
 `DISPOSITIONS.md` is authoritative. Current total: **63 PASS, 1 BLOCKED, 12 REVIEW REQUIRED, 4 NOT RUN = 80**. Stages 1–7 account for 55 PASS; S8 has 8 PASS and S8-09 BLOCKED; S9 has 7 REVIEW REQUIRED; S10 has 5 REVIEW REQUIRED; S11 has 4 NOT RUN. The old 54 count omitted S6-09 and eight accepted S8 rows. This is accounting correction, not new test credit. The original execution outcomes and raw logs remain unchanged; hashes continue to identify original run artifacts, never rewritten documents.
