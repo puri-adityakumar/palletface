@@ -2,7 +2,7 @@
 
 **Current parent disposition (2026-11-09): 63 PASS, 1 BLOCKED, 12 REVIEW REQUIRED, 4 NOT RUN (80 total).** Stages 1–7: 55 PASS; Stage 8: 8 PASS and S8-09 BLOCKED; Stage 9: 7 REVIEW REQUIRED; Stage 10: 5 REVIEW REQUIRED; Stage 11: 4 NOT RUN. See [DISPOSITIONS.md](DISPOSITIONS.md), which is authoritative.
 
-**Documentation executor:** Codex / `gpt-6-luna` / `max`. Historical stage model labels and run identities remain as recorded in their evidence. S3-R1 is parent-accepted for its eight scenario rows; its historical NC5 sensitivity credit is withdrawn pending integrated comparator recheck.
+**Documentation executor:** Codex / `gpt-6-luna` / `max`. Historical model labels and run identities remain as recorded. S3-R1 is accepted for eight rows; historical NC5 sensitivity credit is withdrawn and replaced by the accepted [S3-COMPARATOR-R1](evidence/S3-COMPARATOR-R1.md) recheck.
 
 **Status summary:** 80 scenarios — **63 PASS, 1 BLOCKED, 12 REVIEW REQUIRED, 4 NOT RUN**. S9 performance is not upgraded to PASS; S10 remains review required; S11 is not run.
 
@@ -38,7 +38,7 @@
 
 Stage 2 R1 was parent-accepted on 2026-11-03. Its accepted evidence retains raw-comparison and matched-context coverage limits: [S2-R1](evidence/S2-R1.md); returned run: [S2](evidence/S2.md).
 
-S3-R1 is parent-accepted for all eight scenario rows. Historical S3-R1 NC5 sensitivity credit is withdrawn; the supplemental S10-R1 independent comparator has positive/negative controls, while an integrated S3 recheck remains pending as a separate parallel task. The original rejected resumed S3 remains rejected and retained. Evidence: [S3-R1](evidence/S3-R1.md), [S10-R1](evidence/S10-R1.md), [S3](evidence/S3.md).
+S3-R1 and S3-COMPARATOR-R1 are parent-accepted for all eight scenario rows. Historical hash-only NC5 receives no credit; the integrated shared comparator's positive, mutation and faulty-comparator checks passed. The original rejected resumed S3 remains rejected and retained. Evidence: [S3-R1](evidence/S3-R1.md), [S3-COMPARATOR-R1](evidence/S3-COMPARATOR-R1.md), [S3](evidence/S3.md).
 
 ### Stage 3 — Packaging and consumers (DeepSeek V4.1 Flash 1017 max; reassigned after GLM execution failures)
 

@@ -1,5 +1,12 @@
 # Qualification execution log
 
+## 2026-11-09 — Integrated attempt partial; bounded recovery
+
+- Final attempt passed library/site/example typechecks, 117 units, builds and the complete corrected S3 package/control suite on the unchanged tarball.
+- S6 browser process exited 137; S8 build and subsequent trivial health requests returned empty output. Resource termination is suspected, not proved; no product assertion failure inferred. Evidence retrieved; task sandbox deleted.
+- Remaining browser verification authorized in one fresh 8 GB sandbox, one shared browser cache, sequential suites and worker count one. This is the only approved resource increase; 30-minute active cap and bounded commands remain.
+- Independent documentation/evidence closure may run concurrently in a separate task. No S3 or performance benchmark repeats; no automatic S9 waiver or release approval.
+
 ## 2026-11-09 — Comparator integration accepted
 
 - Parent reviewed clean S3-COMPARATOR-R1 run: eight scenarios, 68 cases, 319 assertions, no failures, five controls detected; approved package hash unchanged.
