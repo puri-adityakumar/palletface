@@ -1,10 +1,10 @@
 # Release Qualification Matrix — dither-face 0.1.0
 
-**Latest parent disposition (2026-11-07): 54/80 scenarios approved PASS; 25 remain NOT RUN/unfinished; 1 is BLOCKED.** S1–S8 affected records and S6/S8 R2 are accepted within scope. Stage 9 functional/baseline evidence is recorded but performance rows remain baseline; S9-O1/S9-O2 are open observations. Stage 10 audit gaps F-01…F-03 remain open. Final integrated qualification remains outstanding. Native Safari is BLOCKED.
+**Current parent disposition (2026-11-09): 63 PASS, 1 BLOCKED, 12 REVIEW REQUIRED, 4 NOT RUN (80 total).** Stages 1–7: 55 PASS; Stage 8: 8 PASS and S8-09 BLOCKED; Stage 9: 7 REVIEW REQUIRED; Stage 10: 5 REVIEW REQUIRED; Stage 11: 4 NOT RUN. See [DISPOSITIONS.md](DISPOSITIONS.md), which is authoritative.
 
-**Baseline:** `test/release-qualification` at `3ca99d2`. **Latest run:** Stage 3 at product source `a9685b7` / final harness `704309e`; S3-01…08 provisional PASS, 68 cases, 351 counted assertions, 0 failures, tarball unchanged `ed4c359b…`. Parent review is PENDING. Stage 2 R1 was parent-accepted; Stage 1 R1 was parent-accepted at `104195b` and Q-001 is closed.
+**Documentation executor:** Codex / `gpt-6-luna` / `max`. Historical stage model labels and run identities remain as recorded in their evidence. S3-R1 is parent-accepted for its eight scenario rows; its historical NC5 sensitivity credit is withdrawn pending integrated comparator recheck.
 
-**Status summary:** 80 scenarios — **54 parent-approved PASS, 25 NOT RUN/unfinished, 1 BLOCKED**. Stage 6/S8 R2 and executed stage evidence are reconciled in their reports. S9 performance, S10 final disposition cleanup, and S11 final integrated suite remain.
+**Status summary:** 80 scenarios — **63 PASS, 1 BLOCKED, 12 REVIEW REQUIRED, 4 NOT RUN**. S9 performance is not upgraded to PASS; S10 remains review required; S11 is not run.
 
 **Severity if failed:** S0 = integrity/security/secrets/determinism/package/false-claim blocker; S1 = required functional, compatibility, accessibility, or agreed-performance blocker; S2/S3 = release owner written acceptance only. No agent may self-approve. Every row requires the evidence fields in section 2, including commit, tarball SHA-256, versions, exact command, expected/actual, artifact, severity, and parent approval.
 
@@ -27,120 +27,126 @@
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S2-01 | In-process determinism | 100 repeated calls per renderer/seed/options; hash output bytes. | All hashes equal for identical inputs. | S0 | PASS (provisional R1; parent PENDING) |
-| S2-02 | Fresh-process determinism | Three separate Node processes, same inputs; compare SHA-256. | Identical bytes/hashes across processes. | S0 | PASS (provisional R1; parent PENDING) |
-| S2-03 | Cross-engine output | Compare raw output in Node/Chromium/Firefox/WebKit first; canonicalization is diagnostic only. | Sampled output agrees or discrepancies are reported, never hidden by normalization. | S1 | PASS (provisional R1; parent PENDING) |
-| S2-04 | XML and Unicode embedding | XML-parse outputs for Unicode/RTL/emoji/control-character seeds. | Well-formed; invalid XML chars absent; safe escaping. | S1 | PASS (provisional R1; parent PENDING) |
-| S2-05 | Mixed repeated IDs | Same page/HTML/CSS cell and integral coordinates with all 82 mixed avatars, then remove only the other SVG elements retaining wrappers; compare the full target raster (no text/edge mask) in Chromium 82/82 and representative Firefox/WebKit; controls use the same comparator. | Repeated IDs allowed only for byte-equivalent definitions; full target pixels identical with eligibleFraction 1.0; glyph/opacity/clip/gradient/colour/ID corruption rejected. | S1 | PASS (provisional R1; parent PENDING; 1,130,816 eligible pixels, 0 differing) |
-| S2-06 | Inline data URL | Embed SVG as `data:image/svg+xml` in `img`/canvas; monitor requests. | Renders; no external requests; no script execution. | S1 | PASS (provisional R1; parent PENDING) |
-| S2-07 | File and HTTP embedding | Save `.svg`, load via `file://`; serve over localhost HTTP and embed. | Both render; identical structure; no non-local network. | S1 | PASS (provisional R1; parent PENDING) |
-| S2-08 | Pairwise options and invariance | Pairwise renderer/seed/name/px samples; interleave calls; compare fixed fixtures; remove only outer dimensions for size comparison. | Repeatable fixture-preserving output; px does not alter design, name does not alter seeded backgrounds. | S1 | PASS (provisional R1; parent PENDING) |
+| S2-01 | In-process determinism | 100 repeated calls per renderer/seed/options; hash output bytes. | All hashes equal for identical inputs. | S0 | PASS (parent accepted 2026-11-03) |
+| S2-02 | Fresh-process determinism | Three separate Node processes, same inputs; compare SHA-256. | Identical bytes/hashes across processes. | S0 | PASS (parent accepted 2026-11-03) |
+| S2-03 | Cross-engine output | Compare raw output in Node/Chromium/Firefox/WebKit first; canonicalization is diagnostic only. | Sampled output agrees or discrepancies are reported, never hidden by normalization. | S1 | PASS (parent accepted 2026-11-03) |
+| S2-04 | XML and Unicode embedding | XML-parse outputs for Unicode/RTL/emoji/control-character seeds. | Well-formed; invalid XML chars absent; safe escaping. | S1 | PASS (parent accepted 2026-11-03) |
+| S2-05 | Mixed repeated IDs | Same page/HTML/CSS cell and integral coordinates with all 82 mixed avatars, then remove only the other SVG elements retaining wrappers; compare the full target raster (no text/edge mask) in Chromium 82/82 and representative Firefox/WebKit; controls use the same comparator. | Repeated IDs allowed only for byte-equivalent definitions; full target pixels identical with eligibleFraction 1.0; glyph/opacity/clip/gradient/colour/ID corruption rejected. | S1 | PASS (parent accepted 2026-11-03) |
+| S2-06 | Inline data URL | Embed SVG as `data:image/svg+xml` in `img`/canvas; monitor requests. | Renders; no external requests; no script execution. | S1 | PASS (parent accepted 2026-11-03) |
+| S2-07 | File and HTTP embedding | Save `.svg`, load via `file://`; serve over localhost HTTP and embed. | Both render; identical structure; no non-local network. | S1 | PASS (parent accepted 2026-11-03) |
+| S2-08 | Pairwise options and invariance | Pairwise renderer/seed/name/px samples; interleave calls; compare fixed fixtures; remove only outer dimensions for size comparison. | Repeatable fixture-preserving output; px does not alter design, name does not alter seeded backgrounds. | S1 | PASS (parent accepted 2026-11-03) |
 
-Stage 2 R1 reran the full suite in a new dedicated sandbox after the prior S2 return; product source and tarball were unchanged. Evidence: [S2-R1](evidence/S2-R1.md); returned run: [S2](evidence/S2.md).
+Stage 2 R1 was parent-accepted on 2026-11-03. Its accepted evidence retains raw-comparison and matched-context coverage limits: [S2-R1](evidence/S2-R1.md); returned run: [S2](evidence/S2.md).
 
-Stage 3 ran in a new dedicated sandbox against product source `a9685b7` (byte-identical product source to `e3c5ead`) and the unchanged tarball `ed4c359b…`: 8 provisional PASS, 68 cases, 351 counted assertions, all five negative controls detected. Evidence: [S3](evidence/S3.md). Parent disposition PENDING.
+S3-R1 is parent-accepted for all eight scenario rows. Historical S3-R1 NC5 sensitivity credit is withdrawn; the supplemental S10-R1 independent comparator has positive/negative controls, while an integrated S3 recheck remains pending as a separate parallel task. The original rejected resumed S3 remains rejected and retained. Evidence: [S3-R1](evidence/S3-R1.md), [S10-R1](evidence/S10-R1.md), [S3](evidence/S3.md).
 
 ### Stage 3 — Packaging and consumers (DeepSeek V4.1 Flash 1017 max; reassigned after GLM execution failures)
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S3-01 | Tarball manifest | `npm pack --dry-run --json`; compare packed file list to declared allowlist. | Only intended dist/license/readme/package files; no source, secrets, maps, or logs. | S0 | PASS (provisional; parent PENDING) |
-| S3-02 | Prepack lifecycle | Clean checkout; `npm pack`; record lifecycle output and tarball SHA-256. | `clean:dist`, `check`, `build:web` run; tarball produced; hash recorded. | S1 | PASS (provisional; parent PENDING) |
-| S3-03 | Actual tarball install | Empty project `npm install <tarball.tgz>`; no repo alias/symlink; import package. | Install and import succeed from the packed artifact. | S0 | PASS (provisional; parent PENDING) |
-| S3-04 | Zero runtime dependencies | Inspect manifest and installed tree with `npm ls --omit=dev`. | No `dependencies`; no runtime packages installed. | S0 | PASS (provisional; parent PENDING) |
-| S3-05 | Exports resolution | Import root; attempt documented-unsupported deep paths. | Root resolves; unsupported deep imports fail or match documented behavior. | S1 | PASS (provisional; parent PENDING) |
-| S3-06 | Types from tarball | Strict TS consumer resolves package types under Node16 and bundler resolution. | Types resolve; compile succeeds; no missing-declaration warnings. | S1 | PASS (provisional; parent PENDING) |
-| S3-07 | npm/pnpm/Yarn consumers | Pinned dummy dependencies and lockfiles; install tarball and run script in all three. | All three install and execute identically. | S1 | PASS (provisional; parent PENDING) |
-| S3-08 | Manifest truth | Compare name/version/engines/license/sideEffects/files with repo and packed output. | Values match; no unexpected runtime fields or files. | S1 | PASS (provisional; parent PENDING) |
+| S3-01 | Tarball manifest | `npm pack --dry-run --json`; compare packed file list to declared allowlist. | Only intended dist/license/readme/package files; no source, secrets, maps, or logs. | S0 | PASS (parent accepted 2026-11-04) |
+| S3-02 | Prepack lifecycle | Clean checkout; `npm pack`; record lifecycle output and tarball SHA-256. | `clean:dist`, `check`, `build:web` run; tarball produced; hash recorded. | S1 | PASS (parent accepted 2026-11-04) |
+| S3-03 | Actual tarball install | Empty project `npm install <tarball.tgz>`; no repo alias/symlink; import package. | Install and import succeed from the packed artifact. | S0 | PASS (parent accepted 2026-11-04) |
+| S3-04 | Zero runtime dependencies | Inspect manifest and installed tree with `npm ls --omit=dev`. | No `dependencies`; no runtime packages installed. | S0 | PASS (parent accepted 2026-11-04) |
+| S3-05 | Exports resolution | Import root; attempt documented-unsupported deep paths. | Root resolves; unsupported deep imports fail or match documented behavior. | S1 | PASS (parent accepted 2026-11-04) |
+| S3-06 | Types from tarball | Strict TS consumer resolves package types under Node16 and bundler resolution. | Types resolve; compile succeeds; no missing-declaration warnings. | S1 | PASS (parent accepted 2026-11-04) |
+| S3-07 | npm/pnpm/Yarn consumers | Pinned dummy dependencies and lockfiles; install tarball and run script in all three. | All three install and execute identically. | S1 | PASS (parent accepted 2026-11-04) |
+| S3-08 | Manifest truth | Compare name/version/engines/license/sideEffects/files with repo and packed output. | Values match; no unexpected runtime fields or files. | S1 | PASS (parent accepted 2026-11-04) |
 
 ### Stage 4 — Independent Node/TS/Vite browser use (DeepSeek V4.1 Flash 1017 max)
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S4-01 | Plain Node ESM JS | Plain JS project imports tarball and renders all renderers. | Runs; output matches Node golden. | S1 | NOT RUN |
-| S4-02 | Strict TypeScript app | Strict TS project compiles and runs against tarball. | Compiles cleanly; runtime output valid. | S1 | NOT RUN |
-| S4-03 | Vite vanilla dev | Vite vanilla dev server; real browser loads page. | All tested avatars render; no console errors. | S1 | NOT RUN |
-| S4-04 | Vite vanilla production | Production build and preview; real browser. | Renders; no missing assets; parity with dev. | S1 | NOT RUN |
-| S4-05 | Vite React dev | Vite React dev server; real browser. | React tree renders avatar; no runtime errors. | S1 | NOT RUN |
-| S4-06 | Vite React production | Production build/preview; browser and console check. | Renders; no errors; output matches Node golden. | S1 | NOT RUN |
-| S4-07 | Browser/Node parity | Compare browser markup or canvas output to Node golden. | Canonical output matches or differences are documented. | S1 | NOT RUN |
+| S4-01 | Plain Node ESM JS | Plain JS project imports tarball and renders all renderers. | Runs; output matches Node golden. | S1 | PASS (parent accepted 2026-11-04) |
+| S4-02 | Strict TypeScript app | Strict TS project compiles and runs against tarball. | Compiles cleanly; runtime output valid. | S1 | PASS (parent accepted 2026-11-04) |
+| S4-03 | Vite vanilla dev | Vite vanilla dev server; real browser loads page. | All tested avatars render; no console errors. | S1 | PASS (parent accepted 2026-11-04) |
+| S4-04 | Vite vanilla production | Production build and preview; real browser. | Renders; no missing assets; parity with dev. | S1 | PASS (parent accepted 2026-11-04) |
+| S4-05 | Vite React dev | Vite React dev server; real browser. | React tree renders avatar; no runtime errors. | S1 | PASS (parent accepted 2026-11-04) |
+| S4-06 | Vite React production | Production build/preview; browser and console check. | Renders; no errors; output matches Node golden. | S1 | PASS (parent accepted 2026-11-04) |
+| S4-07 | Browser/Node parity | Compare browser markup or canvas output to Node golden. | Canonical output matches or differences are documented. | S1 | PASS (parent accepted 2026-11-04) |
 
 ### Stage 5 — Frameworks, SSR, Worker, offline (GLM-5.3 Flash high)
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S5-01 | Next.js SSR | Inspect server HTML for inline SVG or decoded image data URL. | Expected SVG is present inline or encoded; no client-only crash. | S1 | NOT RUN |
-| S5-02 | Next production/hydration | Production build/start; browser console and hydration check. | No hydration mismatch/errors; avatar stable after hydration. | S1 | NOT RUN |
-| S5-03 | Vue client build | Vue 3 production build; browser render. | Renders; no console errors; output matches golden. | S1 | NOT RUN |
-| S5-04 | Svelte client build | Svelte production build; browser render. | Renders; no console errors; output matches golden. | S1 | NOT RUN |
-| S5-05 | Cloudflare and browser Worker | Install tarball in local workerd/Miniflare SVG route; separately test browser Web Worker. | Both work without DOM/Node-specific assumptions; no deployment required. | S1 | NOT RUN |
-| S5-06 | Plain HTML offline | Plain HTML plus bundled asset via `file://` with network disabled. | Renders fully offline; no failed external requests. | S1 | NOT RUN |
-| S5-07 | Framework parity | Hash framework outputs against Node golden canonical form. | Match for tested fixtures or documented engine differences. | S1 | NOT RUN |
+| S5-01 | Next.js SSR | Inspect server HTML for inline SVG or decoded image data URL. | Expected SVG is present inline or encoded; no client-only crash. | S1 | PASS (parent accepted 2026-11-04) |
+| S5-02 | Next production/hydration | Production build/start; browser console and hydration check. | No hydration mismatch/errors; avatar stable after hydration. | S1 | PASS (parent accepted 2026-11-04) |
+| S5-03 | Vue client build | Vue 3 production build; browser render. | Renders; no console errors; output matches golden. | S1 | PASS (parent accepted 2026-11-04) |
+| S5-04 | Svelte client build | Svelte production build; browser render. | Renders; no console errors; output matches golden. | S1 | PASS (parent accepted 2026-11-04) |
+| S5-05 | Cloudflare and browser Worker | Install tarball in local workerd/Miniflare SVG route; separately test browser Web Worker. | Both work without DOM/Node-specific assumptions; no deployment required. | S1 | PASS (parent accepted 2026-11-04) |
+| S5-06 | Plain HTML offline | Plain HTML plus bundled asset via `file://` with network disabled. | Renders fully offline; no failed external requests. | S1 | PASS (parent accepted 2026-11-04) |
+| S5-07 | Framework parity | Hash framework outputs against Node golden canonical form. | Match for tested fixtures or documented engine differences. | S1 | PASS (parent accepted 2026-11-04) |
 
 ### Stage 6 — Playground interaction (DeepSeek V4.1 Flash 1017 max)
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S6-01 | URL state restore | Load playground with valid seed/renderer/options parameters. | State restored; output matches requested configuration. | S1 | NOT RUN |
-| S6-02 | Back/forward history | Navigate distinct share URLs/history entries and back/forward; edit controls within an entry. | UI restores on navigation; replaceState edits need not create per-keystroke history entries. | S1 | NOT RUN |
-| S6-03 | Invalid parameters | Unknown renderer, wrong types, out-of-range, empty required values. | Documented fallback; no crash; URL normalized safely. | S1 | NOT RUN |
-| S6-04 | Duplicate parameters | Repeated keys in varying order. | Documented precedence applied consistently. | S1 | NOT RUN |
-| S6-05 | Malformed/encoded parameters | Malformed percent-encoding, very long values, injection payloads. | No crash/XSS; rejected or safely encoded; bounded work. | S0 | NOT RUN |
-| S6-06 | Rapid input | Rapid typing, size selection, and style changes for 30 seconds. | Final state matches last input; no runaway work; no particular debounce/queue design required. | S1 | NOT RUN |
-| S6-07 | Copy and download | Copy snippet and download SVG; compare with displayed avatar. | Output matches displayed bytes; safe; failures explained. | S1 | NOT RUN |
-| S6-08 | Executable snippets | Execute generated snippets in a clean project; inspect for injection. | Snippets work or are clearly labelled; no script injection. | S0 | NOT RUN |
-| S6-09 | Asset failure | Block font/style/JS chunks in devtools; reload. | Graceful degradation with visible status; no blank page or infinite retry. | S2 | NOT RUN |
+| S6-01 | URL state restore | Load playground with valid seed/renderer/options parameters. | State restored; output matches requested configuration. | S1 | PASS (parent accepted 2026-11-07) |
+| S6-02 | Back/forward history | Navigate distinct share URLs/history entries and back/forward; edit controls within an entry. | UI restores on navigation; replaceState edits need not create per-keystroke history entries. | S1 | PASS (parent accepted 2026-11-07) |
+| S6-03 | Invalid parameters | Unknown renderer, wrong types, out-of-range, empty required values. | Documented fallback; no crash; URL normalized safely. | S1 | PASS (parent accepted 2026-11-07) |
+| S6-04 | Duplicate parameters | Repeated keys in varying order. | Documented precedence applied consistently. | S1 | PASS (parent accepted 2026-11-07) |
+| S6-05 | Malformed/encoded parameters | Malformed percent-encoding, very long values, injection payloads. | No crash/XSS; rejected or safely encoded; bounded work. | S0 | PASS (parent accepted 2026-11-07) |
+| S6-06 | Rapid input | Rapid typing, size selection, and style changes for 30 seconds. | Final state matches last input; no runaway work; no particular debounce/queue design required. | S1 | PASS (parent accepted 2026-11-07) |
+| S6-07 | Copy and download | Copy snippet and download SVG; compare with displayed avatar. | Output matches displayed bytes; safe; failures explained. | S1 | PASS (parent accepted 2026-11-07) |
+| S6-08 | Executable snippets | Execute generated snippets in a clean project; inspect for injection. | Snippets work or are clearly labelled; no script injection. | S0 | PASS (parent accepted 2026-11-07) |
+| S6-09 | Asset failure | Block font/style/JS chunks in devtools; reload. | Graceful degradation with visible status; no blank page or infinite retry. | S2 | PASS (parent accepted 2026-11-07) |
 
 ### Stage 7 — Security, privacy, and resource abuse (GLM-5.3 Flash high)
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S7-01 | SVG injection | Seed/initials/options with `<script>`, `onload`, entities, CDATA breakouts. | Escaped; no executable elements/handlers; valid output. | S0 | NOT RUN |
-| S7-02 | UI injection | HTML/attribute payloads in labels and status regions. | Rendered as text; no DOM injection. | S0 | NOT RUN |
-| S7-03 | CSP compatibility | Serve with strict CSP (no `unsafe-inline`/`eval`) as documented. | Page and generated SVG render; no required-code CSP violations. | S1 | NOT RUN |
-| S7-04 | Referrer and privacy | Monitor requests and `Referer` under strict policy. | No unexpected referrer leakage or third-party requests. | S1 | NOT RUN |
-| S7-05 | Network behavior | Render with network offline and request logging. | No required network; no unexpected outbound calls. | S1 | NOT RUN |
-| S7-06 | Secrets and excluded data | Scan tracked source, tarball, fixtures, and logs for credentials/env/backups. | No secrets or excluded material; no auth artifacts. | S0 | NOT RUN |
-| S7-07 | Extreme inputs | 1 MB seed, huge batch, pathological Unicode, NaN/Infinity options. | Bounded failure or documented handling; no crash/hang. | S1 | NOT RUN |
-| S7-08 | Resource limits | Run under declared memory/time caps; observe cleanup. | Stays within caps or fails gracefully with a clear error. | S1 | NOT RUN |
+| S7-01 | SVG injection | Seed/initials/options with `<script>`, `onload`, entities, CDATA breakouts. | Escaped; no executable elements/handlers; valid output. | S0 | PASS (parent accepted 2026-11-04) |
+| S7-02 | UI injection | HTML/attribute payloads in labels and status regions. | Rendered as text; no DOM injection. | S0 | PASS (parent accepted 2026-11-04) |
+| S7-03 | CSP compatibility | Serve with strict CSP (no `unsafe-inline`/`eval`) as documented. | Page and generated SVG render; no required-code CSP violations. | S1 | PASS (parent accepted 2026-11-04) |
+| S7-04 | Referrer and privacy | Monitor requests and `Referer` under strict policy. | No unexpected referrer leakage or third-party requests. | S1 | PASS (parent accepted 2026-11-04) |
+| S7-05 | Network behavior | Render with network offline and request logging. | No required network; no unexpected outbound calls. | S1 | PASS (parent accepted 2026-11-04) |
+| S7-06 | Secrets and excluded data | Scan tracked source, tarball, fixtures, and logs for credentials/env/backups. | No secrets or excluded material; no auth artifacts. | S0 | PASS (parent accepted 2026-11-04) |
+| S7-07 | Extreme inputs | 1 MB seed, huge batch, pathological Unicode, NaN/Infinity options. | Bounded failure or documented handling; no crash/hang. | S1 | PASS (parent accepted 2026-11-04) |
+| S7-08 | Resource limits | Run under declared memory/time caps; observe cleanup. | Stays within caps or fails gracefully with a clear error. | S1 | PASS (parent accepted 2026-11-04) |
 
 ### Stage 8 — Accessibility and visuals (DeepSeek V4.1 Flash 1017 max)
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S8-01 | Automated accessibility | Run axe or equivalent on default and error states. | No serious or critical violations. | S1 | NOT RUN |
-| S8-02 | Keyboard operation | Operate every control keyboard-only; track focus. | Full operation; visible focus; logical order; no traps. | S1 | NOT RUN |
-| S8-03 | Labels and roles | Inspect accessible names/roles, including the size selector. | Every control named; label does not absorb option text; roles correct. | S1 | NOT RUN |
-| S8-04 | Status announcements | Trigger copy, download, render, and error; observe live regions. | Status announced; no duplicate or noisy announcements. | S1 | NOT RUN |
-| S8-05 | Zoom and reflow | 200% and 400% zoom; narrow reflow. | No loss of content/function; controls reachable. | S1 | NOT RUN |
-| S8-06 | Mobile and visual inspection | Mobile viewport touch use; capture desktop/mobile screenshots. | Usable targets/layout; screenshots inspected without clipping; not pixel baselines. | S2 | NOT RUN |
-| S8-07 | Contrast and forced colors | Measure text/control contrast; emulate forced-colors. | Meets agreed contrast; boundaries/focus visible in forced colors. | S1 | NOT RUN |
-| S8-08 | Reduced motion | Emulate `prefers-reduced-motion`. | No nonessential animation; essential transitions respect setting. | S2 | NOT RUN |
-| S8-09 | Native Safari | Run the browser suite on macOS Safari, if available. | **BLOCKED** — native Safari/macOS unavailable; Linux WebKit does not substitute. | S1 | BLOCKED |
+| S8-01 | Automated accessibility | Run axe or equivalent on default and error states. | No serious or critical violations. | S1 | PASS (parent accepted 2026-11-07) |
+| S8-02 | Keyboard operation | Operate every control keyboard-only; track focus. | Full operation; visible focus; logical order; no traps. | S1 | PASS (parent accepted 2026-11-07) |
+| S8-03 | Labels and roles | Inspect accessible names/roles, including the size selector. | Every control named; label does not absorb option text; roles correct. | S1 | PASS (parent accepted 2026-11-07) |
+| S8-04 | Status announcements | Trigger copy, download, render, and error; observe live regions. | Status announced; no duplicate or noisy announcements. | S1 | PASS (parent accepted 2026-11-07) |
+| S8-05 | Zoom and reflow | 200% and 400% zoom; narrow reflow. | No loss of content/function; controls reachable. | S1 | PASS (parent accepted 2026-11-07) |
+| S8-06 | Mobile and visual inspection | Mobile viewport touch use; capture desktop/mobile screenshots. | Usable targets/layout; screenshots inspected without clipping; not pixel baselines. | S2 | PASS (parent accepted 2026-11-07) |
+| S8-07 | Contrast and forced colors | Measure text/control contrast; emulate forced-colors. | Meets agreed contrast; boundaries/focus visible in forced colors. | S1 | PASS (parent accepted 2026-11-07) |
+| S8-08 | Reduced motion | Emulate `prefers-reduced-motion`. | No nonessential animation; essential transitions respect setting. | S2 | PASS (parent accepted 2026-11-07) |
+| S8-09 | Native Safari | Run the browser suite on macOS Safari, if available. | **BLOCKED** — native Safari/macOS unavailable; Linux WebKit does not substitute. | S1 | BLOCKED (native Safari unavailable) |
 
 ### Stage 9 — Performance and resilience (GLM-5.3 Flash high)
 
+All seven rows are REVIEW REQUIRED. Measurements are collected, but no release performance budgets are parent-approved. Retain the Codex site 66 ms/50 ms regression-limit failure, all monitoring exceedances, S9-O1 history-rate-limit errors, and S9-O2 bounded retry observation; none is upgraded to PASS.
+
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S9-01 | Batch 1 baseline | Measure one render after warmup; record time and memory. | Baseline recorded; no budget until agreed. | S1 | NOT RUN |
-| S9-02 | Batch 100 | Measure 100 renders across repeated runs. | Baseline recorded; stable; no errors. | S1 | NOT RUN |
-| S9-03 | Batch 1000 | Measure 1000 renders under declared caps. | Completes; compared with agreed budget; no leak or crash. | S1 | NOT RUN |
-| S9-04 | Size and tree-shaking | Build one-renderer and all-renderer bundles; inspect unused code. | Size reported with method; unused renderers excluded where supported. | S1 | NOT RUN |
-| S9-05 | Memory and object URLs | Repeated render/create/revoke cycles; inspect heap and URL counts. | No unbounded growth; URLs revoked; cleanup verified. | S1 | NOT RUN |
-| S9-06 | Slow CPU/network | Throttle CPU/network; interact during rendering. | UI responsive within agreed budget; no long blocking task beyond budget. | S1 | NOT RUN |
-| S9-07 | Failure resilience | Force render/asset failures; cancel and retry repeatedly. | Bounded retries; clear errors; no stuck queue or leaked work. | S1 | NOT RUN |
+| S9-01 | Batch 1 baseline | Measure one render after warmup; record time and memory. | Baseline recorded; no budget until agreed. | S1 | REVIEW REQUIRED |
+| S9-02 | Batch 100 | Measure 100 renders across repeated runs. | Baseline recorded; stable; no errors. | S1 | REVIEW REQUIRED |
+| S9-03 | Batch 1000 | Measure 1000 renders under declared caps. | Completes; compared with agreed budget; no leak or crash. | S1 | REVIEW REQUIRED |
+| S9-04 | Size and tree-shaking | Build one-renderer and all-renderer bundles; inspect unused code. | Size reported with method; unused renderers excluded where supported. | S1 | REVIEW REQUIRED |
+| S9-05 | Memory and object URLs | Repeated render/create/revoke cycles; inspect heap and URL counts. | No unbounded growth; URLs revoked; cleanup verified. | S1 | REVIEW REQUIRED |
+| S9-06 | Slow CPU/network | Throttle CPU/network; interact during rendering. | UI responsive within agreed budget; no long blocking task beyond budget. | S1 | REVIEW REQUIRED |
+| S9-07 | Failure resilience | Force render/asset failures; cancel and retry repeatedly. | Bounded retries; clear errors; no stuck queue or leaked work. | S1 | REVIEW REQUIRED |
 
 ### Stage 10 — Independent challenge and negative controls (DeepSeek V4.1 Flash 1017 max)
 
+All five rows are REVIEW REQUIRED. S10-R1 reports 4/5 scenario results passed, with S10-04 evidence-integrity FAIL; this is not a Stage 10 PASS. The ten audit findings and remaining verification are summarized in EXECUTION-LOG.md.
+
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S10-01 | Harness review | Inspect qualification harness for blind fixtures, weakened assertions, hidden skips, shared state. | No such weaknesses, or findings raised with evidence. | S0 | NOT RUN |
-| S10-02 | Negative controls | Inject known-bad build/output/options; run suite. | Suite fails as expected; no false PASS. | S0 | NOT RUN |
-| S10-03 | Expected-output tamper | Alter expected digest/output; re-run. | Mismatch detected and recorded. | S0 | NOT RUN |
-| S10-04 | Evidence integrity | Cross-check logs/artifacts with commit and tarball hashes. | Traceable and consistent; no orphan or edited evidence. | S0 | NOT RUN |
-| S10-05 | Independent repeat | Re-run critical determinism and accessibility checks. | Results reproduce; discrepancies escalated. | S1 | NOT RUN |
+| S10-01 | Harness review | Inspect qualification harness for blind fixtures, weakened assertions, hidden skips, shared state. | No such weaknesses, or findings raised with evidence. | S0 | REVIEW REQUIRED |
+| S10-02 | Negative controls | Inject known-bad build/output/options; run suite. | Suite fails as expected; no false PASS. | S0 | REVIEW REQUIRED |
+| S10-03 | Expected-output tamper | Alter expected digest/output; re-run. | Mismatch detected and recorded. | S0 | REVIEW REQUIRED |
+| S10-04 | Evidence integrity | Cross-check logs/artifacts with commit and tarball hashes. | Traceable and consistent; no orphan or edited evidence. | S0 | REVIEW REQUIRED |
+| S10-05 | Independent repeat | Re-run critical determinism and accessibility checks. | Results reproduce; discrepancies escalated. | S1 | REVIEW REQUIRED |
 
 ### Stage 11 — Parent final integrated suite
+
+NOT RUN; no final integrated qualification is claimed.
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |

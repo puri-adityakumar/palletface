@@ -1,6 +1,8 @@
 # Release Qualification Plan — dither-face 0.1.0
 
-**Status:** Execution in progress. **16/80 scenarios parent-approved PASS** (Stages 1–2); **8 provisional Stage 3 PASS**, parent disposition PENDING; 55 NOT RUN and native Safari BLOCKED. No release claim is made.
+**Current parent disposition (2026-11-09): 63 PASS, 1 BLOCKED, 12 REVIEW REQUIRED, 4 NOT RUN (80 total).** Stages 1–7 have 55 PASS; Stage 8 has 8 PASS and S8-09 BLOCKED. Stages 9 and 10 remain REVIEW REQUIRED, and Stage 11 has not run. See [DISPOSITIONS.md](DISPOSITIONS.md). No release claim is made.
+
+**Executor requirement:** Codex / `gpt-6-luna` / `max`. Stage-owner model labels below describe historical execution records and are not current dispatch instructions.
 
 **Baseline:** `test/release-qualification` at `3ca99d2`, clean. Package `dither-face@0.1.0`, ESM, Node `>=22`, zero runtime dependencies. Historical preview results in [VERIFICATION.md](../VERIFICATION.md) are context only and are **not** qualification evidence.
 
@@ -45,18 +47,18 @@ Qualify the tracked source and the actual packed tarball for a prelaunch release
 
 Rules:
 
-- **One active agent task at a time.** The parent reviews each stage's evidence and records disposition before dispatching the next stage.
+- Independent tasks may run concurrently only with separate worktrees, sandboxes, and file ownership; never run duplicate runners in one sandbox. The parent records dispositions.
 - Agents cannot approve their own work or accept risk. S0/S1 findings are release blockers and cannot be accepted; only the release owner may accept lower-severity (S2/S3) issues in writing.
 - Stage owners execute the assigned scenarios only. Scope changes require parent approval before execution.
 - Stage output is evidence, not a verdict. Parent review converts it to PASS/FAIL/BLOCKED dispositions.
 
 ## 3. Sandbox, resource, and data rules
 
-- **One new dedicated Blaxel sandbox per execution stage.** No sandbox is reused between stages and no two agent tasks share one.
+- **One dedicated Blaxel sandbox per execution task.** Do not reuse a sandbox across stages or independent tasks. Concurrent independent tasks require distinct sandboxes, worktrees, and file ownership; no duplicate runner may share a sandbox.
 - Default allowance: **4 GB RAM, Node 24, Debian default image**. The parent records the explicit CPU/disk/network allowance for each stage in the dispatch. Each stage has a **30-minute active budget**; request an extension before expiry and stop if it is denied.
 - Upload only necessary tracked source at the recorded commit, the actual tarball, and pinned fixture manifests/lockfiles.
 - **Never upload** secrets, `.env` files, auth material, backups, `.git` credentials, or `node_modules`.
-- All test workloads run in the sandbox. Local tools may orchestrate, edit qualification files, collect evidence, and commit docs.
+- Builds, tests, browsers, and servers run only in Blaxel; local tests and servers are forbidden. Local work is limited to documentation/Git, evidence inspection, and sandbox orchestration.
 - Retrieve and verify evidence **before** deleting the stage sandbox. Delete your own sandbox only after parent disposition.
 - Raw logs go to ignored `out/qualification/S<N>/`; concise tracked reports go to `docs/testing/evidence/S<N>.md`. Confirm the ignore rule before Stage 1 writes logs.
 - Fixtures are representative and defensible: adversarial and pairwise sampling to control combinatorial growth. No blind fixtures, weakened assertions, hidden skips, or self-generated expectations that merely mirror observed output.

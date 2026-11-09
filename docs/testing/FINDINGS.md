@@ -1,8 +1,8 @@
 # Qualification Findings — dither-face 0.1.0
 
-**Status:** Q-001, Q-002 and Q-003 are closed for their tested revisions. Open audit/process findings remain from the independent Stage 10 review: stale master status, stale report headers, weak S3-NC5, and evidence reconciliation. No open product S0/S1 finding from executed stages. Native Safari and screen-reader speech remain blocked coverage limitations.
+**Current status (2026-11-09):** Q-001, Q-002 and Q-003 are CLOSED for their accepted revisions. S9-O1 is OPEN and not waived. Stages 9 and 10 remain REVIEW REQUIRED; S10-R1 reports S10-04 evidence-integrity FAIL, so Stage 10 is not PASS. S3-R1 is accepted for eight rows, but its historical NC5 sensitivity credit is withdrawn pending an integrated comparator recheck. Native Safari and actual screen-reader speech remain coverage limitations. See [DISPOSITIONS.md](DISPOSITIONS.md).
 
-**Baseline:** `test/release-qualification` at `3ca99d2`; original S1 run at `7637956`; targeted fix at `104195b`; Stage 3 provisional at `704309e`/`28a8a0b`.
+**Baseline:** `test/release-qualification` at `3ca99d2`; original S1 run at `7637956`; targeted fix at `104195b`; original Stage 3 attempts at `704309e`/`28a8a0b` (historical); accepted S3-R1 run at `a976313`.
 
 ## 1. Classification and disposition
 
@@ -17,6 +17,8 @@ Agents cannot approve their own findings or accept risk. A finding is closed onl
 
 ## 2. Open findings
 
+S10 findings A7/A8/A12/A21 are mapped to their documentation changes and remaining review in [EXECUTION-LOG.md](EXECUTION-LOG.md). The reconciliation edits do not close the Stage 10 review: parent re-review remains required. S9 remains REVIEW REQUIRED, including the Codex site 66 ms/50 ms regression-limit failure and all measured monitoring exceedances; no performance row is approved PASS.
+
 **Q-003 (S1, S8-07) CLOSED 2026-11-07:** placeholder and control contrast passed the fresh S8-R2 recheck; no avatar/package output changed.
 
 **Q-002 (S2, S6-09) CLOSED 2026-11-07:** blocked/boot-failure startup feedback, disabled controls and no false preview/gallery passed the fresh S6/S8 recheck. Missing CSS remains documented graceful degradation; WebKit select CSP behavior remains documented.
@@ -29,9 +31,9 @@ Agents cannot approve their own findings or accept risk. A finding is closed onl
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Q-001 | 1 | S1-06 | S1 | ascii-letter consumed dot RNG conditionally on glyph coverage; changing name shifted dots outside both glyphs, violating documented background invariance. | [Original failure S1](evidence/S1.md), raw S1-06.json; [fix rerun S1-R1](evidence/S1-R1.md), raw S1-06.json | Implementation agent | **CLOSED — parent accepted the `104195b` fix and S1-R1 on 2026-11-03. Agent did not self-close.** |
 
-| F-01 | 10 | Evidence integrity | S2 | Master qualification status and several report headers are stale/inconsistent with parent dispositions. | [S10 evidence](evidence/S10.md) | Parent | OPEN — reconcile master records |
-| F-02 | 10 | Negative control | S2 | S3-NC5 compares hashes rather than exercising the real golden comparator. | [S10 evidence](evidence/S10.md) | Parent | OPEN — replace/re-run control |
-| F-03 | 10 | Evidence hygiene | S3 | S8-R1/R2 and extra S10 sandboxes/worktrees require explicit reconciliation and cleanup. | [S10 evidence](evidence/S10.md) | Parent | OPEN — reconcile artifacts |
+| F-01 | 10 | Evidence integrity | S2 | Master status/header inconsistencies were reconciled against the authoritative parent record; S10-04 still failed in S10-R1. | [S10-R1](evidence/S10-R1.md), [EXECUTION-LOG](EXECUTION-LOG.md) | Parent | REVIEW REQUIRED — parent re-review remains |
+| F-02 | 10 | Negative control | S2 | Historical S3-R1 NC5 sensitivity credit is withdrawn; S10-R1 supplies an independent positive/negative comparator check. | [S3-R1](evidence/S3-R1.md), [S10-R1](evidence/S10-R1.md) | Parent | OPEN — integrated S3 comparator recheck pending |
+| F-03 | 10 | Evidence hygiene | S3 | S8-R1 remains a separate historical report; S8-R2 is current accepted evidence. Do not overwrite S8-R2 or imply cleanup. | [S10-R1](evidence/S10-R1.md), [S8-R2](evidence/S8-R2.md) | Parent | REVIEW REQUIRED — verify retained artifacts/worktree disposition |
 
 ## 3. Accepted lower-severity issues
 

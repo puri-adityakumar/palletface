@@ -1,5 +1,34 @@
 # Qualification execution log
 
+## 2026-11-09 — Documentation reconciliation (current parent disposition)
+
+`DISPOSITIONS.md` is authoritative. Current total: **63 PASS, 1 BLOCKED, 12 REVIEW REQUIRED, 4 NOT RUN = 80**. Stages 1–7 account for 55 PASS; S8 has 8 PASS and S8-09 BLOCKED; S9 has 7 REVIEW REQUIRED; S10 has 5 REVIEW REQUIRED; S11 has 4 NOT RUN. The old 54 count omitted S6-09 and eight accepted S8 rows. This is accounting correction, not new test credit. The original execution outcomes and raw logs remain unchanged; hashes continue to identify original run artifacts, never rewritten documents.
+
+### Mapping the ten generated S10-R1 audit findings
+
+| Audit finding | Reconciliation location | Remaining verification |
+| --- | --- | --- |
+| S10-A7-S3-R1 | [S3-R1](evidence/S3-R1.md) current-disposition header; matrix rows S3-01–08 | Integrated S3 comparator recheck remains pending; historical NC5 sensitivity credit withdrawn. |
+| S10-A7-S4 | [S4](evidence/S4.md) current-disposition header | Preserve consumer-lock bootstrap provenance limitation. |
+| S10-A7-S5 | [S5](evidence/S5.md) current-disposition header | Keep approval scoped to recorded versions/fixtures. |
+| S10-A7-S6 | [S6](evidence/S6.md) current-disposition header; matrix S6-01–09 | S6-09 is accepted from S8-R2; Q-002 closed for that revision. |
+| S10-A7-S7 | [S7](evidence/S7.md) current-disposition header | Preserve bounded input/engine and secret-scan limits. |
+| S10-A7-S8-R2-S8 | [S8-R2](evidence/S8-R2.md) current-disposition header | Eight S8 rows accepted; native Safari blocked and speech untested. |
+| S10-A7-S8-R2-S6 | [S8-R2](evidence/S8-R2.md) current-disposition header | Nine S6 rows accepted; current disposition supersedes submission-time PENDING text. |
+| S10-A8 | [PLAN](PLAN.md), [MATRIX](MATRIX.md), [REPORT](REPORT.md), [FINDINGS](FINDINGS.md), this log | Parent review of arithmetic: 55 + 8 + 1 + 7 + 5 + 4 = 80; 63 + 1 + 12 + 4 = 80. |
+| S10-A12 | [S3-R1](evidence/S3-R1.md), [S10-R1](evidence/S10-R1.md), matrix S3 note | Supplemental comparator positive/negative evidence exists; integrated S3 recheck is a separate pending task. |
+| S10-A21 | [S6](evidence/S6.md), [S8](evidence/S8.md), [S8-R2](evidence/S8-R2.md), [MATRIX](MATRIX.md) | S8-R1 is absent from this checkout; S10-R1 identifies its separate-worktree snapshot at `7c86da9`. Preserve it as historical failed evidence. S10 rows are REVIEW REQUIRED, with S10-04 execution FAIL; do not call Stage 10 PASS. |
+
+### Remaining review and scope limits
+
+- S9 remains REVIEW REQUIRED. No release performance budgets are approved; preserve all monitoring exceedances, the Codex site **66 ms / 50 ms regression-limit failure**, S9-O1 WebKit history-rate-limit errors (OPEN, not waived), and the recorded S9-O2 retry observation.
+- S10 remains REVIEW REQUIRED after S10-R1's 4/5 scenario results and S10-04 evidence-integrity FAIL. The ten audit-finding mappings document reconciliation work; they do not close Stage 10.
+- Stage 11 is NOT RUN. No final integrated qualification or release approval is claimed.
+- Native Safari, actual screen-reader speech, emulated/mobile methods, zoom method, S4 lockfile provenance, and regression-golden independence limits remain explicit in linked evidence. DOM/ARIA checks do not prove spoken output; golden snapshots are regression anchors, not an independent geometric oracle.
+- Current executor requirement is Codex / `gpt-6-luna` / `max`. Independent tasks may run concurrently only with distinct worktrees, sandboxes, and file ownership. Builds, tests, browsers, and servers are forbidden locally; they run only in Blaxel.
+
+Earlier dated entries below are retained as historical execution records. They do not override the current parent dispositions or alter raw run files.
+
 ## 2026-11-07 — Stage 9 site track partial disposition
 
 - Site track produced 596 assertions and 91/91 derived-budget checks with functional PASS across load, batch, size/tree-shaking, cleanup, throttling and resilience.

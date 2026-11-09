@@ -1,6 +1,7 @@
 # Stage 9 evidence — playground and site performance/resilience
+**Current parent disposition (2026-11-09): REVIEW REQUIRED** for all Stage 9 matrix rows. No release performance budget is approved. Retain the Codex site 66 ms/50 ms regression-limit failure and S9-O1 WebKit history-rate-limit errors; S9-O1 remains OPEN, not waived. Agent-reported 91/91 derived checks do not promote S9 to PASS. Execution results and raw hashes below remain unchanged.
 
-**Execution status:** Final acceptance run **8 PASS, 0 FAIL, 0 BLOCKED — 7 matrix-style scenarios plus 4/4 negative controls, 596 counted assertions, 91/91 derived budget checks passed, 0 failed assertions**. One separate WebKit observation (S9-O1) is recorded and remains parent-owned. Parent disposition: **PENDING**. This report is evidence, not a verdict; it does not approve the stage, the site, the package, or the release.
+**Execution status at original submission (historical; current parent disposition is above):** Final acceptance run **8 PASS, 0 FAIL, 0 BLOCKED — 7 matrix-style scenarios plus 4/4 negative controls, 596 counted assertions, 91/91 derived budget checks passed, 0 failed assertions**. One separate WebKit observation (S9-O1) is recorded and remains parent-owned. Parent disposition: **PENDING**. This report is evidence, not a verdict; it does not approve the stage, the site, the package, or the release.
 
 **Product freeze:** `git diff f1e17d0..HEAD -- src site package.json package-lock.json README.md LICENSE` is **empty**. Stage 9 adds only the site qualification harness, tools lock, expected budgets and this report. No product, site, root dependency, MATRIX, REPORT, PLAN or FINDINGS edit was made. No push, PR, publish, deployment, DNS or next-stage action was performed.
 
