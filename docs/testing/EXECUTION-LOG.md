@@ -1,5 +1,11 @@
 # Qualification execution log
 
+## 2026-11-09 — Workspace resource limit and revised browser execution
+
+- Blaxel rejected 8 GB before creating a sandbox; account maximum is 4096 MB. No test workload ran in that attempt.
+- Recovery authorization revised to 4096 MB, one browser engine active at a time, sequential bounded scenario groups and common browser cache. Qualifying harness execution may change to serialize engine lifetimes, but no assertions, cases or supported engine coverage may be removed or weakened.
+- Generate a fresh manifest from exact current checkout; never reuse a prior commit manifest. Keep original provisioning block and exit137 evidence. No S9/S3 reruns or unapproved resource increase.
+
 ## 2026-11-09 — Integrated attempt partial; bounded recovery
 
 - Final attempt passed library/site/example typechecks, 117 units, builds and the complete corrected S3 package/control suite on the unchanged tarball.
