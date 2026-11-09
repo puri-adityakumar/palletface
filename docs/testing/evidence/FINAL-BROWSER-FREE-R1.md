@@ -1,5 +1,7 @@
 # Final browser qualification under 4096 MB — 2026-11-09
 
+**Parent disposition — ACCEPTED 2026-11-09 as final browser component evidence.** Lifecycle changes serialize execution without dropping S6/S8 cases; scoped S7 explicitly omits 07/08. Retrieved artifact-copy index SHA verified as `da753f66…`. All reported component results accepted on unchanged product. Combined with FINAL-20261109's core/package passes, functional integration is verified across split runs. Full release gate remains REVIEW REQUIRED because S9 criteria are unresolved. Original agent account follows as execution history; no overall Stage 11/release PASS.
+
 **Result: the approved browser suites completed on frozen commit `86909b6`. No Stage 11 PASS is claimed. `DISPOSITIONS.md` remains authoritative; S9 remains REVIEW REQUIRED and native Safari and speech remain BLOCKED.**
 
 ## Run identity and integrity

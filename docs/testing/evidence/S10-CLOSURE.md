@@ -1,5 +1,7 @@
 # Stage 10 closure review — 2026-11-09
 
+**Subsequent parent disposition:** this note describes the earlier incomplete run. Later S10-INTEGRITY-FREE-R1 and S3-COMPARATOR-R1 evidence resolved the audit gaps; Stage 10 is now accepted from accumulated independent evidence. FINAL-BROWSER-FREE-R1 completes the missing browser components. S9 and overall release gate remain unresolved. Original observations below are historical, not current status.
+
 **Suggested parent disposition: keep Stage 10 REVIEW REQUIRED and do not infer release readiness.** This is an evidence reconciliation, not parent approval. Stage 10 has five matrix rows; no row is self-approved here.
 
 ## Preserved Stage 10 result

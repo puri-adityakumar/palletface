@@ -1,10 +1,10 @@
 # Release Qualification Matrix — dither-face 0.1.0
 
-**Current parent disposition (2026-11-09): 63 PASS, 1 BLOCKED, 12 REVIEW REQUIRED, 4 NOT RUN (80 total).** Stages 1–7: 55 PASS; Stage 8: 8 PASS and S8-09 BLOCKED; Stage 9: 7 REVIEW REQUIRED; Stage 10: 5 REVIEW REQUIRED; Stage 11: 4 NOT RUN. See [DISPOSITIONS.md](DISPOSITIONS.md), which is authoritative.
+**Current parent disposition (2026-11-09): 70 PASS, 1 BLOCKED, 9 REVIEW REQUIRED, 0 NOT RUN (80 total).** Stages 1–8: 63 PASS/1 BLOCKED; Stage 9: 7 REVIEW REQUIRED; Stage 10: 5 PASS; Stage 11: 2 PASS/2 REVIEW REQUIRED. See [DISPOSITIONS.md](DISPOSITIONS.md).
 
 **Documentation executor:** Codex / `gpt-6-luna` / `max`. Historical model labels and run identities remain as recorded. S3-R1 is accepted for eight rows; historical NC5 sensitivity credit is withdrawn and replaced by the accepted [S3-COMPARATOR-R1](evidence/S3-COMPARATOR-R1.md) recheck.
 
-**Status summary:** 80 scenarios — **63 PASS, 1 BLOCKED, 12 REVIEW REQUIRED, 4 NOT RUN**. S9 performance is not upgraded to PASS; S10 remains review required; S11 is not run.
+**Status summary:** 80 scenarios — **70 PASS, 1 BLOCKED, 9 REVIEW REQUIRED, 0 NOT RUN**. S9 performance and the full release gate remain unresolved. Functional final components passed across split runs on unchanged product.
 
 **Severity if failed:** S0 = integrity/security/secrets/determinism/package/false-claim blocker; S1 = required functional, compatibility, accessibility, or agreed-performance blocker; S2/S3 = release owner written acceptance only. No agent may self-approve. Every row requires the evidence fields in section 2, including commit, tarball SHA-256, versions, exact command, expected/actual, artifact, severity, and parent approval.
 
@@ -134,26 +134,26 @@ All seven rows are REVIEW REQUIRED. Measurements are collected, but no release p
 
 ### Stage 10 — Independent challenge and negative controls (DeepSeek V4.1 Flash 1017 max)
 
-All five rows are REVIEW REQUIRED. S10-R1 reports 4/5 scenario results passed, with S10-04 evidence-integrity FAIL; this is not a Stage 10 PASS. The ten audit findings and remaining verification are summarized in EXECUTION-LOG.md.
+All five rows accepted by parent review of accumulated independent checks and corrective comparator/integrity evidence. Historical S10-R1 remains 4/5 with evidence-integrity FAIL; new closure evidence does not rewrite that result.
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S10-01 | Harness review | Inspect qualification harness for blind fixtures, weakened assertions, hidden skips, shared state. | No such weaknesses, or findings raised with evidence. | S0 | REVIEW REQUIRED |
-| S10-02 | Negative controls | Inject known-bad build/output/options; run suite. | Suite fails as expected; no false PASS. | S0 | REVIEW REQUIRED |
-| S10-03 | Expected-output tamper | Alter expected digest/output; re-run. | Mismatch detected and recorded. | S0 | REVIEW REQUIRED |
-| S10-04 | Evidence integrity | Cross-check logs/artifacts with commit and tarball hashes. | Traceable and consistent; no orphan or edited evidence. | S0 | REVIEW REQUIRED |
-| S10-05 | Independent repeat | Re-run critical determinism and accessibility checks. | Results reproduce; discrepancies escalated. | S1 | REVIEW REQUIRED |
+| S10-01 | Harness review | Inspect qualification harness for blind fixtures, weakened assertions, hidden skips, shared state. | No such weaknesses, or findings raised with evidence. | S0 | PASS |
+| S10-02 | Negative controls | Inject known-bad build/output/options; run suite. | Suite fails as expected; no false PASS. | S0 | PASS |
+| S10-03 | Expected-output tamper | Alter expected digest/output; re-run. | Mismatch detected and recorded. | S0 | PASS |
+| S10-04 | Evidence integrity | Cross-check logs/artifacts with commit and tarball hashes. | Traceable and consistent; no orphan or edited evidence. | S0 | PASS |
+| S10-05 | Independent repeat | Re-run critical determinism and accessibility checks. | Results reproduce; discrepancies escalated. | S1 | PASS |
 
 ### Stage 11 — Parent final integrated suite
 
-NOT RUN; no final integrated qualification is claimed.
+Fresh setup and package smoke accepted. Functional components passed across split resource-recovery runs; complete release gate remains unresolved because Stage 9 criteria remain open.
 
 | ID | Scenario | Procedure | Expected | Sev | Status |
 | --- | --- | --- | --- | --- | --- |
-| S11-01 | Fresh final sandbox | Parent creates a new sandbox from the final commit, tracked source only. | Clean install; no excluded files; hashes match. | S0 | NOT RUN |
-| S11-02 | Full integrated suite | Run the complete qualification suite. | All required scenarios pass; no hidden skips; zero open S0/S1. | S0 | NOT RUN |
-| S11-03 | Final tarball smoke | Pack final tarball; install, import, and determinism smoke. | Hash recorded; installs; zero runtime deps; deterministic output. | S0 | NOT RUN |
-| S11-04 | Evidence and disposition | Assemble manifest, findings, report; parent review. | Complete traceable evidence; launch actions remain FUTURE. | S1 | NOT RUN |
+| S11-01 | Fresh final sandbox | Parent creates a new sandbox from the final commit, tracked source only. | Clean install; no excluded files; hashes match. | S0 | PASS |
+| S11-02 | Full integrated suite | Run the complete qualification suite. | All required scenarios pass; no hidden skips; zero open S0/S1. | S0 | REVIEW REQUIRED |
+| S11-03 | Final tarball smoke | Pack final tarball; install, import, and determinism smoke. | Hash recorded; installs; zero runtime deps; deterministic output. | S0 | PASS |
+| S11-04 | Evidence and disposition | Assemble manifest, findings, report; parent review. | Complete traceable evidence; launch actions remain FUTURE. | S1 | REVIEW REQUIRED |
 
 ## 2. Evidence record (required per scenario)
 

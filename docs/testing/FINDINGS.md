@@ -1,6 +1,6 @@
 # Qualification Findings — dither-face 0.1.0
 
-**Current status (2026-11-09):** Q-001, Q-002 and Q-003 are CLOSED for their accepted revisions. S9-O1 is OPEN and not waived. Stages 9 and 10 remain REVIEW REQUIRED; S10-R1 reports S10-04 evidence-integrity FAIL, so Stage 10 is not PASS. S3-R1 is accepted for eight rows, but its historical NC5 sensitivity credit is withdrawn pending an integrated comparator recheck. Native Safari and actual screen-reader speech remain coverage limitations. See [DISPOSITIONS.md](DISPOSITIONS.md).
+**Current status (2026-11-09):** Q-001/Q-002/Q-003 and F-01/F-02/F-03 CLOSED for reviewed scope. S9-O1 OPEN, not waived; Stage 9 and final release gate remain REVIEW REQUIRED. Stage 10 accepted from accumulated independent/corrective evidence; historical S10-R1 integrity FAIL retained. Historical hash-only NC5 receives no credit; corrected integrated comparator passed. Native Safari/speech remain coverage limitations. Counts: 70 PASS, 1 BLOCKED, 9 REVIEW REQUIRED, 0 NOT RUN. See [DISPOSITIONS.md](DISPOSITIONS.md).
 
 **Baseline:** `test/release-qualification` at `3ca99d2`; original S1 run at `7637956`; targeted fix at `104195b`; original Stage 3 attempts at `704309e`/`28a8a0b` (historical); accepted S3-R1 run at `a976313`.
 
@@ -17,7 +17,7 @@ Agents cannot approve their own findings or accept risk. A finding is closed onl
 
 ## 2. Open findings
 
-S10 findings A7/A8/A12/A21 are mapped to their documentation changes and remaining review in [EXECUTION-LOG.md](EXECUTION-LOG.md). The reconciliation edits do not close the Stage 10 review: parent re-review remains required. S9 remains REVIEW REQUIRED, including the Codex site 66 ms/50 ms regression-limit failure and all measured monitoring exceedances; no performance row is approved PASS.
+S10 findings A7/A8/A12/A21 were independently rechecked and accepted by parent review; historical failed audit remains visible. S9 remains REVIEW REQUIRED, including the Codex site 66 ms/50 ms regression-limit failure and all monitoring exceedances. No performance row is approved PASS.
 
 **Q-003 (S1, S8-07) CLOSED 2026-11-07:** placeholder and control contrast passed the fresh S8-R2 recheck; no avatar/package output changed.
 

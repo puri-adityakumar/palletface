@@ -1,5 +1,11 @@
 # Qualification execution log
 
+## 2026-11-09 — Remaining final browser components accepted
+
+- Parent reviewed serialized-engine harness changes and copy-index SHA `da753f66…`: root browser suite 74 PASS/2 explicit skips, S6 9 PASS, S8 8 PASS/native Safari BLOCKED, scoped S7 6 PASS (07/08 not rerun). No product changes or exit137; sandbox deleted after retrieval.
+- Accepted independent S10 checks plus corrected comparator and focused integrity closure establish five S10 PASS rows without rewriting the historical failed audit. Fresh final setup/package smoke establish two S11 PASS rows; full release gate/final disposition remain REVIEW REQUIRED.
+- Counts now 70 PASS, 1 BLOCKED, 9 REVIEW REQUIRED, 0 NOT RUN. S9 monitoring/regression-limit failures and WebKit history errors remain open, not waived. Native Safari/speech/emulation limits unchanged.
+
 ## 2026-11-09 — Focused integrity closure accepted
 
 - Parent accepted GLM Free max S10-INTEGRITY-FREE-R1: 17/17 integrity checks and four tamper controls, with two minor historical cross-reference findings annotated below/in FINAL-20261109. F-01 and F-03 closed for that audited scope; F-02 was already closed by S3-COMPARATOR-R1.

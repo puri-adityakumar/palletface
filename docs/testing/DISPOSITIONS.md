@@ -14,11 +14,12 @@ Updated 2026-11-09. This record supersedes stale status summaries in historical 
 | 8 | S8-01–08 | 8 PASS | S8-R2; parent verified archive/results/browser JSON hashes on 2026-11-07; DOM/ARIA semantics and layout-viewport equivalence only |
 | 8 | S8-09 | BLOCKED | Native Safari unavailable; Linux WebKit is not a substitute |
 | 9 | S9-01–07 | REVIEW REQUIRED | Measurements collected; no parent-approved release budgets. Retain all monitoring exceedances, Codex site 66 ms/50 ms regression-limit failure and WebKit history-rate-limit errors |
-| 10 | S10-01–05 | REVIEW REQUIRED | Latest Codex S10-R1: four observed PASS, evidence-integrity FAIL; documentation reconciled and comparator verified; final integrity recheck outstanding |
-| 11 | S11-01–04 | NOT RUN | Final integrated qualification not performed |
+| 10 | S10-01–05 | 5 PASS | Independent Codex checks/tamper controls plus accepted S3 comparator and GLM integrity closure. Historical failed audit retained. |
+| 11 | S11-01, S11-03 | 2 PASS | Fresh-source setup and real package consumers from FINAL-20261109, with remaining browser components completed by FINAL-BROWSER-FREE-R1 on unchanged product. |
+| 11 | S11-02, S11-04 | REVIEW REQUIRED | Functional components verified across split runs; complete release gate cannot pass while S9 criteria remain unresolved. |
 
-Totals: **63 PASS, 1 BLOCKED, 12 REVIEW REQUIRED, 4 NOT RUN = 80**. The repeated 54/80 summary omitted S6-09 and eight newly accepted S8 rows. This is an accounting correction, not nine new test executions. Review-required rows are not approved PASS and may contain actual failed checks.
+Totals: **70 PASS, 1 BLOCKED, 9 REVIEW REQUIRED, 0 NOT RUN = 80**. Parent accepts five Stage 10 rows and two Stage 11 components from reviewed accumulated evidence. Previous counts are historical. No release approval; performance failures and observations are not waived.
 
 Q-001, Q-002 and Q-003 are CLOSED for their accepted revisions. S9-O1 (WebKit history-rate-limit errors) is OPEN, not waived. Actual screen-reader speech is an untested subcheck, not another scenario row. Golden snapshots establish regression stability, not an independent geometric oracle. Public registry, hosted CI, DNS, deployment and upgrade checks remain deferred.
 
-Current executor requirement: **Codex / `gpt-6-luna` / `reasoningEffort: max`**. Local activity is restricted to editing, Git and sandbox orchestration; builds, servers, browsers and tests run in Blaxel only. Independent tasks may run concurrently with separate worktrees, sandboxes and file ownership; no duplicate runner within a sandbox.
+Current executor permission: **OpenCode Free DeepSeek/GLM at max**, explicitly authorized after Codex quota failure. Local editing/Git/orchestration only; builds, browsers, servers and tests remain sandbox-only. Parallel tasks require separate ownership and sandboxes.

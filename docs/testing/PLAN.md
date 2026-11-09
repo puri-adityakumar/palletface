@@ -1,8 +1,8 @@
 # Release Qualification Plan — dither-face 0.1.0
 
-**Current parent disposition (2026-11-09): 63 PASS, 1 BLOCKED, 12 REVIEW REQUIRED, 4 NOT RUN (80 total).** Stages 1–7 have 55 PASS; Stage 8 has 8 PASS and S8-09 BLOCKED. Stages 9 and 10 remain REVIEW REQUIRED, and Stage 11 has not run. See [DISPOSITIONS.md](DISPOSITIONS.md). No release claim is made.
+**Current parent disposition (2026-11-09): 70 PASS, 1 BLOCKED, 9 REVIEW REQUIRED, 0 NOT RUN (80 total).** Stages 1–8: 63 PASS/1 BLOCKED; Stage 10: five PASS; Stage 11: two PASS/two REVIEW REQUIRED. Stage 9 remains REVIEW REQUIRED. See [DISPOSITIONS.md](DISPOSITIONS.md). No release approval.
 
-**Executor requirement:** Codex / `gpt-6-luna` / `max`. Stage-owner model labels below describe historical execution records and are not current dispatch instructions.
+**Executor permission:** OpenCode Free DeepSeek/GLM at max, owner-authorized after Codex quota failure. Stage-owner model labels below describe historical runs, not current dispatch instructions.
 
 **Baseline:** `test/release-qualification` at `3ca99d2`, clean. Package `dither-face@0.1.0`, ESM, Node `>=22`, zero runtime dependencies. Historical preview results in [VERIFICATION.md](../VERIFICATION.md) are context only and are **not** qualification evidence.
 
