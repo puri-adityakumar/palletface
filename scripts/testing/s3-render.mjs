@@ -8,6 +8,7 @@
  * There are no repository-relative imports and no test-tool imports.
  */
 import { createHash } from 'node:crypto'
+import { compareGolden } from './s3-golden.mjs'
 import { createRequire } from 'node:module'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -92,9 +93,10 @@ for (const style of golden.styles) {
     name: golden.input.name,
     px: golden.input.px,
   })
-  const actualSha256 = createHash('sha256').update(svg, 'utf8').digest('hex')
   const expectedSha256 = expected.get(style.slug)
-  const equal = actualSha256 === expectedSha256
+  const comparison = compareGolden(svg, expectedSha256)
+  const actualSha256 = comparison.actualSha256
+  const equal = comparison.equal
   if (!equal) failures += 1
   cases.push({
     style: style.slug,

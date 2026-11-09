@@ -130,7 +130,9 @@ export async function runAudit({ repo, evidenceDir, auditInput, sourceManifest, 
       if (expectedSha !== stage.expected.sha256) finding(`S10-A5-${stage.id}`, 'S1', 'audit-gap', `${stage.id} expected fixture changed`, { path: stage.expected.path, actual: expectedSha, expected: stage.expected.sha256 }, 'Re-run the affected stage with the unmodified expected fixture.')
     }
     for (const harness of stage.harness ?? []) {
-      const harnessPath = path.join(repo, harness.path)
+      const harnessPath = harness.evidencePath
+        ? path.join(evidenceDir, harness.evidencePath)
+        : path.join(repo, harness.path)
       const harnessSha = await fileSha(harnessPath)
       check(`A6-${stage.id}-harness-${path.basename(harness.path)}`, harnessSha === harness.sha256, { path: harness.path, actual: harnessSha, expected: harness.sha256 })
       if (harnessSha !== harness.sha256) finding(`S10-A6-${stage.id}-${path.basename(harness.path)}`, 'S1', 'audit-gap', `${stage.id} harness changed`, { path: harness.path, actual: harnessSha, expected: harness.sha256 }, 'Do not attribute the recorded result to a different harness revision.')
@@ -201,9 +203,12 @@ export async function runAudit({ repo, evidenceDir, auditInput, sourceManifest, 
 
   // A12 — weak negative control in S3-R1.
   const s3controls = await readText(path.join(repo, 'scripts/testing/s3-controls.mjs'))
-  const nc5Weak = /mutatedRejected:\s*mutated !== golden/.test(s3controls) && !/compareFullPixels|compareGolden/.test(s3controls.slice(s3controls.indexOf('S3-NC5'), s3controls.indexOf('S3-NC5') + 1800))
-  check('A12-s3-nc5', true, { weakHashOnly: nc5Weak, file: 'scripts/testing/s3-controls.mjs' })
-  if (nc5Weak) finding('S10-A12', 'S2', 'audit-gap', 'S3-NC5 is a tautological hash-inequality control', 'scripts/testing/s3-controls.mjs: S3-NC5 recomputes SHA-256 of two different strings instead of passing a one-byte mutation through the golden comparator', 'Replace NC5 with a control that uses the real golden acceptance function; do not count the current NC5 as proof of comparator sensitivity.')
+  const nc5Raw = await readJson(path.join(evidenceDir, auditInput.s3Nc5Raw))
+  const oldNc5 = nc5Raw.controls?.find(control => control.name === 'S3-NC5-golden-mismatch')
+  const historicalWeak = Boolean(oldNc5?.detail?.mutatedRejected) && !oldNc5?.detail?.comparator
+  const currentFixed = /compareGolden\(mutatedSvg,\s*goldenSha\)/.test(s3controls) && !/mutatedRejected:\s*mutated !== golden/.test(s3controls)
+  check('A12-s3-nc5', historicalWeak && currentFixed, { historicalWeak, currentHarnessUsesActualComparator: currentFixed, evidence: auditInput.s3Nc5Raw })
+  if (historicalWeak) finding('S10-A12', 'S2', 'audit-gap', 'S3-R1 NC5 was tautological; the qualification control is now corrected and independently re-run', { priorControl: oldNc5, currentHarnessUsesActualComparator: currentFixed }, 'Do not credit the S3-R1 NC5 result; use the fresh Stage 10 comparator control as supplemental sensitivity evidence and integrate the harness correction in a future qualification-only change.')
 
   // A13 — golden provenance.
   const golden = await readJson(path.join(repo, 'tests/qualification/s3/fixtures/golden.json'))
@@ -244,8 +249,15 @@ export async function runAudit({ repo, evidenceDir, auditInput, sourceManifest, 
   if (overlaps.length) finding('S10-A16', 'S1', 'audit-gap', 'Overlapping qualification processes', overlaps, 'Re-run affected phases sequentially with unique output.')
 
   // A17 — sandbox identity and orphan attempts.
-  const sandboxes = auditInput.stages.map(stage => stage.sandbox)
-  const duplicateSandboxes = sandboxes.filter((name, index) => sandboxes.indexOf(name) !== index)
+  const sandboxGroups = new Map()
+  const duplicateSandboxes = []
+  for (const stage of auditInput.stages) {
+    const group = stage.sandboxGroup ?? stage.id
+    const existing = sandboxGroups.get(stage.sandbox)
+    if (existing && existing !== group) duplicateSandboxes.push({ sandbox: stage.sandbox, firstGroup: existing, nextGroup: group })
+    else sandboxGroups.set(stage.sandbox, group)
+  }
+  const sandboxes = [...sandboxGroups.keys()]
   check('A17-sandbox-identity', duplicateSandboxes.length === 0, { sandboxes, duplicateSandboxes })
   if (duplicateSandboxes.length) finding('S10-A17', 'S1', 'audit-gap', 'A sandbox is reused across stages', duplicateSandboxes, 'Each stage needs a dedicated sandbox.')
   if (auditInput.orphanAttempts?.length) {

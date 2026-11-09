@@ -7,10 +7,12 @@
  * the resumed main run, so the controls have their own raw evidence file.
  */
 import { execFileSync } from 'node:child_process'
-import { createHash } from 'node:crypto'
+import { createRequire } from 'node:module'
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+import { compareGolden } from './s3-golden.mjs'
 import {
   checkPackageMetadata,
   checkTarballManifest,
@@ -18,7 +20,6 @@ import {
   inspectTarball,
   parsePackJson,
   runCommand,
-  sha256,
 } from './s3-lib.mjs'
 
 function parseArgs(argv) {
@@ -141,11 +142,19 @@ const dryManifest = parsePackJson(dry.raw)?.[0] ?? null
 
 {
   const consumer = path.join(work, 'consumers', 'npm-prod')
-  const scriptPath = path.join(consumer, '.s3-nc5.mjs')
-  await fsp.writeFile(scriptPath, `import { createHash } from 'node:crypto'\nconst { ditherFace } = await import('dither-face')\nconst golden = ${JSON.stringify(golden.styles.find((entry) => entry.slug === 'pixel-sprite').sha256)}\nconst svg = ditherFace('preview-output', { style: 'pixel-sprite', name: '7even', px: 80 })\nconst original = createHash('sha256').update(svg, 'utf8').digest('hex')\nconst mutatedSvg = svg.replace('viewBox', 'viewbox')\nconst mutated = createHash('sha256').update(mutatedSvg, 'utf8').digest('hex')\nconsole.log(JSON.stringify({ original, mutated, originalMatches: original === golden, mutatedRejected: mutated !== golden, changed: mutatedSvg !== svg }))\n`)
-  const result = await runCommand({ label: 'controls-nc5-golden-mismatch', command: `npx -y node@${args['node-version']} .s3-nc5.mjs`, cwd: consumer, logDir: logs, timeout: 300000 })
-  const parsed = JSON.parse(result.stdout.trim().split('\n').at(-1))
-  record('S3-NC5-golden-mismatch', parsed.originalMatches === true && parsed.changed === true && parsed.mutatedRejected === true, parsed)
+  const require = createRequire(path.join(consumer, 'package.json'))
+  const { ditherFace } = await import(pathToFileURL(require.resolve('dither-face')).href)
+  const goldenSha = golden.styles.find((entry) => entry.slug === 'pixel-sprite').sha256
+  const svg = ditherFace('preview-output', { style: 'pixel-sprite', name: '7even', px: 80 })
+  const mutatedSvg = svg.replace('viewBox', 'viewbox')
+  const original = compareGolden(svg, goldenSha)
+  const mutated = compareGolden(mutatedSvg, goldenSha)
+  record('S3-NC5-golden-mismatch', original.equal && mutatedSvg !== svg && !mutated.equal, {
+    comparator: 'scripts/testing/s3-golden.mjs:compareGolden',
+    original,
+    mutated,
+    changed: mutatedSvg !== svg,
+  })
 }
 
 const output = { createdAt: new Date().toISOString(), tarball, tarballSha256: inspection.rawSha256, controls }

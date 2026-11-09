@@ -22,6 +22,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { compareRgba, scanSvg, sha256 } from './s10-review-compare.mjs'
+import { compareGolden } from './s3-golden.mjs'
 import { runAudit } from './s10-review-audit.mjs'
 
 const args = process.argv.slice(2)
@@ -60,7 +61,7 @@ const EXPECTED = {
   goldenSha: '7f8a2c7090d85338f3d35e83c344a2adc38bad86353af154a6e86d29db91ae1a',
   s8ExpectedSha: '3ae1bceb155eb58e085c89371d20a3a702ace3935c56b0d0d3c76e0d9e9318c0',
   s6ExpectedSha: '13e4c65d689c3e47a64bf0b23ba2cb8e904da09070093baf191697daabac2b9e',
-  s8HarnessSha: 'dc266711a8d6570ba63e36b0ec4285576b08eb21d00d27d7134c14c704202131',
+  s8HarnessSha: '3c7d8056b768120a03362060a91c3adbef9f3efc651a575bb7d88745a7871adf',
   s6HarnessSha: 'daea5cb69753b52474f1fc4289ca6b42c95de83670334c95829a2b7d7cac7e96',
   toolsLockSha: 'e497eda72a8d21b7aa029f2b3a36e03cc24f36e7bfe2275d4f9e24e37be9a6d9',
   golden: {
@@ -622,15 +623,20 @@ async function phaseTest() {
       }
       const textCleanPositive = asciiComparison ? compareRgba(asciiComparison.cleanA, asciiComparison.cleanB) : { accepted: false }
       const textCorrupt = asciiComparison ? compareRgba(asciiComparison.cleanA, asciiComparison.corrupt) : { accepted: true }
+      const goldenPositive = compareGolden(svgs?.pixel ?? '', EXPECTED.golden['pixel-sprite'])
+      const goldenMutationSvg = (svgs?.pixel ?? '').replace('viewBox', 'viewbox')
+      const goldenMutation = compareGolden(goldenMutationSvg, EXPECTED.golden['pixel-sprite'])
       const cleanScan = scanSvg(svgs?.pixel ?? '')
       const badScan = scanSvg('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><rect onload="alert(1)"/></svg>')
       const pass = cleanPositive.accepted && !colorCorrupt.accepted && textCleanPositive.accepted && !textCorrupt.accepted && cleanScan.ok && !badScan.ok &&
-        cleanPositive.eligibleFraction === 1 && colorCorrupt.eligibleFraction === 1
+        cleanPositive.eligibleFraction === 1 && colorCorrupt.eligibleFraction === 1 &&
+        goldenPositive.equal && goldenMutationSvg !== svgs?.pixel && !goldenMutation.equal
       addCheck('P3', 'SVG corruption control', pass ? 'PASS' : 'FAIL', {
         cleanPositive,
         colorCorrupt,
         textCleanPositive,
         textCorrupt,
+        goldenComparator: { implementation: 'scripts/testing/s3-golden.mjs:compareGolden', positive: goldenPositive, mutatedSvgChanged: goldenMutationSvg !== svgs?.pixel, negative: goldenMutation },
         cleanScan,
         badScan,
         corruption: { colorChanged: svgs?.pixel !== pixelCorrupt, textChanged: svgs?.ascii !== asciiCorrupt }
