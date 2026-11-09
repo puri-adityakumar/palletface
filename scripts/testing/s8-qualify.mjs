@@ -18,6 +18,7 @@ import http from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { createSerializedBrowserRegistry } from './browser-lifecycle.mjs'
 
 const args = process.argv.slice(2)
 function arg(name, fallback = null) {
@@ -658,16 +659,16 @@ async function phaseTest() {
   assert(harnessHash === prepare.harnessSha256, `harness changed between prepare and test: ${harnessHash}`)
 
   const server = await startServer()
-  const browsers = {}
+  const browserVersions = {}
+  const browserRegistry = createSerializedBrowserRegistry(playwright, ['chromium', 'firefox', 'webkit'], {
+    onLifecycle: (event) => {
+      log(`[browser-lifecycle] ${JSON.stringify(event)}`)
+      if (event.event === 'browser-started') browserVersions[event.engine] = event.version
+    },
+  })
+  const browsers = browserRegistry.browsers
   try {
-    browsers.chromium = await playwright.chromium.launch({ headless: true })
-    browsers.firefox = await playwright.firefox.launch({ headless: true })
-    browsers.webkit = await playwright.webkit.launch({ headless: true })
-    const browserVersions = {
-      chromium: browsers.chromium.version(),
-      firefox: browsers.firefox.version(),
-      webkit: browsers.webkit.version()
-    }
+    log('browser engines launch lazily; the lifecycle registry permits one active engine at a time')
     const ctx = {
       expected,
       bundle,
@@ -793,7 +794,7 @@ async function phaseTest() {
     })
     log(`S8 totals: ${JSON.stringify(totals)}`)
   } finally {
-    for (const browser of Object.values(browsers)) await browser.close().catch(() => {})
+    await browserRegistry.closeAll()
     await stopServer(server)
   }
 }

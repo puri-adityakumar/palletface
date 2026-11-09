@@ -26,6 +26,7 @@ import http from 'node:http'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { createSerializedBrowserRegistry } from './browser-lifecycle.mjs'
 
 const args = process.argv.slice(2)
 function arg(name, fallback = null) {
@@ -57,6 +58,8 @@ const allowlistShaArg = arg('--allowlist-sha', null)
 const payloadsShaArg = arg('--payloads-sha', null)
 const patternsShaArg = arg('--patterns-sha', null)
 const toolsLockShaArg = arg('--tools-lock-sha', null)
+const scopeArg = arg('--scope', 'full')
+if (!['full', 'browser-final'].includes(scopeArg)) throw new Error(`unsupported --scope: ${scopeArg}`)
 
 const logsDir = path.join(outDir, 'logs')
 const artifactsDir = path.join(outDir, 'artifacts')
@@ -65,7 +68,7 @@ const consumerDir = path.join(workDir, 'consumer')
 const extractedPackageDir = path.join(workDir, 'package-extracted')
 const probesDir = path.join(workDir, 'probes')
 const toolsDir = path.join(fixturesDir, 'tools')
-const browsersPath = path.join(workDir, 'pw-browsers')
+const browsersPath = process.env.PLAYWRIGHT_BROWSERS_PATH || path.join(workDir, 'pw-browsers')
 const siteDir = path.join(repo, 'dist-site')
 const siteOrigin = 'http://127.0.0.1:4173'
 
@@ -2502,6 +2505,7 @@ async function runPhaseTest() {
     commands: [],
     versions: {},
     negativeControls: null,
+    scope: scopeArg,
     limits: { childHeapMb, childTimeoutMs, batchDeadlineMs, sandboxMemoryMb: memoryArg, activeBudgetSeconds: 1800 },
   }
   const expected = await readJson(expectedPath)
@@ -2513,6 +2517,7 @@ async function runPhaseTest() {
   let siteServer = null
   let browser = null
   let webkit = null
+  let browserRegistry = null
   let sinkServer = null
   let sinkOrigin = null
   let html = null
@@ -2541,12 +2546,13 @@ async function runPhaseTest() {
     })
     sinkOrigin = `http://127.0.0.1:${sinkServer.address().port}`
     const playwright = await import(pathToFileURL(path.join(toolsDir, 'node_modules/@playwright/test/index.mjs')).href)
-    browser = await playwright.chromium.launch({ headless: true })
-    webkit = await playwright.webkit.launch({ headless: true })
+    browserRegistry = createSerializedBrowserRegistry(playwright, ['chromium', 'webkit'], {
+      onLifecycle: (event) => process.stdout.write(`[${new Date().toISOString()}] [browser-lifecycle] ${JSON.stringify(event)}\n`),
+    })
+    browser = browserRegistry.browsers.chromium
+    webkit = browserRegistry.browsers.webkit
     record.versions = {
       playwright: '1.64.1',
-      chromium: browser.version(),
-      webkit: webkit.version(),
       node: process.version,
       npm: execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim(),
       python: (() => { try { return execFileSync('python3', ['--version'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim() } catch { return null } })(),
@@ -2564,7 +2570,8 @@ async function runPhaseTest() {
       ['S7-06', 'Secrets and excluded data', runS7_06],
       ['S7-07', 'Extreme inputs', runS7_07],
       ['S7-08', 'Resource limits', runS7_08],
-    ]
+    ].filter(([id]) => scopeArg === 'full' || Number(id.slice(-2)) <= 6)
+    process.stdout.write(`[${new Date().toISOString()}] S7 scope=${scopeArg}; scenarios=${scenarioRunners.map(([id]) => id).join(',')}\n`)
     for (const [id, title, runner] of scenarioRunners) {
       const sc = new Scenario(id, title)
       try {
@@ -2582,9 +2589,11 @@ async function runPhaseTest() {
       allDetected: record.negativeControls.allDetected,
       note: 'All controls are synthetic/disposable. NC3 reports only redacted metadata; no canary value is written to this file. NC4 aborts at the Playwright route layer and makes no real outbound connection.',
     })
+    Object.assign(record.versions, browserRegistry.versions())
+    record.browserLifecycle = 'One Playwright engine active at a time; browser contexts are tracked and closed before switching engines.'
+    await browserRegistry.closeAll()
   } finally {
-    if (webkit) await webkit.close().catch(() => {})
-    if (browser) await browser.close().catch(() => {})
+    if (browserRegistry) await browserRegistry.closeAll()
     if (sinkServer) await new Promise((resolve) => sinkServer.close(() => resolve()))
     await stopProcess(siteServer)
   }

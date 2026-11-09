@@ -32,6 +32,7 @@ import {
 import { captureScreenshot } from './s6-page.mjs'
 import { runScenariosA } from './s6-cases-a.mjs'
 import { runNegativeControls, runScenariosB } from './s6-cases-b.mjs'
+import { createSerializedBrowserRegistry } from './browser-lifecycle.mjs'
 
 const { values: args } = parseArgs({
   options: {
@@ -344,19 +345,15 @@ async function runTest() {
     throw new Error(`site server did not become ready: ${JSON.stringify(ready)}`)
   }
 
-  const browsers = {}
+  const browserRegistry = createSerializedBrowserRegistry(playwright, ['chromium', 'firefox', 'webkit'], {
+    onLifecycle: (event) => log(`[browser-lifecycle] ${JSON.stringify(event)}`),
+  })
+  const browsers = browserRegistry.browsers
   const versions = {}
   let states = {}
   let controls = []
   let fatal = null
   try {
-    browsers.chromium = await playwright.chromium.launch({ headless: true })
-    browsers.firefox = await playwright.firefox.launch({ headless: true })
-    browsers.webkit = await playwright.webkit.launch({ headless: true })
-    versions.chromium = browsers.chromium.version()
-    versions.firefox = browsers.firefox.version()
-    versions.webkit = browsers.webkit.version()
-    versions.mobileChromium = `${versions.chromium} (Pixel 7 emulation)`
     try {
       versions.playwrightPackage = createRequire(import.meta.url)('playwright/package.json').version
     } catch {
@@ -365,7 +362,7 @@ async function runTest() {
     versions.node = setup.versions.node
     versions.npm = setup.versions.npm
     versions.package = setup.versions.package
-    log(`browsers: chromium=${versions.chromium} firefox=${versions.firefox} webkit=${versions.webkit}`)
+    log('browser engines launch lazily; the lifecycle registry permits one active engine at a time')
 
     const screenshots = []
     async function screenshot(page, label) {
@@ -398,12 +395,17 @@ async function runTest() {
     fatal = error
     log(`FATAL: ${error.stack || error.message}`)
   } finally {
-    for (const browser of Object.values(browsers)) {
-      try { await browser.close() } catch { /* recorded as a phase failure if it matters */ }
-    }
+    await browserRegistry.closeAll()
     const stopped = await stopServer(server)
     log(`site server stopped: ${JSON.stringify(stopped)}`)
   }
+
+  const observedVersions = browserRegistry.versions()
+  versions.chromium = observedVersions.chromium
+  versions.firefox = observedVersions.firefox
+  versions.webkit = observedVersions.webkit
+  versions.mobileChromium = versions.chromium ? `${versions.chromium} (Pixel 7 emulation)` : null
+  log(`browsers: chromium=${versions.chromium} firefox=${versions.firefox} webkit=${versions.webkit}`)
 
   const orderedIds = Object.keys(expected.expectations)
   for (const id of orderedIds) {
