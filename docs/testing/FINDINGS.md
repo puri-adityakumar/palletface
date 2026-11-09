@@ -31,9 +31,9 @@ S10 findings A7/A8/A12/A21 are mapped to their documentation changes and remaini
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Q-001 | 1 | S1-06 | S1 | ascii-letter consumed dot RNG conditionally on glyph coverage; changing name shifted dots outside both glyphs, violating documented background invariance. | [Original failure S1](evidence/S1.md), raw S1-06.json; [fix rerun S1-R1](evidence/S1-R1.md), raw S1-06.json | Implementation agent | **CLOSED — parent accepted the `104195b` fix and S1-R1 on 2026-11-03. Agent did not self-close.** |
 
-| F-01 | 10 | Evidence integrity | S2 | Master status/header inconsistencies were reconciled against the authoritative parent record; S10-04 still failed in S10-R1. | [S10-R1](evidence/S10-R1.md), [EXECUTION-LOG](EXECUTION-LOG.md) | Parent | REVIEW REQUIRED — parent re-review remains |
+| F-01 | 10 | Evidence integrity | S2 | Reconciled master statuses/headers independently checked; historical S10-R1 failure retained. | [S10-INTEGRITY-FREE-R1](evidence/S10-INTEGRITY-FREE-R1.md) | Parent | CLOSED — focused closure accepted 2026-11-09 |
 | F-02 | 10 | Negative control | S2 | Historical hash-only control withdrawn; corrected shared comparator and consumer integration verified by clean full S3 run and actual mutation controls. | [S3-COMPARATOR-R1](evidence/S3-COMPARATOR-R1.md) | Parent | CLOSED — accepted 2026-11-09 |
-| F-03 | 10 | Evidence hygiene | S3 | S8-R1 remains a separate historical report; S8-R2 is current accepted evidence. Do not overwrite S8-R2 or imply cleanup. | [S10-R1](evidence/S10-R1.md), [S8-R2](evidence/S8-R2.md) | Parent | REVIEW REQUIRED — verify retained artifacts/worktree disposition |
+| F-03 | 10 | Evidence hygiene | S3 | S8-R1 historical/S8-R2 current provenance and selected raw artifacts checked; omitted checksum entries remain unverified in the recheck. | [S10-INTEGRITY-FREE-R1](evidence/S10-INTEGRITY-FREE-R1.md) | Parent | CLOSED — focused closure accepted 2026-11-09; no destructive worktree cleanup implied |
 
 ## 3. Accepted lower-severity issues
 

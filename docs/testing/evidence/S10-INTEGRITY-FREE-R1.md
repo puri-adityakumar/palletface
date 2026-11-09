@@ -1,5 +1,7 @@
 # S10-INTEGRITY-FREE-R1 — independent evidence-integrity closure recheck
 
+**Parent disposition — 2026-11-09: ACCEPTED for the focused F-01/F-03 integrity scope.** Parent inspected the auditor and retrieved results: 17/17 checks PASS, four same-auditor mutation controls detected. Hash verification covered 68 uploaded SHA256SUMS entries, not all 87; the 19 omitted artifacts are explicitly unverified by this recheck. F-01 and F-03 are CLOSED within that scope. The two minor chronology references are annotated in the parent docs without changing raw results. Historical S10-R1 remains FAIL; no release/Stage 11/performance approval is implied. Overall Stage 10 disposition remains review required pending final aggregation. Original agent result follows as execution history.
+
 **Agent-observed result: 17/17 integrity checks PASS, 4/4 negative controls detected, 2 S3 documentation findings reported. Parent disposition: PENDING.** This record does not approve itself, does not close F-01 or F-03, and does not advance Stage 10. DISPOSITIONS.md remains authoritative. Executor: OpenCode FREE GLM (`opencode/glm-5.3-flash-free`), explicitly approved by the parent to replace the quota-blocked Codex executor for this task.
 
 ## Scope

@@ -1,5 +1,12 @@
 # Qualification execution log
 
+## 2026-11-09 — Focused integrity closure accepted
+
+- Parent accepted GLM Free max S10-INTEGRITY-FREE-R1: 17/17 integrity checks and four tamper controls, with two minor historical cross-reference findings annotated below/in FINAL-20261109. F-01 and F-03 closed for that audited scope; F-02 was already closed by S3-COMPARATOR-R1.
+- Verification covered 68 uploaded S8-R2 checksum entries; 19 were not uploaded and are not credited as reverified. Raw results retained. Task sandbox deleted after retrieval.
+- Overall S10 aggregation, S9 decisions and Stage 11 remain unresolved. Browser verification continues independently; no result from that task is assumed here.
+- Owner approved OpenCode Free DeepSeek/GLM at max for the unfinished tasks after Codex quota failure; current executor requirement follows that approval, not the historical Codex-only note below.
+
 ## 2026-11-09 — Workspace resource limit and revised browser execution
 
 - Blaxel rejected 8 GB before creating a sandbox; account maximum is 4096 MB. No test workload ran in that attempt.
@@ -27,7 +34,7 @@
 
 | Audit finding | Reconciliation location | Remaining verification |
 | --- | --- | --- |
-| S10-A7-S3-R1 | [S3-R1](evidence/S3-R1.md) current-disposition header; matrix rows S3-01–08 | Integrated S3 comparator recheck remains pending; historical NC5 sensitivity credit withdrawn. |
+| S10-A7-S3-R1 | [S3-R1](evidence/S3-R1.md) current-disposition header; matrix rows S3-01–08 | Corrected integrated recheck accepted in S3-COMPARATOR-R1; historical NC5 sensitivity credit withdrawn. |
 | S10-A7-S4 | [S4](evidence/S4.md) current-disposition header | Preserve consumer-lock bootstrap provenance limitation. |
 | S10-A7-S5 | [S5](evidence/S5.md) current-disposition header | Keep approval scoped to recorded versions/fixtures. |
 | S10-A7-S6 | [S6](evidence/S6.md) current-disposition header; matrix S6-01–09 | S6-09 is accepted from S8-R2; Q-002 closed for that revision. |
@@ -35,7 +42,7 @@
 | S10-A7-S8-R2-S8 | [S8-R2](evidence/S8-R2.md) current-disposition header | Eight S8 rows accepted; native Safari blocked and speech untested. |
 | S10-A7-S8-R2-S6 | [S8-R2](evidence/S8-R2.md) current-disposition header | Nine S6 rows accepted; current disposition supersedes submission-time PENDING text. |
 | S10-A8 | [PLAN](PLAN.md), [MATRIX](MATRIX.md), [REPORT](REPORT.md), [FINDINGS](FINDINGS.md), this log | Parent review of arithmetic: 55 + 8 + 1 + 7 + 5 + 4 = 80; 63 + 1 + 12 + 4 = 80. |
-| S10-A12 | [S3-R1](evidence/S3-R1.md), [S10-R1](evidence/S10-R1.md), matrix S3 note | Supplemental comparator positive/negative evidence exists; integrated S3 recheck is a separate pending task. |
+| S10-A12 | [S3-R1](evidence/S3-R1.md), [S10-R1](evidence/S10-R1.md), matrix S3 note | Integrated shared-comparator recheck accepted; F-02 closed. Historical hash-only result receives no retroactive credit. |
 | S10-A21 | [S6](evidence/S6.md), [S8](evidence/S8.md), [S8-R2](evidence/S8-R2.md), [MATRIX](MATRIX.md) | S8-R1 is absent from this checkout; S10-R1 identifies its separate-worktree snapshot at `7c86da9`. Preserve it as historical failed evidence. S10 rows are REVIEW REQUIRED, with S10-04 execution FAIL; do not call Stage 10 PASS. |
 
 ### Remaining review and scope limits
