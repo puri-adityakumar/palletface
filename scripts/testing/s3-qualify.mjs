@@ -538,6 +538,7 @@ async function prepareConsumer(name) {
   for (const file of ['s3-render.mjs', 's3-imports.mjs', 's3-pnp.cjs']) {
     await fsp.copyFile(path.join(repoDir, 'scripts', 'testing', file), path.join(target, `.${file}`))
   }
+  await fsp.copyFile(path.join(repoDir, 'scripts', 'testing', 's3-golden.mjs'), path.join(target, 's3-golden.mjs'))
   return target
 }
 
@@ -793,6 +794,7 @@ async function runNpmConsumers() {
   for (const file of ['package.json', 'package-lock.json']) await fsp.copyFile(path.join(fixturesDir, 'consumers', 'npm', file), path.join(prod, file))
   await fsp.copyFile(pack1.file, path.join(prod, tarballName))
   await fsp.copyFile(path.join(repoDir, 'scripts', 'testing', 's3-render.mjs'), path.join(prod, '.s3-render.mjs'))
+  await fsp.copyFile(path.join(repoDir, 'scripts', 'testing', 's3-golden.mjs'), path.join(prod, 's3-golden.mjs'))
   const prodInstall = await run(id, 'npm-prod-ci', `npx -y npm@${args['npm-version']} ci --omit=dev --offline --ignore-scripts --no-audit --no-fund`, prod, {}, 600000)
   assert(id, prodInstall.exitCode === 0, 'npm production-only offline install exits 0', { exitCode: prodInstall.exitCode, stderr: prodInstall.stderr.slice(-3000) })
   const prodEntries = fs.readdirSync(path.join(prod, 'node_modules')).sort()
@@ -836,6 +838,7 @@ async function runPnpmConsumers() {
   for (const file of ['package.json', 'pnpm-lock.yaml', '.npmrc']) await fsp.copyFile(path.join(fixturesDir, 'consumers', 'pnpm', file), path.join(prod, file))
   await fsp.copyFile(pack1.file, path.join(prod, tarballName))
   await fsp.copyFile(path.join(repoDir, 'scripts', 'testing', 's3-render.mjs'), path.join(prod, '.s3-render.mjs'))
+  await fsp.copyFile(path.join(repoDir, 'scripts', 'testing', 's3-golden.mjs'), path.join(prod, 's3-golden.mjs'))
   const prodInstall = await run(id, 'pnpm-prod-install', `npx -y pnpm@${args['pnpm-version']} install --prod --offline --frozen-lockfile --ignore-scripts`, prod, {}, 600000)
   assert(id, prodInstall.exitCode === 0, 'pnpm production-only offline install exits 0', { exitCode: prodInstall.exitCode, stderr: prodInstall.stderr.slice(-3000) })
   assert(id, !fs.existsSync(path.join(prod, 'node_modules', 'typescript')) && !fs.existsSync(path.join(prod, 'node_modules', 'react')), 'pnpm production node_modules excludes TypeScript and React', fs.readdirSync(path.join(prod, 'node_modules')).sort())
