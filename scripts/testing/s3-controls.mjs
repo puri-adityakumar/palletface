@@ -149,10 +149,41 @@ const dryManifest = parsePackJson(dry.raw)?.[0] ?? null
   const mutatedSvg = svg.replace('viewBox', 'viewbox')
   const original = compareGolden(svg, goldenSha)
   const mutated = compareGolden(mutatedSvg, goldenSha)
-  record('S3-NC5-golden-mismatch', original.equal && mutatedSvg !== svg && !mutated.equal, {
+  const wrongExpectedSha = '0'.repeat(64)
+  const mutatedExpected = compareGolden(svg, wrongExpectedSha)
+
+  // Inject an always-accept comparator into an isolated copy. The two
+  // negative inputs above must expose that fault; this never changes the
+  // helper used by the real renderer or any installed package.
+  const helperPath = new URL('./s3-golden.mjs', import.meta.url)
+  const helperSource = await fsp.readFile(helperPath, 'utf8')
+  const faultySource = helperSource.replace(
+    'equal: actualSha256 === expectedSha256',
+    'equal: true',
+  )
+  const faultySourceInjected = faultySource !== helperSource
+  const faultyHelperPath = path.join(work, 'controls-faulty-s3-golden.mjs')
+  await fsp.writeFile(faultyHelperPath, faultySource)
+  const faultyHelper = await import(`${pathToFileURL(faultyHelperPath).href}?control=${Date.now()}`)
+  const faultySvgMutation = faultyHelper.compareGolden(mutatedSvg, goldenSha)
+  const faultyExpectedMutation = faultyHelper.compareGolden(svg, wrongExpectedSha)
+  const faultyComparatorExposed = faultySvgMutation.equal && faultyExpectedMutation.equal
+  const detected = original.equal &&
+    mutatedSvg !== svg && !mutated.equal &&
+    !mutatedExpected.equal &&
+    faultySourceInjected && faultyComparatorExposed
+  record('S3-NC5-golden-mismatch', detected, {
     comparator: 'scripts/testing/s3-golden.mjs:compareGolden',
     original,
     mutated,
+    mutatedExpected,
+    faultyComparator: {
+      disposableCopy: faultyHelperPath,
+      sourceMutationApplied: faultySourceInjected,
+      mutatedSvgAccepted: faultySvgMutation.equal,
+      mutatedExpectedAccepted: faultyExpectedMutation.equal,
+      exposedByNegativeInputs: faultyComparatorExposed,
+    },
     changed: mutatedSvg !== svg,
   })
 }
