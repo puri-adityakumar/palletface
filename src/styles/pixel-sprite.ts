@@ -6,6 +6,7 @@
 import { fnv1a, mulberry32 } from '../seed.js'
 import { DEEP, INK, PASTEL } from '../palettes.js'
 import { disc, rect } from '../grid.js'
+import { validateRenderArgs } from '../validation.js'
 
 /** One entry of `list`, chosen by the rng. */
 const pick = <T>(r: () => number, list: readonly T[]): T => list[Math.floor(r() * list.length)]!
@@ -31,6 +32,7 @@ const pickN = <T>(r: () => number, list: readonly T[], n: number): T[] => {
  * seed fully determines the output: same seed, byte-identical svg.
  */
 export function pixelSprite(seed: string, px: number): string {
+  validateRenderArgs(seed, px)
   const r = mulberry32(fnv1a('sprite' + seed))
   const n = 12
   const [bg] = pickN(r, PASTEL, 1)

@@ -1,5 +1,12 @@
 node_modules/
+.DS_Store
 dist/
+dist-site/
+playwright-report/
+test-results/
+*.tgz
+.env
+.env.*
 out-sheet/
 
 # session files, not part of the repo

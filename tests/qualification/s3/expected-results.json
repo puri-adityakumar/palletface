@@ -1,0 +1,183 @@
+{
+  "stage": "S3",
+  "title": "Packaging and consumers",
+  "createdBeforeExecution": "2026-11-03",
+  "productSourceCommitAtCreation": "a9685b7",
+  "note": "Written before the Stage 3 sandbox harness ran. Expected status is PASS for every assigned scenario. Any observed FAIL, BLOCKED or NOT RUN is a provisional agent result requiring parent review; this file is not self-approval and makes no release claim. Expected outputs are fixed inputs below, not copied from Stage 3 observations.",
+  "expectedTarball": {
+    "filename": "dither-face-0.1.0.tgz",
+    "sha256": "ed4c359b1b023e9b68a584334faef914390372f5e589b8c28d569b6932c20021",
+    "gzipBytes": 23220,
+    "fileCount": 32,
+    "reason": "Product source, README, LICENSE and package.json are byte-identical to accepted Stage 1 R1/Stage 2 R1. Only docs/testing and scripts/testing changed after product source e3c5ead. A different hash or file list is investigated and reported, never accepted silently."
+  },
+  "fixedArtifacts": {
+    "golden": {
+      "path": "tests/qualification/s3/fixtures/golden.json",
+      "sha256AtCreation": "7f8a2c7090d85338f3d35e83c344a2adc38bad86353af154a6e86d29db91ae1a",
+      "note": "Eight raw-SVG hashes for seed preview-output, name 7even, px 80, transcribed from the parent-accepted S2-R1 S2-08 fixed-fixture record."
+    },
+    "allowlist": {
+      "path": "tests/qualification/s3/tarball-allowlist.json",
+      "sha256AtCreation": "7b91f5667174348ad2828c135edd7f515efa4e1185120848f861aed9f1c0eaf8",
+      "note": "Exact 32-path allowlist and metadata expectations."
+    }
+  },
+  "versions": {
+    "node": [
+      "22.23.4",
+      "24.22.2"
+    ],
+    "npm": "11.19.1",
+    "pnpm": "12.16.1",
+    "yarn": "4.18.1",
+    "yarnLinker": "pnp",
+    "typescript": [
+      "7.0.2",
+      "6.0.3"
+    ]
+  },
+  "negativeControlsAreRequired": true,
+  "expectations": {
+    "S3-01": {
+      "title": "Tarball manifest",
+      "severity": "S0",
+      "expectedStatus": "PASS",
+      "expected": "The real npm pack archive and the npm pack --dry-run --json manifest agree on every path and byte size. The actual archive contains exactly the 32 allowlisted package.json/README.md/LICENSE and dist .js/.d.ts paths, with no source, tests, maps, logs, secrets, node_modules, lockfile, .env or extra root metadata. No duplicate, absolute, traversal, symlink or directory entry exists. The dry-run manifest is not used as the sole source of truth.",
+      "cases": [
+        "actual npm pack archive",
+        "npm pack --dry-run --json manifest",
+        "exact allowlist set equality",
+        "forbidden-path/content scan",
+        "archive structural checks"
+      ]
+    },
+    "S3-02": {
+      "title": "Prepack lifecycle and reproducibility",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "A real npm pack in the sandbox runs the genuine prepack lifecycle: clean:dist, check (typecheck, unit tests, build) and build:web. The lifecycle log proves those scripts ran, the Vitest suite reports zero failures, and the command exit is not accepted as the only evidence. A stale poison file and nested poison directory planted in disposable dist are removed by clean:dist and never appear in the archive. Two independent packs from the reviewed source have identical raw tarball SHA-256 and identical per-file bytes. If raw bytes differ, content hashes, tar stream hash and archive metadata are compared and the difference is explained rather than masked.",
+      "cases": [
+        "planted stale dist poison",
+        "real prepack lifecycle",
+        "pack #1",
+        "pack #2",
+        "raw and content reproducibility"
+      ]
+    },
+    "S3-03": {
+      "title": "Actual tarball install and render",
+      "severity": "S0",
+      "expectedStatus": "PASS",
+      "expected": "A fresh npm project outside the repository installs a copied actual tarball through the tracked lockfile, with no repository alias, symlink, workspace or source resolution. The installed package root is a real copy outside the repository and its bytes match the archive. Both Node 22.23.4 and Node 24.22.2 import the package root and render all eight styles for seed preview-output/name 7even/px 80 to the fixed golden SHA-256 values. Rendering makes zero network attempts; the guard records any socket, DNS, HTTP(S), fetch, TLS or datagram attempt and fails if one occurs.",
+      "cases": [
+        "fresh project outside repo",
+        "tarball spec and lockfile",
+        "installed real path",
+        "installed tree equals archive",
+        "Node 22 eight fixtures",
+        "Node 24 eight fixtures",
+        "network guard"
+      ]
+    },
+    "S3-04": {
+      "title": "Zero runtime dependencies",
+      "severity": "S0",
+      "expectedStatus": "PASS",
+      "expected": "The packed manifest has no dependencies, optionalDependencies, peerDependencies or bundled dependencies. npm ls --omit=dev --all resolves only dither-face; a production-only reinstall has no test tool, React, React DOM or devtools package. pnpm production tree contains only dither-face. dither-face's Yarn PnP dependency closure is empty even though the consumer fixture intentionally carries a dev-only TypeScript pin. Development dependencies in package metadata are never counted as runtime dependencies.",
+      "cases": [
+        "packed runtime fields",
+        "npm production tree",
+        "npm production-only install",
+        "pnpm production tree",
+        "Yarn PnP closure",
+        "React absence"
+      ]
+    },
+    "S3-05": {
+      "title": "Exports and type resolution",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "The root export resolves from the packed artifact on Node 22.23.4 and Node 24.22.2 and exposes the documented named exports. The exports map declares only '.' with types ./dist/index.d.ts and default ./dist/index.js, and both targets exist in the archive. Deep imports including dist/index.js, dist/seed.js, dist/styles/pixel-sprite.js and package.json are rejected with ERR_PACKAGE_PATH_NOT_EXPORTED under the real package map. Modern Node require(esm) may load the ESM package; that observation is recorded exactly for the tested Node versions and is not generalized into a universal CommonJS support claim or misclassified as a failure.",
+      "cases": [
+        "ESM root exports Node 22",
+        "ESM root exports Node 24",
+        "exports map shape",
+        "deep import rejection",
+        "CJS require observation Node 22",
+        "CJS require observation Node 24",
+        "type root resolution"
+      ]
+    },
+    "S3-06": {
+      "title": "Strict declarations and TypeScript versions",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Strict consumers compile with no diagnostics from the packed declarations under NodeNext, Node16 and Bundler resolution, using TypeScript 7.0.2 and prior stable 6.0.3. Resolution traces point at the installed package's dist/index.d.ts, never repository src. Expected invalid style, seed, px/name option, readonly-registry mutation and unsupported deep-import fixtures fail compilation with a TypeScript diagnostic in every mode/version combination. An unsupported mode or absent version is recorded as a limitation, not silently skipped.",
+      "cases": [
+        "TS 7.0.2 x NodeNext valid",
+        "TS 7.0.2 x Node16 valid",
+        "TS 7.0.2 x Bundler valid",
+        "TS 6.0.3 x NodeNext valid",
+        "TS 6.0.3 x Node16 valid",
+        "TS 6.0.3 x Bundler valid",
+        "invalid cases in every mode/version"
+      ]
+    },
+    "S3-07": {
+      "title": "npm/pnpm/Yarn consumers",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Three independent fresh projects each copy the actual tarball and install from their own version-pinned manifest and committed lockfile. npm uses npm 11.19.1, pnpm 12.16.1 and Yarn 4.18.1 PnP with no node_modules requirement. Lockfiles are unchanged by install. Each manager performs an offline immutable lockfile reinstall after caches are populated. Every consumer renders all eight styles to the same tarball golden hashes, with package roots outside the repository and no source alias/symlink. The Yarn run uses yarn node so PnP resolution is exercised.",
+      "cases": [
+        "npm online install",
+        "npm offline lock reinstall",
+        "pnpm online frozen install",
+        "pnpm offline frozen reinstall",
+        "Yarn PnP immutable install",
+        "Yarn offline immutable reinstall",
+        "eight goldens per manager",
+        "package roots and lock hashes"
+      ]
+    },
+    "S3-08": {
+      "title": "Manifest truth",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Packed package.json is byte-identical to the reviewed package.json. Name, version, license, type, engines.node, sideEffects, files, main, types and exports equal repository values and the allowlist. Packed README.md and LICENSE are byte-identical to repository files. Every ESM declaration path exists in the archive; every module JavaScript file has a matching declaration, with the IIFE dither-face.js as the documented exception. The root package-lock version agrees. No runtime dependency field or unexpected metadata appears.",
+      "cases": [
+        "packed/repo package.json identity",
+        "field truth",
+        "README/LICENSE identity",
+        "ESM declaration path existence",
+        "declaration coverage",
+        "lockfile version",
+        "runtime field absence"
+      ]
+    }
+  },
+  "negativeControls": {
+    "S3-NC1-forbidden-extra-entry": {
+      "expected": "The production manifest checker rejects a disposable repacked archive containing package/src/internal.ts and package/dist/leak.js.map as unexpected/forbidden entries.",
+      "target": "S3-01 checker"
+    },
+    "S3-NC2-dependency-injection": {
+      "expected": "The production metadata/dependency checker rejects a disposable package copy whose package.json adds a dependencies entry and a React runtime dependency.",
+      "target": "S3-04/S3-08 checker"
+    },
+    "S3-NC3-export-path-typo": {
+      "expected": "The production export/import checker rejects a disposable package copy whose exports.default points to ./dist/indx.js; import fails and the declared path is missing.",
+      "target": "S3-05 checker"
+    },
+    "S3-NC4-invalid-typescript": {
+      "expected": "The production strict TypeScript checker rejects an invalid style/seed fixture with a nonzero tsc exit and a concrete diagnostic; no @ts-expect-error suppression is used.",
+      "target": "S3-06 checker"
+    },
+    "S3-NC5-golden-mismatch": {
+      "expected": "The production golden comparator rejects a one-byte mutation of a known-good SVG/hash, proving render comparisons are not constant-output or blanket-accept.",
+      "target": "S3-03/S3-07 checker"
+    }
+  },
+  "limitationsPolicy": "Environment or manager limitations are recorded as BLOCKED with the exact failing command and reproduction. Genuine S0/S1 findings stop qualification progress and are reported for parent disposition; no source or package-dependency fix is made by this stage.",
+  "parentDisposition": "PENDING"
+}

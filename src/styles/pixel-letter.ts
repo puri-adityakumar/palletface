@@ -17,6 +17,7 @@ import { fnv1a, mulberry32 } from '../seed.js'
 import { DEEP, INK, PASTEL } from '../palettes.js'
 import { BAYER, disc, rect } from '../grid.js'
 import { glyph, initialOf } from '../font.js'
+import { validateRenderArgs } from '../validation.js'
 
 /** One rng draw: a uniformly random element of `list` (mockup `pick`). */
 const pick = <T>(r: () => number, list: readonly T[]): T =>
@@ -38,6 +39,7 @@ function pickN<T>(r: () => number, list: readonly T[], n: number): T[] {
  * given, supplies the initial instead of the seed.
  */
 export function pixelLetter(seed: string, px: number, name?: string): string {
+  validateRenderArgs(seed, px, name)
   const r = mulberry32(fnv1a('plet' + seed))
   const field = pickN(r, PASTEL, 2)
   const c1 = field[0]!

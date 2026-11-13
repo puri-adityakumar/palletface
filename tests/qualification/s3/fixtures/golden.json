@@ -1,0 +1,53 @@
+{
+  "stage": "S3",
+  "package": "dither-face",
+  "version": "0.1.0",
+  "createdBeforeExecution": "2026-11-03",
+  "note": "Fixed eight-style render fixtures. SHA-256 values are exact raw-SVG hashes transcribed from the parent-accepted Stage 2 R1 fixed-fixture record (S2-08) at product source e3c5ead; they were not produced by the Stage 3 harness. Expected-before-run: Stage 3 may not update these values from its own observations.",
+  "source": {
+    "stage": "S2-R1",
+    "scenario": "S2-08",
+    "productSourceCommit": "e3c5ead",
+    "acceptedEvidence": "docs/testing/evidence/S2-R1.md",
+    "rawRecordRelative": "out/qualification/S2-R1/runs/run5/S2-08-fixed-fixtures.json"
+  },
+  "input": {
+    "seed": "preview-output",
+    "name": "7even",
+    "px": 80
+  },
+  "styles": [
+    {
+      "slug": "pixel-sprite",
+      "sha256": "5414be3e1bbb2b9304c9c4a6c7f5f40bc3b4fc88db16397ca46b59315659619a"
+    },
+    {
+      "slug": "pixel-letter",
+      "sha256": "e8f2d8daacae04528d067dff9662ca3504257617c5a2b3001b8a398662dd04af"
+    },
+    {
+      "slug": "dither-orb",
+      "sha256": "aa34f938e15fa5118670d99f38e9e5688c42dce29c09f99832fe5e96037c6bf2"
+    },
+    {
+      "slug": "pixel-landscape",
+      "sha256": "7c4ce7ef787fb50b8f0c7912749f695dc56857a69698b884d32a19e1fa1be7d2"
+    },
+    {
+      "slug": "ascii-letter",
+      "sha256": "ebfcb2cf41b1437e9637deb4304ed20555a84d5f12a1739813c78af8514bade8"
+    },
+    {
+      "slug": "ascii-field",
+      "sha256": "4d24f0abd032e710e7bb6c8c128ed4e48a17ff763b6eebe7cf8bb92e43eb71b1"
+    },
+    {
+      "slug": "ascii-face",
+      "sha256": "ae48967cd0368741b830a70d6316a8d402b9da791e9830c5aa613a97a33502b2"
+    },
+    {
+      "slug": "pixelify-letter",
+      "sha256": "d0cc056ec36b95c5efcf06d538f721696e4113509e0b943d7fefd25200bdbd37"
+    }
+  ]
+}

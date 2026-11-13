@@ -1,0 +1,87 @@
+{
+  "stage": "S7",
+  "createdBeforeExecution": "2026-11-04",
+  "note": "Adversarial seed and name strings for S7-01/S7-02. Values are data; they are never used as expected markup. The high-level API must treat every value as an opaque string.",
+  "payloads": [
+    {
+      "id": "script-tag",
+      "kind": "html",
+      "value": "<script>alert(1)</script>"
+    },
+    {
+      "id": "img-onerror",
+      "kind": "html",
+      "value": "<img src=x onerror=alert(1)>"
+    },
+    {
+      "id": "svg-onload-double-quote",
+      "kind": "attribute",
+      "value": "\"><svg onload=alert(1)>"
+    },
+    {
+      "id": "script-single-quote",
+      "kind": "attribute",
+      "value": "'><script>alert(document.domain)</script>"
+    },
+    {
+      "id": "entity-encoded-script",
+      "kind": "xml-entity",
+      "value": "&lt;script&gt;alert(1)&lt;/script&gt;"
+    },
+    {
+      "id": "cdata-breakout",
+      "kind": "cdata",
+      "value": "]]><script>alert(1)</script>"
+    },
+    {
+      "id": "javascript-uri",
+      "kind": "uri",
+      "value": "javascript:alert(1)"
+    },
+    {
+      "id": "data-html-uri",
+      "kind": "uri",
+      "value": "data:text/html,<script>alert(1)</script>"
+    },
+    {
+      "id": "double-quote-handler",
+      "kind": "attribute",
+      "value": "\" onload=\"alert(1)"
+    },
+    {
+      "id": "single-quote-handler",
+      "kind": "attribute",
+      "value": "' onload='alert(1)"
+    },
+    {
+      "id": "nul-control",
+      "kind": "unicode-control",
+      "value": "\u0000"
+    },
+    {
+      "id": "c0-controls",
+      "kind": "unicode-control",
+      "value": "\u0001\u0008\u000b\u000c\u001f"
+    },
+    {
+      "id": "bidi-zero-width",
+      "kind": "unicode-control",
+      "value": "\u202eabc\u202c\u200b\u2028\u2029"
+    },
+    {
+      "id": "lone-surrogate",
+      "kind": "unicode-control",
+      "value": "\ud800"
+    },
+    {
+      "id": "xml-text-breakout",
+      "kind": "xml-markup",
+      "value": "</text><script>alert(1)</script><text>"
+    },
+    {
+      "id": "mixed-breakout",
+      "kind": "mixed",
+      "value": "\"><svg/onload=alert(1)><!--"
+    }
+  ]
+}

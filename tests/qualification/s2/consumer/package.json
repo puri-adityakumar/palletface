@@ -1,0 +1,14 @@
+{
+  "name": "dither-face-s2-consumer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Stage 2 qualification consumer: installs the actual packed tarball plus exact-pinned XML parser, browser bundler and Playwright.",
+  "dependencies": {
+    "@xmldom/xmldom": "0.9.12",
+    "dither-face": "file:./dither-face-0.1.0.tgz",
+    "esbuild": "0.28.2",
+    "playwright": "1.64.1",
+    "pngjs": "7.0.0"
+  }
+}

@@ -11,6 +11,7 @@ import { fnv1a, mulberry32 } from '../seed.js'
 import { INK, PASTEL } from '../palettes.js'
 import { disc, rect } from '../grid.js'
 import { glyph, initialOf } from '../font.js'
+import { validateRenderArgs } from '../validation.js'
 
 /** Rust accent the mockup's letter color picks for 1 seed in 3; rest are ink. */
 const RUST = '#c8402d'
@@ -75,6 +76,7 @@ function drawLetter(initial: string, color: string): string {
  * than counted per process.
  */
 export function pixelifyLetter(seed: string, px: number, name?: string): string {
+  validateRenderArgs(seed, px, name)
   const r = mulberry32(fnv1a('pfy' + seed))
   const n = 16
   const picked = pickN(r, PASTEL, 2)

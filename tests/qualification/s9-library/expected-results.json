@@ -1,0 +1,168 @@
+{
+  "stage": "S9",
+  "track": "library-performance",
+  "title": "Performance and resilience — independent library/performance track",
+  "createdBeforeExecution": "2026-11-07",
+  "baseProductCommit": "f1e17d08878c4ca2278aaeb7aba2d2fdbb7ae3df",
+  "frozenTarball": {
+    "file": "dither-face-0.1.0.tgz",
+    "sha256": "ed4c359b1b023e9b68a584334faef914390372f5e589b8c28d569b6932c20021",
+    "bytes": 23220,
+    "note": "Parent-frozen package tarball accepted through Stages 1-8. Stage 9 installs and imports this actual bytes; it does not rebuild or republish it."
+  },
+  "productFreeze": {
+    "paths": ["src", "site", "package.json", "package-lock.json"],
+    "expected": "No product or site change from f1e17d0. Stage 9 may add only scripts/testing/perf*, tests/qualification/s9-library/**, docs/testing/evidence/S9-LIBRARY.md and ignored out/qualification/S9-LIBRARY artifacts."
+  },
+  "method": {
+    "benchmark": {
+      "runsOn": "Actual installed tarball and a fresh source build of the same commit; all eight styles; fresh Node process per style/batch/runtime/package matrix cell.",
+      "warmupRendersPerCell": 30,
+      "samples": { "1": 10, "100": 5, "1000": 2 },
+      "px": 80,
+      "name": "Ada",
+      "seedPrefix": "s9-bench",
+      "fixedGoldenInput": { "seed": "preview-output", "name": "7even", "px": 80 },
+      "timing": "performance.now() wall clock around the measured loop; process.cpuUsage() user+system CPU; Buffer.byteLength SVG bytes; process.memoryUsage() RSS/heap before and after each sample.",
+      "parity": "Every cell also renders the fixed golden input and must match the parent-accepted S2/S3 golden SHA-256. Repeated samples use an identical seed sequence per style so aggregate hashes must agree across repetitions, package forms and Node versions.",
+      "matrices": ["tarball/node24", "tarball/node22", "source/node24", "source/node22"]
+    },
+    "sizeAndTreeShaking": {
+      "esbuild": "0.28.2, target es2022, bundle true, metafile true; unminified for module-graph inspection and minified for transfer-size reporting.",
+      "compression": "zlib gzip level 9 and Brotli quality 11 at defaults otherwise; values are compressed bytes, not server-negotiated transfer sizes.",
+      "comparisons": [
+        "product ESM dist/index.js",
+        "product IIFE dist/dither-face.js",
+        "ESM root import using ditherFace (all-renderer path)",
+        "ESM root import using pixelSprite only (tree-shaking path)",
+        "ESM direct dist/styles/pixel-sprite.js import (diagnostic one-renderer path; not a supported package export)",
+        "IIFE one-renderer diagnostic bundle"
+      ],
+      "treeShakingCheck": "esbuild metafile inputs enumerate included style modules; unminified output is also scanned for all eight style slugs and function names. Unused renderer exclusion is asserted only where the module graph actually excludes it; any root-import retention is reported as an observation, not hidden."
+    },
+    "memoryAndUrls": {
+      "nodeSoak": "50,000 renders on Node 24 and 20,000 on Node 22 with --expose-gc, 5,000/2,000-render checkpoints, 10,000/5,000 Blob create-revoke cycles; heap/RSS windows recorded.",
+      "browserSoak": "20 real playground Download clicks through URL.createObjectURL/revokeObjectURL; 5,000 consumer Blob create-revoke cycles in-page; CDP HeapProfiler.collectGarbage and Runtime.getHeapUsage before/after.",
+      "urlDetector": "The same wrapper-count detector is used for the clean positive (site downloads, consumer cycles) and the negative control (three deliberately unrevoked object URLs).",
+      "scope": "Bounded observation of application-level heap/RSS and URL handle retention. The library has no OOM handler and no claim is made that it catches fatal V8 OOM; an explicit low-heap fatal-OOM probe records that limitation."
+    },
+    "throttling": {
+      "engine": "Pinned Playwright Chromium only; single-engine throttled interaction, not a cross-browser performance claim.",
+      "cpuThrottleRate": 6,
+      "network": { "latencyMs": 150, "downloadBytesPerSecond": 200000, "uploadBytesPerSecond": 93750, "connectionType": "cellular3g" },
+      "interaction": "20 rapid seed input events in one task, all eight style switches, all four size selections, final exact-bytes comparison against Node-rendered golden output.",
+      "cancellation": "Consumer Worker termination during an unbounded render loop, then a fresh short worker; site download createObjectURL failure and retry; aborted app.js load, no-auto-retry window and successful reload.",
+      "note": "CPU/network values are emulation only. The sandbox CPU model, vCPU count and memory are recorded; no native mobile or real network claim is made."
+    },
+    "budgetPolicy": "No parent-agreed numeric performance budget exists for Stage 9. Rows S9-01, S9-02, S9-03 and the responsiveness part of S9-06 are reported as BASELINE measurements, never PASS from an invented budget. Functional correctness, cleanup/revocation, negative controls and bounded resilience may be PASS because they are assertions, not release performance promises. The limits below are predeclared monitoring/negative-control limits for this run; they are not acceptance budgets and a parent must decide any release threshold."
+  },
+  "predeclaredMonitoringLimits": {
+    "interaction": {
+      "readyMaxMs": 15000,
+      "singleLongTaskMaxMs": 750,
+      "p95LongTaskMaxMs": 400,
+      "rapidInputTotalMaxMs": 5000,
+      "finalStateSettleMaxMs": 2000
+    },
+    "soak": {
+      "node24Renders": 50000,
+      "node22Renders": 20000,
+      "node24WindowRenders": 5000,
+      "node22WindowRenders": 2000,
+      "node24UrlCycles": 10000,
+      "node22UrlCycles": 5000,
+      "browserDownloadCycles": 20,
+      "browserConsumerUrlCycles": 5000,
+      "observedHeapGrowthMiB": 16,
+      "observedRssGrowthMiB": 64,
+      "browserHeapGrowthMiB": 8
+    },
+    "resilience": {
+      "downloadFailureRetryCycles": 5,
+      "retrySuccessMaxMs": 5000,
+      "workerTerminateMaxMs": 2000,
+      "assetFailureNoAutoRetryWindowMs": 1000,
+      "stuckQueueMaxMs": 1000
+    },
+    "negativeControlSlowWork": { "workMs": 250, "capMs": 25, "cleanWorkMs": 1 }
+  },
+  "tools": {
+    "node24": "Sandbox base Node 24.22.2 (recorded at runtime)",
+    "node22": { "version": "22.23.4", "archive": "node-v22.23.4-linux-x64.tar.gz", "sha256": "b8492284c76a54baf58d61668dd0e41ee0fc98adabf9503d30f05d08f55b4406" },
+    "esbuild": "0.28.2",
+    "playwright": "1.64.1",
+    "chromium": "Playwright 1.64.1 pinned Chromium build (recorded at runtime)",
+    "toolsLock": "tests/qualification/s9-library/tools/package-lock.json"
+  },
+  "fixtures": {
+    "golden": {
+      "path": "tests/qualification/s9-library/fixtures/golden.json",
+      "sha256": "7f8a2c7090d85338f3d35e83c344a2adc38bad86353af154a6e86d29db91ae1a",
+      "provenance": "Byte-identical copy of the parent-accepted tests/qualification/s3/fixtures/golden.json; not regenerated by Stage 9."
+    },
+    "alteredGolden": {
+      "path": "tests/qualification/s9-library/fixtures/altered-golden.json",
+      "purpose": "Negative control: one expected digest changed so the same comparator must fail."
+    },
+    "slowWork": {
+      "path": "tests/qualification/s9-library/fixtures/slow-work.mjs",
+      "purpose": "Negative control: known synchronous slow work must be rejected by the declared cap detector."
+    }
+  },
+  "scenarios": {
+    "S9-01": {
+      "title": "Batch 1 baseline",
+      "severity": "S1",
+      "expectedStatus": "BASELINE",
+      "expected": "After 30 warmup renders per cell, one measured render for every one of the eight styles in each tarball/source and Node 24/22 matrix reports wall time, CPU time, SVG bytes, RSS and heap. Fixed input matches the parent-accepted golden digest. No numeric release budget is agreed, so the measured baseline is reported and a parent decision is required; no PASS is inferred."
+    },
+    "S9-02": {
+      "title": "Batch 100",
+      "severity": "S1",
+      "expectedStatus": "BASELINE",
+      "expected": "Five measured 100-render samples per style and matrix cell report stable wall/CPU time, SVG bytes and memory. Outputs are deterministic within and across runs. Stability and any budget remain parent decisions; the measured baseline is not converted to PASS."
+    },
+    "S9-03": {
+      "title": "Batch 1000",
+      "severity": "S1",
+      "expectedStatus": "BASELINE",
+      "expected": "Two measured 1000-render samples per style and matrix cell complete without error, with wall/CPU time, SVG bytes and memory recorded. No crash, hang or fatal error is observed. No agreed cap/budget exists, so completion is evidence for parent review, not a PASS against an invented threshold."
+    },
+    "S9-04": {
+      "title": "Size and tree-shaking",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Tarball, product dist, ESM and IIFE bytes are reported with command and compression settings. esbuild metafiles show whether all-renderer and one-renderer paths include the expected style modules. A direct one-renderer bundle excludes the seven unused renderers; root-import retention (if any) is reported explicitly. No size budget is claimed."
+    },
+    "S9-05": {
+      "title": "Memory and object URLs",
+      "severity": "S1",
+      "expectedStatus": "PASS+BASELINE",
+      "expected": "Repeated renders and Blob create-revoke cycles complete with measured heap/RSS windows. Every created object URL is revoked and the shared tracker shows zero live handles after settling. The intentionally unrevoked negative control is detected. Numeric growth limits are monitoring baselines only and require parent decision; no unbounded-growth PASS is claimed."
+    },
+    "S9-06": {
+      "title": "Slow CPU/network playground interaction",
+      "severity": "S1",
+      "expectedStatus": "BASELINE",
+      "expected": "At the predeclared 6x CPU slowdown and throttled network, the actual playground reaches ready state, accepts 20 rapid seed inputs, switches all eight styles and all four sizes, remains usable and settles to exact Node-rendered SVG bytes. Readiness, long-task, rapid-input and settling measurements are reported against predeclared monitoring limits; because no release responsiveness budget is agreed, the result is BASELINE + correctness PASS, not PASS on an invented budget."
+    },
+    "S9-07": {
+      "title": "Failure resilience and cancellation",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Forced download URL failure produces a clear fixed status and no stuck queue; restoring the API and retrying succeeds within the predeclared per-retry limit. An aborted app.js load shows the static failure status, disables controls, keeps documentation readable and does not auto-retry; an explicit reload recovers. A consumer Worker running an unbounded render loop is terminated within the predeclared cancellation limit, and a fresh worker/main-thread render matches golden bytes. Bounded retries and cleanup are demonstrated; fatal OOM is explicitly not claimed as caught."
+    }
+  },
+  "negativeControls": {
+    "alteredGolden": "The same golden comparator that accepts actual output must reject fixtures/altered-golden.json because pixel-sprite's expected digest is changed.",
+    "unrevokedObjectUrl": "The same URL-wrapper detector that reports zero live handles after clean site downloads and consumer cycles must report a leak for three deliberately unrevoked object URLs.",
+    "slowWorkCap": "The same wall-clock cap detector that accepts 1 ms of work under a 25 ms cap must reject 250 ms of known slow work under that cap.",
+    "cleanPositives": "Golden comparison of actual tarball and source output, clean playground download revocation and fast work under cap must all pass through the same checks that reject the controls."
+  },
+  "expectedArtifacts": {
+    "trackedReport": "docs/testing/evidence/S9-LIBRARY.md",
+    "rawRoot": "out/qualification/S9-LIBRARY/",
+    "parentCopy": "/Users/aditya/Projects/dither-face/out/qualification/S9-LIBRARY/",
+    "noStageAdvance": "This track does not update MATRIX, PLAN, REPORT, FINDINGS, EXECUTION-LOG or any stage disposition; parent review alone does that."
+  }
+}

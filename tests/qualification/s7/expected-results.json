@@ -1,0 +1,141 @@
+{
+  "stage": "S7",
+  "title": "Security, privacy, and resource abuse",
+  "createdBeforeExecution": "2026-11-04",
+  "productSourceCommitAtCreation": "5cdf36450516d9f4af31d882f1191aeeec892e3e",
+  "note": "Written before the Stage 7 sandbox harness ran. Every assigned scenario is expected to PASS. Any observed FAIL, BLOCKED or NOT RUN is a provisional agent result requiring parent review; this file is not self-approval and makes no release claim. All fixed hashes below come from the frozen approved tarball, the parent-accepted Stage 2 R1/S3 fixtures, or pre-run fixture files; none is copied from a Stage 7 observation.",
+  "expectedTarball": {
+    "filename": "dither-face-0.1.0.tgz",
+    "sha256": "ed4c359b1b023e9b68a584334faef914390372f5e589b8c28d569b6932c20021",
+    "gzipBytes": 23220,
+    "source": "/Users/aditya/Projects/dither-face/out/qualification/S2-R1/sandbox/dither-face-0.1.0.tgz",
+    "rule": "The approved actual tarball is hash-verified before upload and installed as bytes in an empty consumer. A different hash stops the stage; no repository alias, workspace or symlink is accepted."
+  },
+  "frozenFixtures": {
+    "golden": {
+      "path": "tests/qualification/s3/fixtures/golden.json",
+      "sha256": "7f8a2c7090d85338f3d35e83c344a2adc38bad86353af154a6e86d29db91ae1a",
+      "source": "Parent-accepted Stage 2 R1 S2-08 fix/record; not a Stage 7 observation.",
+      "input": {
+        "seed": "preview-output",
+        "name": "7even",
+        "px": 80
+      },
+      "styles": {
+        "pixel-sprite": "5414be3e1bbb2b9304c9c4a6c7f5f40bc3b4fc88db16397ca46b59315659619a",
+        "pixel-letter": "e8f2d8daacae04528d067dff9662ca3504257617c5a2b3001b8a398662dd04af",
+        "dither-orb": "aa34f938e15fa5118670d99f38e9e5688c42dce29c09f99832fe5e96037c6bf2",
+        "pixel-landscape": "7c4ce7ef787fb50b8f0c7912749f695dc56857a69698b884d32a19e1fa1be7d2",
+        "ascii-letter": "ebfcb2cf41b1437e9637deb4304ed20555a84d5f12a1739813c78af8514bade8",
+        "ascii-field": "4d24f0abd032e710e7bb6c8c128ed4e48a17ff763b6eebe7cf8bb92e43eb71b1",
+        "ascii-face": "ae48967cd0368741b830a70d6316a8d402b9da791e9830c5aa613a97a33502b2",
+        "pixelify-letter": "d0cc056ec36b95c5efcf06d538f721696e4113509e0b943d7fefd25200bdbd37"
+      }
+    },
+    "tarballAllowlist": {
+      "path": "tests/qualification/s3/tarball-allowlist.json",
+      "sha256": "7b91f5667174348ad2828c135edd7f515efa4e1185120848f861aed9f1c0eaf8"
+    },
+    "injectionPayloads": {
+      "path": "tests/qualification/s7/fixtures/injection-payloads.json",
+      "sha256": "d3f94eff7beebc1c374f56e4a16fc5457a393d4171a5c30c0a827f24d365de4c",
+      "payloadCount": 16
+    },
+    "secretPatterns": {
+      "path": "tests/qualification/s7/secret-patterns.json",
+      "sha256": "762e4ee1b592dbdb9c3cb5a1e876ae29c35c6f30984d28af5fcfebdda83ea893",
+      "version": "s7-conservative-1"
+    },
+    "toolsLock": {
+      "path": "tests/qualification/s7/tools/package-lock.json",
+      "sha256": "388e977bb6f2531877d9ca8f562ee9aa5e521ed7e678fb79eacc3534115c9eac",
+      "tool": "@playwright/test 1.64.1"
+    }
+  },
+  "limits": {
+    "childHeapMb": 256,
+    "childTimeoutMs": 10000,
+    "batchDeadlineMs": 8000,
+    "extremeSeedLength": 1048576,
+    "sandboxMemoryMb": 4096,
+    "sandboxCpu": "platform default (no CPU override)",
+    "sandboxVolumes": [],
+    "activeBudgetSeconds": 1800,
+    "perCommandTimeoutSeconds": 600,
+    "note": "These are declared test caps, not product performance promises. Extreme-input measurements are bounded samples and make no constant-time or unbounded-input claim. Fatal V8 OOM is an engine/runtime resource limit, not a package contract requirement."
+  },
+  "trustBoundary": {
+    "statement": "The validated high-level renderers (ditherFace and the eight direct renderers) must treat seed and name as opaque strings and must never emit executable markup, handler attributes, javascript/data-html URIs or external references. Low-level rect, disc and asciiGrid accept trusted colors, ids and SVG fragments and are documented as non-sanitizers; escaping behavior is text-content-only. S7-01 records the low-level boundary as expected behaviour, not as a vulnerability.",
+    "source": "docs/API.md low-level exports and SECURITY.md"
+  },
+  "expectations": {
+    "S7-01": {
+      "title": "SVG injection",
+      "severity": "S0",
+      "expectedStatus": "PASS",
+      "expected": "Every high-level seed, name and option injection payload across all eight styles plus all eight direct renderers produces non-empty standalone SVG that parses as well-formed XML, contains no script/foreignObject/iframe/object/embed/image element, no on* handler, no javascript: or data:text/html URI, no external href/src/url, no unresolved local id reference and no XML-invalid character. A real XML parser and a real browser both parse/import every unique output; the browser executes no payload, opens no alert and attempts no external request. Options payloads throw documented errors. Trusted low-level rect/disc/asciiGrid concatenation is recorded as documented trust, not misclassified as a high-level sanitizer failure."
+    },
+    "S7-02": {
+      "title": "UI injection",
+      "severity": "S0",
+      "expectedStatus": "PASS",
+      "expected": "Payloads in seed, name, status/source/code regions and URL parameters are rendered as inert text or textarea values. No new script/img/iframe element or event-handler attribute appears in the preview, gallery, usage code, status or manual-copy panel; no payload executes or alerts. Prototype-like parameters (__proto__, constructor, prototype) and malformed/duplicate/long parameters cause no prototype pollution and no unexpected window global mutation; documented fallbacks/precedence apply."
+    },
+    "S7-03": {
+      "title": "CSP compatibility",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "site/_headers and the local server both send the same strict CSP with no unsafe-inline, unsafe-eval or wildcard source, plus no-referrer/nosniff/DENY headers. The normal Chromium site UI and all eight bundled renderers match the frozen installed-package golden under that CSP with zero unexpected CSP violations, console errors or page errors; a data:image/svg+xml image loads under img-src data: with no violation. Deliberate inline script, cross-origin script and inline handler payloads are blocked and their expected violations are recorded separately; the cross-origin attempt never reaches the controlled sink. The site bundle contains no eval/new Function and no local/source-alias path. WebKit is additionally probed for the Stage 6 stylesheet warning: securitypolicyviolation fields (blockedURI, sourceFile, line, effectiveDirective), stylesheet origins/style nodes/style-attribute mutations, all-eight-renderer parity, data URL image, select functionality, and the Stage 6 manual-copy fallback are captured. A control matrix (blank page, generated SVG insertion, plain/presentation SVG, app without JS, reduced HTML, select-only, inputs-only, details-only, CSS-only) must distinguish app inline SVG presentation styles, native app form controls, and browser/tool-injected stylesheets. If the warning is not reproduced, the precise no-attribution limit is recorded rather than ignored. Expected: the Stage 6 warning is the native select style-src-attr report under WebKit; it does not block code, SVG fill or select functionality, and screenshot-only web-inspector bootstrap style injection is a separate tool artifact."
+    },
+    "S7-04": {
+      "title": "Referrer and privacy",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Under the served Referrer-Policy: no-referrer, a real outgoing link to a controlled loopback sink sends no Referer header and no seed URL; the sink page document.referrer is empty and no third-party request is made. The privacy copy accurately says inputs stay in the page URL for sharing and may appear in browser history, tells users not to use a secret or email, the seed is visibly present in the address-bar URL, URL edits use replaceState (no per-keystroke history entries), and the visible Copy link action copies the visible current URL rather than a hidden secret. External production links are not clicked."
+    },
+    "S7-05": {
+      "title": "Network behavior",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "After page assets load, all eight styles render with the browser network disabled, all eight outputs match the frozen golden, and zero requests/failures are attempted during offline rendering. A Node probe that guards http/https/net/dns/fetch/WebSocket renders all eight installed-package styles with zero network calls and matching hashes. No external or dynamic font is used: no @font-face or third-party font URL, no font request, and ASCII styles use only a system monospace stack."
+    },
+    "S7-06": {
+      "title": "Secrets and excluded data",
+      "severity": "S0",
+      "expectedStatus": "PASS",
+      "expected": "A pinned conservative classifier scans tracked source, the actual tarball and its exact allowlist, qualification fixtures, and this stage's raw logs. It finds no credential-shaped token, private-key block, auth-like assignment or excluded backup/env/auth file; findings, if any, would be reported as redacted file+line+type only and require human review. The tracked Stage 3 pnpm .npmrc fixture is declared as a reviewed false positive (no auth token) and is reported, not hidden. No scan reads home auth material or prints a potential secret. Built site and installed package contain no local host path, runtime env reference, sensitive environment value or excluded file. A clearly fake synthetic canary is detected by the same classifier without writing the canary value to evidence."
+    },
+    "S7-07": {
+      "title": "Extreme inputs",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "With a declared 10s/256 MB child cap, each of the eight styles renders a 1 MB seed, pathological Unicode (combining marks, bidi/zero-width controls, NUL/C0 and a lone surrogate), and large finite px (1e9 and Number.MAX_VALUE) without timeout or crash; all valid outputs parse as well-formed SVG/XML. NaN, Infinity, zero, negative, string/null px, numeric name, unknown/injection style, null/array options and numeric seed are rejected with documented TypeError/RangeError/Error classes for all eight styles. CPU/wall time and memory are recorded; no constant-time or unbounded-input promise is made. A documented 32-bit FNV-1a collision, if found, renders identical bytes and is not classified as a vulnerability."
+    },
+    "S7-08": {
+      "title": "Resource limits",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Declared caps are 256 MB child heap and 10s per child, with an 8s internal deadline for a huge batch. The huge batch pauses at its bounded deadline without exceeding the target or host memory; the sandbox and a fresh render remain responsive. A disposable 32 MB-heap child that retains renders terminates with a V8 heap/OOM condition before the 10s wall cap, is fully reaped, and does not claim success. The report distinguishes engine/runtime OOM from package contract behaviour and makes no claim that the library must catch fatal OOM or provide invented safety under unlimited input."
+    }
+  },
+  "negativeControls": {
+    "required": true,
+    "expected": [
+      "actual SVG checker detects script element, inline handler and external/javascript URI and passes a clean generated SVG",
+      "actual CSP checker detects a missing header and unsafe-inline/unsafe-eval and passes the shipped strict header",
+      "actual secret classifier detects a clearly fake synthetic canary and passes clean text without logging the canary",
+      "network interceptor blocks and records a synthetic outbound attempt without a real connection",
+      "normal clean inputs pass every positive checker"
+    ]
+  },
+  "environment": {
+    "sandboxImage": "blaxel/ts-app:latest",
+    "region": "us-pdx-1",
+    "memoryMb": 4096,
+    "cpu": "platform default (no CPU override)",
+    "volumes": [],
+    "node": ">=22 (exact sandbox preflight recorded)",
+    "browser": "Chromium (primary) and WebKit (Stage 6 CSP diagnostic) via pinned @playwright/test 1.64.1",
+    "xmlParser": "python3 xml.etree.ElementTree plus browser DOMParser"
+  }
+}

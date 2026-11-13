@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>S8 keyboard-focus negative control</title>
+  <style>
+    body { background: #ffffff; color: #20211f; font: 16px/1.5 monospace; padding: 24px; }
+    button, input { font: inherit; padding: 8px; margin: 8px; }
+    button:focus, input:focus, button:focus-visible, input:focus-visible {
+      outline: none !important;
+      box-shadow: none !important;
+      border-color: #808080 !important;
+      background: #ffffff !important;
+      color: #20211f !important;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Keyboard focus negative control</h1>
+    <button type="button" id="first-control">First control</button>
+    <button type="button" id="second-control">Second control</button>
+    <input type="text" id="third-control" value="third">
+  </main>
+</body>
+</html>

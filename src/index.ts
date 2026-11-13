@@ -2,7 +2,7 @@
  * dither-face entry point. The registry holds the eight ported styles in
  * sheet order ("01 pixel sprite" … "08 pixelify letter"); `ditherFace` is the
  * one-call consumer API over it. Every avatar is a pure function of its seed
- * string — the same seed renders the same face, byte for byte, forever.
+ * string for a given package version and runtime configuration.
  */
 export * from './seed.js'
 export * from './palettes.js'
@@ -25,15 +25,16 @@ import { asciiLetter } from './styles/ascii-letter.js'
 import { asciiField } from './styles/ascii-field.js'
 import { asciiFace } from './styles/ascii-face.js'
 import { pixelifyLetter } from './styles/pixelify-letter.js'
+import { validateRenderArgs } from './validation.js'
 
 /** One look in the registry. */
 export interface AvatarStyle {
   /** Url-safe id passed as `style` to `ditherFace`, e.g. `"pixel-sprite"`. */
-  slug: string
+  readonly slug: StyleSlug
   /** Sheet row title, e.g. "pixel sprite". */
-  title: string
+  readonly title: string
   /** One-line note shown under the title on the sheet. */
-  note: string
+  readonly note: string
   /**
    * Draw the avatar as a standalone `<svg>` string: `seed` drives the rng
    * and `px` is the box size in css pixels. The letter styles take their
@@ -41,13 +42,23 @@ export interface AvatarStyle {
    * display name while keeping the rng on its `user-<j>` seeds — and from
    * `seed` otherwise.
    */
-  draw: (seed: string, px: number, name?: string) => string
+  readonly draw: (seed: string, px: number, name?: string) => string
 }
 
 /**
  * Every style, in sheet order — the same rows the sheet renderer lays out.
  * Slugs are stable api: pick one for `ditherFace(seed, { style })`.
  */
+export type StyleSlug =
+  | 'pixel-sprite'
+  | 'pixel-letter'
+  | 'dither-orb'
+  | 'pixel-landscape'
+  | 'ascii-letter'
+  | 'ascii-field'
+  | 'ascii-face'
+  | 'pixelify-letter'
+
 export const STYLES: readonly AvatarStyle[] = [
   {
     slug: 'pixel-sprite',
@@ -94,15 +105,15 @@ export const STYLES: readonly AvatarStyle[] = [
   {
     slug: 'pixelify-letter',
     title: 'pixelify letter',
-    note: "the site's own pixel font for the initial, on a two-tone checker.",
+    note: 'a bundled bitmap initial on a two-tone checker.',
     draw: pixelifyLetter,
   },
-]
+] as const satisfies readonly AvatarStyle[]
 
 /** Options for `ditherFace`; everything is optional. */
 export interface DitherFaceOptions {
   /** Which look to draw, by slug. Defaults to the first sheet style, `'pixel-sprite'`. */
-  style?: string
+  style?: StyleSlug
   /** Box size in css pixels. Defaults to 80, the sheet's avatar size. */
   px?: number
   /**
@@ -117,15 +128,21 @@ const DEFAULT_PX = 80
 
 /**
  * Draw one avatar: `ditherFace('user-123', { style: 'pixel-landscape', px: 80 })`
- * returns a standalone `<svg>` string, deterministic in the seed — server and
- * client agree, and the same user never changes face. Throws on an unknown
- * slug, listing the valid ones.
+ * returns a standalone `<svg>` string, repeatable for the same inputs and
+ * package version in supported runtimes. Throws on an unknown slug, listing
+ * the valid ones. ASCII appearance also depends on available system fonts.
  */
 export function ditherFace(seed: string, options: DitherFaceOptions = {}): string {
-  const slug = options.style ?? STYLES[0]?.slug
+  if (options === null || typeof options !== 'object' || Array.isArray(options)) {
+    throw new TypeError('options must be an object when provided')
+  }
+  const px = options.px === undefined ? DEFAULT_PX : options.px
+  validateRenderArgs(seed, px, options.name)
+  if (options.style !== undefined && typeof options.style !== 'string') throw new TypeError(`style must be a style slug string; received ${typeof options.style}`)
+  const slug = options.style === undefined ? 'pixel-sprite' : options.style
   const style = STYLES.find((s) => s.slug === slug)
   if (!style) {
     throw new Error(`ditherFace: unknown style ${JSON.stringify(slug)}; available: ${STYLES.map((s) => s.slug).join(', ')}`)
   }
-  return style.draw(seed, options.px ?? DEFAULT_PX, options.name)
+  return style.draw(seed, px, options.name)
 }

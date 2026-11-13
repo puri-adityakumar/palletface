@@ -8,6 +8,7 @@
 import { fnv1a, mulberry32 } from '../seed.js'
 import { INK, PASTEL } from '../palettes.js'
 import { disc, esc, MONO } from '../grid.js'
+import { validateRenderArgs } from '../validation.js'
 
 /** Bracket pairs for the face's sides, in mockup order. */
 const BRACKETS = ['()', '[]', '{}', '||', '<>', 'ʕʔ']
@@ -31,6 +32,7 @@ function pickN(r: () => number, list: readonly string[], n: number): string[] {
 
 /** Draw the ascii face avatar: a kaomoji on a diagonal two-color gradient. */
 export function asciiFace(seed: string, px: number): string {
+  validateRenderArgs(seed, px)
   const h = fnv1a('face' + seed)
   const r = mulberry32(h)
   const key = h.toString(36)
@@ -40,12 +42,12 @@ export function asciiFace(seed: string, px: number): string {
   const right = eye === '>' ? '<' : eye
   const mouth = pick(r, MOUTHS)
   const face = br.charAt(0) + eye + mouth + right + br.charAt(1)
-  const grad = 'f' + key
+  const grad = 'aface-gradient-' + key
   const inner =
     `<defs><linearGradient id="${grad}" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs>` +
     `<rect width="32" height="32" fill="url(#${grad})"/>` +
     `<text x="16" y="16.5" text-anchor="middle" dominant-baseline="central" font-family="${MONO}" font-size="6.4" font-weight="700" fill="${INK}" textLength="24" lengthAdjust="spacingAndGlyphs">${esc(face)}</text>`
   // The clip and gradient ids are keyed by the seed hash, so the same seed
   // renders byte-identical svg on every call instead of counting a shared uid.
-  return disc(px, 32, `<g shape-rendering="auto">${inner}</g>`, 'c' + key)
+  return disc(px, 32, `<g shape-rendering="auto">${inner}</g>`, 'aface-clip-' + key)
 }

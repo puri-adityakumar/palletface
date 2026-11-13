@@ -25,7 +25,7 @@ describe('asciiField', () => {
     expect(svg).toContain('width="80" height="80"')
     expect(svg).toContain('viewBox="0 0 11 11"')
     expect(svg).toMatch(/<clipPath id="[^"]+"><circle cx="5\.5" cy="5\.5" r="5\.5"\/><\/clipPath>/)
-    expect(svg).toContain('clip-path="url(#c')
+    expect(svg).toContain('clip-path="url(#afield-clip-')
   })
 
   it('draws every glyph from the density ramp, in more than one weight', () => {

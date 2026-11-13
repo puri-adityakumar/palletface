@@ -1,0 +1,19 @@
+{
+  "name": "s5-svelte-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "dither-face": "file:dither-face-0.1.0.tgz",
+    "svelte": "5.57.3"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "6.2.4",
+    "vite": "7.3.7"
+  }
+}
