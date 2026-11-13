@@ -5,12 +5,22 @@ Written 2026-11-13. Latest accepted test results: 2026-11-09.
 ## Current state
 
 - Repository/package: `dither-face`, version `0.1.0`.
-- Working branch: `test/release-qualification`.
+- Qualification source branch: `test/release-qualification`; authorized integration target: `main`.
 - Starting commit for this handoff: `db90484` (accepted final browser components and integrity closure).
 - **80 scenarios: 70 PASS, 1 BLOCKED, 9 REVIEW REQUIRED, 0 NOT RUN.**
 - Functional verification is complete across two unchanged-product runs, not one uninterrupted full-suite run.
 - **Release is not approved.** Performance failures/observations have not been waived. No package publication, deployment, or DNS change has occurred.
 - [DISPOSITIONS.md](DISPOSITIONS.md) is authoritative. Historical reports may contain older counts, provisional PASS claims, or pending-review text; they do not override it.
+
+## Authorized integration and local cleanup
+
+On 2026-11-13 the owner authorized merging into `main` with this handoff, removing extra local worktrees/branches, leaving remote branches intact, and creating **no release tag**. This is a development merge, not approval to publish or deploy.
+
+Before cleanup, all 32 extra worktrees were checked. Six patches and ten authored untracked files were saved and hash-verified; eight generated untracked files and five Finder metadata files were also preserved. A verified Git bundle holds all 36 original local branch refs, including the two unique historical-report commits.
+
+Non-cache evidence from the worktrees is recoverable through `out/merge-prep/20261113-e3546e9/cleanup-preservation.json`: 6,212 file entries reference verified copies already in main `out/` or 1,022 newly saved content-addressed objects. Dependency/browser caches are explicitly excluded as regenerable. The branch bundle, snapshots, and raw evidence remain local and ignored by Git; **they are not part of a clone or push**.
+
+See [MERGE-PREP.md](MERGE-PREP.md) for the inventory and preservation record. Original alternative harnesses and rerun reports were archived, not imported over accepted code, fixtures, or dispositions. The qualification counts and outstanding release gates below are unchanged.
 
 ## What we did
 
