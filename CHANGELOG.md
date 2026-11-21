@@ -5,8 +5,8 @@
 ### Added
 
 - Eight deterministic SVG avatar styles, typed API, and browser bundle.
-- Minimal static landing page/playground, URL state, SVG copy/download, and usage examples.
-- Core/output regression tests, package-consumer checks, example checks, and browser tests.
+- Minimal static landing page/playground, URL state, and SVG copy/download.
+- Core/output regression tests, package-consumer checks, and browser tests.
 - CI and manually approved npm-release tooling; no public deployment is performed by these changes.
 - API, contributor, security, and release documentation.
 

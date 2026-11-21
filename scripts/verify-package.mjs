@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
-import { copyFile, mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -66,9 +66,6 @@ for (const {slug} of STYLES) assert.equal(context.DitherFace.ditherFace('bundle-
 console.log('PASS runtime consumer and browser bundle parity')
 `)
   await run(process.execPath, ['check.mjs'], consumer)
-  // Run the shipped Node example against the installed package, not source.
-  await copyFile(join(root, 'examples/node/ssr.mjs'), join(consumer, 'ssr.mjs'))
-  assert.match((await run(process.execPath, ['ssr.mjs'], consumer)).stdout, /^<svg /)
 
   await writeFile(join(consumer, 'tsconfig.json'), JSON.stringify({
     compilerOptions: { target: 'ES2022', module: 'NodeNext', moduleResolution: 'NodeNext', strict: true, noEmit: true, skipLibCheck: false },
@@ -90,7 +87,7 @@ ditherFace(12)
 ditherFace('x', {px:'80'})
 `)
   await run(process.execPath, [join(root, 'node_modules/typescript/bin/tsc'), '-p', join(consumer, 'tsconfig.json')])
-  console.log(`PASS package: ${manifest.filename}; ${files.length} allowed files; runtime, IIFE parity, Node example and TypeScript consumer`)
+  console.log(`PASS package: ${manifest.filename}; ${files.length} allowed files; Node runtime, IIFE parity and TypeScript consumer`)
 } catch (error) {
   console.error(error.message)
   process.exitCode = 1

@@ -9,7 +9,6 @@ Use Node 22.12+ or Node 24 and npm. No account or secrets are needed.
 ```sh
 npm ci
 npm run check
-npm run typecheck:examples
 npm run typecheck:site
 npm run check:package
 npm run build:site

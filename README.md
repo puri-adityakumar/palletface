@@ -69,27 +69,7 @@ image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 image.alt = 'Aditya’s avatar'
 ```
 
-Use your existing bundler, or run `npm run build:web` in this repository for the `DitherFace` browser global. The [plain HTML example](examples/browser/index.html) uses that bundle and works offline.
-
-### React
-
-```tsx
-import { ditherFace } from 'dither-face'
-
-function Avatar({ id, name }: { id: string; name: string }) {
-  const svg = ditherFace(id, { style: 'dither-orb', px: 48 })
-  return (
-    <img
-      src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`}
-      width={48}
-      height={48}
-      alt={`${name}’s avatar`}
-    />
-  )
-}
-```
-
-The [typed React example](examples/react/Avatar.tsx) is typechecked and tested with server rendering. React is only a development dependency used to verify the example, not a dependency of the published library. No wrapper is required.
+Use your existing bundler, or run `npm run build:web` in this repository for the `DitherFace` browser global.
 
 ### Server-side rendering
 
@@ -101,7 +81,7 @@ const svg = ditherFace('user-123', { style: 'ascii-face', px: 80 })
 // or encode it into an image's data URL in your HTML template.
 ```
 
-The [Node example](examples/node/ssr.mjs) is exercised against the real installed package during package verification. Core rendering does not use `window`, a DOM, or server APIs.
+Package verification exercises Node against the installed tarball. Core rendering does not use `window`, a DOM, or server APIs.
 
 ## Compatibility, privacy, and accessibility
 
@@ -127,7 +107,6 @@ The static site is served on localhost; see the URL printed by the preview serve
 
 ```sh
 npm run typecheck:site
-npm run typecheck:examples
 npm run check:package
 npx playwright install --with-deps chromium firefox webkit
 npm run test:browser
