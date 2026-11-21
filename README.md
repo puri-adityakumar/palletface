@@ -105,6 +105,6 @@ Open `playground/index.html` in your browser. `npm run sheet -- out-sheet` gener
 
 ## Project
 
-- [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [MIT license](LICENSE)
+- [Contributing](CONTRIBUTING.md) · [Releasing](RELEASING.md) · [Security](SECURITY.md) · [MIT license](LICENSE)
 
 dither-face grew from Palletism's avatar experiments, but is independently installable and usable in any application. Palletism's existing avatars are not automatically migrated by this package.

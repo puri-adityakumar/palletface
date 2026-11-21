@@ -34,4 +34,4 @@ To try the standalone playground, run `npm run build:web` and open `playground/i
 
 Use a focused branch and a short conventional commit message. Describe why the change is needed, which outputs or APIs change, and which checks you ran. Justify any new development dependencies and keep the library free of runtime dependencies.
 
-Maintainers publish npm releases manually. Do not include credentials in issues or PRs. See [security reporting](SECURITY.md) for suspected vulnerabilities.
+Maintainers publish npm releases manually. See [the release guide](RELEASING.md) for versioning, tags, staged publishing, and verification. Do not include credentials in issues or PRs. See [security reporting](SECURITY.md) for suspected vulnerabilities.
