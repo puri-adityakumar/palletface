@@ -13,11 +13,11 @@ Turn a user ID into a standalone SVG, on the server or in the browser. No avatar
 After the beta is approved on npm:
 
 ```sh
-npm install dither-face@beta
+npm install palletface@beta
 ```
 
 ```ts
-import { ditherFace } from 'dither-face'
+import { ditherFace } from 'palletface'
 
 const svg = ditherFace('user-123', {
   style: 'pixel-letter',
@@ -47,7 +47,7 @@ const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 ## Options
 
 ```ts
-import { ditherFace, type DitherFaceOptions, type StyleSlug } from 'dither-face'
+import { ditherFace, type DitherFaceOptions, type StyleSlug } from 'palletface'
 ```
 
 | Input | Type | Default | Behavior |
@@ -74,7 +74,7 @@ Use your existing bundler, or run `npm run build:web` in this repository for the
 ### Server-side rendering
 
 ```js
-import { ditherFace } from 'dither-face'
+import { ditherFace } from 'palletface'
 
 const svg = ditherFace('user-123', { style: 'ascii-face', px: 80 })
 // Send as an SVG response with Content-Type: image/svg+xml,
