@@ -1,10 +1,10 @@
 # Contributing
 
-Thanks for helping with dither-face. Bug reports, documentation improvements, tests, and focused fixes are welcome. Discuss new styles or API changes in an issue before implementing them.
+Thanks for helping with dither-face. Bug reports, documentation improvements, tests, and focused fixes are welcome. Discuss new styles or API changes in an issue before implementing them. Follow the [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Development
 
-Use Node 22.12+ or Node 24 and npm. No account or secrets are needed.
+Use Node 22 (22.12 or later) or Node 24 and npm. No account or secrets are needed.
 
 ```sh
 npm ci
