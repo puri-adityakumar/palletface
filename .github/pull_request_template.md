@@ -1,13 +1,14 @@
-## Change and motivation
+## What changed?
 
-## API or avatar-output changes
-
-Describe intentional differences, or state none. Explain any fixture updates.
+## Why?
 
 ## Verification
 
-- [ ] `npm run check`
-- [ ] `npm run check:package`
-- [ ] README updated where needed
+- [ ] `npm run typecheck`
+- [ ] `npm test`
+- [ ] `npm run build`
+- [ ] UI changes tested locally, if applicable
 
-List anything not run and why. Do not include secrets, personal seeds, or generated build folders.
+## Follow-up
+
+## Related issue or work
