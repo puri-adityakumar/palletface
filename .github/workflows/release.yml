@@ -31,7 +31,6 @@ jobs:
           RELEASE_TAG: ${{ inputs.tag }}
       - id: source
         run: echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-      - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run check:all
   publish:
     needs: check
