@@ -3,8 +3,18 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing version tag, for example v0.1.0
+        description: Existing version tag, for example v0.2.0-beta
         required: true
+        type: string
+      dist-tag:
+        description: npm distribution tag, for example beta
+        required: true
+        default: beta
+        type: string
+      release-branch:
+        description: Branch containing the reviewed release commit
+        required: true
+        default: main
         type: string
 permissions:
   contents: read
@@ -29,9 +39,9 @@ jobs:
       - run: node scripts/check-release.mjs
         env:
           RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_BRANCH: ${{ inputs.release-branch }}
       - id: source
         run: echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-      - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run check:all
   publish:
     needs: check
@@ -49,4 +59,6 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
       - run: npm ci
-      - run: npm publish --provenance --access public
+      - run: npm stage publish --tag "$NPM_DIST_TAG" --access public
+        env:
+          NPM_DIST_TAG: ${{ inputs.dist-tag }}

@@ -1,9 +1,0 @@
-{
-  "name": "s7-browser-tools",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "devDependencies": {
-    "@playwright/test": "1.64.1"
-  }
-}

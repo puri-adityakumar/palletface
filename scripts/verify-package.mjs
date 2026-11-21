@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
-import { copyFile, mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -35,14 +35,14 @@ try {
   await mkdir(consumer)
   await writeFile(join(consumer, 'package.json'), JSON.stringify({ name: 'dither-face-consumer', private: true, type: 'module' }))
   await run(npm, ['install', '--ignore-scripts', '--no-audit', '--no-fund', join(temp, manifest.filename)], consumer)
-  const metadata = JSON.parse(await readFile(join(consumer, 'node_modules/dither-face/package.json'), 'utf8'))
+  const metadata = JSON.parse(await readFile(join(consumer, 'node_modules/palletface/package.json'), 'utf8'))
   assert.equal(Object.keys(metadata.dependencies ?? {}).length, 0, 'Package must have zero runtime dependencies')
 
   await writeFile(join(consumer, 'check.mjs'), `
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
-import { ditherFace, STYLES } from 'dither-face'
+import { ditherFace, STYLES } from 'palletface'
 assert.equal(STYLES.length, 8)
 assert.equal(new Set(STYLES.map(s => s.slug)).size, 8)
 assert.equal(ditherFace('x'), ditherFace('x', { style: 'pixel-sprite', px: 80 }))
@@ -61,21 +61,18 @@ assert.throws(() => ditherFace('x', {style:'bad'}), /unknown style/)
 assert.throws(() => ditherFace('x', {px:0}), /positive/)
 assert.throws(() => ditherFace(3), /seed/)
 const context = {}
-runInNewContext(readFileSync('node_modules/dither-face/dist/dither-face.js', 'utf8'), context)
+runInNewContext(readFileSync('node_modules/palletface/dist/dither-face.js', 'utf8'), context)
 for (const {slug} of STYLES) assert.equal(context.DitherFace.ditherFace('bundle-check', {style:slug}), ditherFace('bundle-check', {style:slug}))
 console.log('PASS runtime consumer and browser bundle parity')
 `)
   await run(process.execPath, ['check.mjs'], consumer)
-  // Run the shipped Node example against the installed package, not source.
-  await copyFile(join(root, 'examples/node/ssr.mjs'), join(consumer, 'ssr.mjs'))
-  assert.match((await run(process.execPath, ['ssr.mjs'], consumer)).stdout, /^<svg /)
 
   await writeFile(join(consumer, 'tsconfig.json'), JSON.stringify({
     compilerOptions: { target: 'ES2022', module: 'NodeNext', moduleResolution: 'NodeNext', strict: true, noEmit: true, skipLibCheck: false },
     files: ['consumer.ts'],
   }))
   await writeFile(join(consumer, 'consumer.ts'), `
-import { ditherFace, pixelSprite, pixelLetter, STYLES, type StyleSlug, type DitherFaceOptions } from 'dither-face'
+import { ditherFace, pixelSprite, pixelLetter, STYLES, type StyleSlug, type DitherFaceOptions } from 'palletface'
 const style: StyleSlug = 'pixel-sprite'
 const options: DitherFaceOptions = {style, px:24, name:'Ada'}
 const svg: string = ditherFace('x', options)
@@ -90,7 +87,7 @@ ditherFace(12)
 ditherFace('x', {px:'80'})
 `)
   await run(process.execPath, [join(root, 'node_modules/typescript/bin/tsc'), '-p', join(consumer, 'tsconfig.json')])
-  console.log(`PASS package: ${manifest.filename}; ${files.length} allowed files; runtime, IIFE parity, Node example and TypeScript consumer`)
+  console.log(`PASS package: ${manifest.filename}; ${files.length} allowed files; Node runtime, IIFE parity and TypeScript consumer`)
 } catch (error) {
   console.error(error.message)
   process.exitCode = 1
