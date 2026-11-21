@@ -6,14 +6,14 @@ Turn a user ID into a standalone SVG, on the server or in the browser. No avatar
 
 ![Eight styles: pixel sprite, pixel letter, dither orb, pixel landscape, ASCII letter, ASCII field, ASCII face, and pixelify letter](.github/preview.svg)
 
-> **0.x preview.** This repository is preparing its first npm release. Before 1.0, minor releases may change the API or avatar output. Pin an exact version when identities need to stay stable across upgrades.
+> **0.1 beta.** Install the preview with the `beta` dist-tag. Before 1.0, minor releases may change the API or avatar output. Pin an exact version when identities need to stay stable across upgrades.
 
 ## Quick start
 
-After the public npm release:
+After the beta is approved on npm:
 
 ```sh
-npm install dither-face
+npm install dither-face@beta
 ```
 
 ```ts

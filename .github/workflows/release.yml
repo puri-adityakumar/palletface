@@ -3,8 +3,18 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing version tag, for example v0.1.0
+        description: Existing version tag, for example v0.1.0-beta.1
         required: true
+        type: string
+      dist-tag:
+        description: npm distribution tag, for example beta
+        required: true
+        default: beta
+        type: string
+      release-branch:
+        description: Branch containing the reviewed release commit
+        required: true
+        default: cleanup
         type: string
 permissions:
   contents: read
@@ -29,6 +39,7 @@ jobs:
       - run: node scripts/check-release.mjs
         env:
           RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_BRANCH: ${{ inputs.release-branch }}
       - id: source
         run: echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - run: npm run check:all
@@ -48,4 +59,4 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
       - run: npm ci
-      - run: npm publish --provenance --access public
+      - run: npm stage publish --tag "${{ inputs.dist-tag }}" --access public

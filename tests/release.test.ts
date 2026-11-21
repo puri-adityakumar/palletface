@@ -7,20 +7,25 @@ import { afterEach, describe, expect, it } from 'vitest'
 const fixtures: string[] = []
 afterEach(() => fixtures.splice(0).forEach(path => rmSync(path, { recursive: true, force: true })))
 
-function repository() {
+function repository(version = '0.1.0') {
   const cwd = mkdtempSync(join(tmpdir(), 'dither-face-release-test-'))
   fixtures.push(cwd)
   mkdirSync(join(cwd, 'scripts'))
   copyFileSync(new URL('../scripts/check-release.mjs', import.meta.url), join(cwd, 'scripts/check-release.mjs'))
-  writeFileSync(join(cwd, 'package.json'), JSON.stringify({ version: '0.1.0' }))
+  writeFileSync(join(cwd, 'package.json'), JSON.stringify({ version }))
   writeFileSync(join(cwd, '.gitignore'), 'dist/\n')
   const git = (...args: string[]) => execFileSync('git', args, { cwd, stdio: 'pipe' })
   git('init', '-b', 'main')
   git('add', '.')
   git('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-m', 'test: create release fixture')
-  git('tag', 'v0.1.0')
+  git('tag', `v${version}`)
   git('update-ref', 'refs/remotes/origin/main', 'HEAD')
-  const run = (tag = 'v0.1.0') => execFileSync(process.execPath, ['scripts/check-release.mjs', tag], { cwd, encoding: 'utf8', stdio: 'pipe' })
+  const run = (tag = `v${version}`, branch = 'main') => execFileSync(process.execPath, ['scripts/check-release.mjs', tag], {
+    cwd,
+    encoding: 'utf8',
+    stdio: 'pipe',
+    env: { ...process.env, RELEASE_BRANCH: branch },
+  })
   return { cwd, git, run }
 }
 
@@ -30,6 +35,17 @@ describe('release guard', () => {
     mkdirSync(join(cwd, 'dist'))
     writeFileSync(join(cwd, 'dist/generated.js'), '// ignored')
     expect(run()).toContain('PASS release gate')
+  })
+
+  it('accepts a semver prerelease tag', () => {
+    const { run } = repository('0.1.0-beta.1')
+    expect(run()).toContain('PASS release gate')
+  })
+
+  it('accepts a reviewed release branch other than main', () => {
+    const { git, run } = repository()
+    git('update-ref', 'refs/remotes/origin/cleanup', 'HEAD')
+    expect(run('v0.1.0', 'cleanup')).toContain('on cleanup')
   })
 
   it('rejects malformed input, wrong version, and untracked or tracked changes', () => {

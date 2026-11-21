@@ -1,6 +1,6 @@
 {
   "name": "dither-face",
-  "version": "0.1.0",
+  "version": "0.1.0-beta.1",
   "description": "Deterministic seeded SVG avatars — pixel and ascii faces picked from a user id, so they never change between renders.",
   "type": "module",
   "license": "MIT",
