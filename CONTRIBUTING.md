@@ -34,4 +34,6 @@ To try the standalone playground, run `npm run build:web` and open `playground/i
 
 Use a focused branch and a short conventional commit message. Describe why the change is needed, which outputs or APIs change, and which checks you ran. Justify any new development dependencies and keep the library free of runtime dependencies.
 
+Ordinary PRs leave the package version and release tags alone. Put version bumps in a release PR, for example `chore(release): prepare 0.2.0-beta.1`. See the [merge and tagging policy](RELEASING.md#merging-and-tagging) for the release order.
+
 Maintainers publish npm releases manually. See [the release guide](RELEASING.md) for versioning, tags, staged publishing, and verification. Do not include credentials in issues or PRs. See [security reporting](SECURITY.md) for suspected vulnerabilities.

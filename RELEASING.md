@@ -69,6 +69,17 @@ Users who want the current beta can use:
 npm install palletface@beta
 ```
 
+## Merging and tagging
+
+Ordinary PRs merge without a package version change or a release tag. For a
+release PR, update the package version and lockfile, then merge into `main`
+before tagging the reviewed commit. Merging a PR does not publish to npm.
+
+If a release tag already exists on the PR branch, use a merge commit to keep
+the tagged commit in `main`'s history. A squash merge creates a new commit and
+leaves the tag pointing at the original commit. Keep pushed tags at their
+original commits.
+
 ## Release checklist
 
 1. Confirm the intended version and dist-tag. Use `beta` for prereleases and
@@ -84,21 +95,21 @@ npm install palletface@beta
 
 4. Review the tarball. It should contain the built library, declarations,
    README, and license, and no tests or development files.
-5. Commit the reviewed snapshot with a release-oriented message.
-6. Create a matching annotated Git tag, for example:
+5. Merge the release PR into `main`. Check out the reviewed release commit
+   and run the checks again if it differs from the commit already verified.
+6. Create and push a matching annotated Git tag on that commit, for example:
 
    ```sh
    git tag -a v0.2.0-beta.1 -m "Release palletface v0.2.0-beta.1"
+   git push origin refs/tags/v0.2.0-beta.1
    ```
 
-7. Push the branch and tag. The tag must point to the exact commit that was
-   checked and published.
-8. Run the **Release** GitHub Actions workflow with the matching tag, the
-   reviewed branch, and the intended npm dist-tag. The workflow validates the
-   tag, runs `npm run check:all`, and uses staged publishing.
-9. Review and approve the staged package on npm with 2FA. Staging alone does
+7. Run the **Release** GitHub Actions workflow with the matching tag, `main`
+   as the release branch, and the intended npm dist-tag. The workflow validates
+   the tag, runs `npm run check:all`, and uses staged publishing.
+8. Review and approve the staged package on npm with 2FA. Staging alone does
    not make the package version publicly available.
-10. Verify the result from a clean directory:
+9. Verify the result from a clean directory:
 
     ```sh
     npm view palletface version dist-tags
