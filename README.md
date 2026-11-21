@@ -4,7 +4,7 @@
 
 Turn a user ID into a standalone SVG, on the server or in the browser. No avatar service, image storage, account, or network request required. An independent, MIT-licensed sister project of [Palletism](https://palletism.art).
 
-![Eight styles: pixel sprite, pixel letter, dither orb, pixel landscape, ASCII letter, ASCII field, ASCII face, and pixelify letter](https://raw.githubusercontent.com/puri-adityakumar/dither-face/main/docs/preview.svg)
+![Eight styles: pixel sprite, pixel letter, dither orb, pixel landscape, ASCII letter, ASCII field, ASCII face, and pixelify letter](site/public/preview.svg)
 
 > **0.x preview.** This repository is preparing its public package and site launch. The intended site is `https://ditherface.palletism.art`; release and hosting availability are not implied by these instructions. Before 1.0, minor releases may change the API or avatar output. Pin an exact version when identities need to stay stable across upgrades.
 
@@ -43,8 +43,6 @@ const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 | `ascii-field` | Seeded noise mapped to an ASCII density ramp | No |
 | `ascii-face` | Seeded kaomoji on a two-color gradient | No |
 | `pixelify-letter` | Bitmap initial over a two-tone checker | Yes |
-
-See the [API reference](docs/API.md) for options, direct renderers, and the style registry.
 
 ## Options
 
@@ -113,7 +111,6 @@ The [Node example](examples/node/ssr.mjs) is exercised against the real installe
 - Use an opaque, stable ID. Do not use an email, token, or secret as a seed. Hashing is not anonymization; seeds in website share links are visible in URL/history, and SVGs can reveal information about initials and the generated design.
 - For an avatar next to a visible user name, `alt=""` often avoids repetition. Otherwise provide a meaningful label. Generated SVG strings do not include a user-facing accessible name; the embedding application owns it.
 - Data URLs require `data:` in your application's `img-src` CSP. If your policy forbids them, serve the SVG from your own route. The site and library do not require a third-party avatar host.
-- See [output stability and low-level APIs](docs/API.md#output-stability) before upgrading.
 
 ## Run locally
 
@@ -140,7 +137,6 @@ npm run test:browser
 
 ## Project
 
-- [Contributing](CONTRIBUTING.md) · [API](docs/API.md) · [Changelog](CHANGELOG.md) · [Roadmap](docs/ROADMAP.md)
-- [Security](SECURITY.md) · [Release procedure](docs/RELEASING.md) · [MIT license](LICENSE)
+- [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md) · [MIT license](LICENSE)
 
 dither-face grew from Palletism's avatar experiments, but is independently installable and usable in any application. Palletism's existing avatars are not automatically migrated by this package.

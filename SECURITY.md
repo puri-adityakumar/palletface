@@ -4,4 +4,4 @@ Please report suspected vulnerabilities privately to **kumar.adityapuri@gmail.co
 
 This is a small, maintained-in-best-effort preview project with no response-time SLA. Security fixes target the current preview release; older versions may require an upgrade.
 
-The library's seed hashing is not cryptography. It does not guarantee unique avatars, anonymize input, or authenticate users. Low-level SVG utilities accept trusted fragments/colors/IDs and are not general-purpose sanitizers. See [API boundaries](docs/API.md#low-level-exports).
+The library's seed hashing is not cryptography. It does not guarantee unique avatars, anonymize input, or authenticate users. Low-level SVG utilities accept trusted fragments/colors/IDs and are not general-purpose sanitizers.
