@@ -1,0 +1,12 @@
+{
+  "name": "dither-face-s1-consumer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Stage 1 qualification consumer: installs the actual packed tarball, pinned XML parser and pinned TypeScript.",
+  "dependencies": {
+    "@xmldom/xmldom": "0.8.11",
+    "dither-face": "file:./dither-face-0.1.0.tgz",
+    "typescript": "7.0.2"
+  }
+}

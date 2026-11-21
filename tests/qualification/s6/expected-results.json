@@ -1,0 +1,246 @@
+{
+  "stage": "S6",
+  "title": "Playground URL, history, parameters, rapid input, copy/download, snippets and asset failure",
+  "createdBeforeExecution": "2026-11-04",
+  "productSourceCommit": "104195bfd5107378d95e7ff081275e14a8db5fe7",
+  "baselineNote": "Product source src/ is unchanged between 104195b and the Stage 6 checkout 668e381; only docs and qualification files changed. The approved tarball is ed4c359b... and the library output is unchanged. Site R1 authorizes the scoped Q-002/Q-003 site-only correction (static loading/failure status, disabled-until-ready controls, gallery group semantics, AA contrast, bounded download failure/cleanup); the S6-09 expectation was updated before execution to require that new fallback behavior, and no failing assertion was removed or relaxed.",
+  "note": "Written before the Stage 6 sandbox harness ran. Every assigned scenario is expected to PASS. Any observed FAIL, BLOCKED or NOT RUN is a provisional agent result requiring parent review; this file is not self-approval and makes no release claim. The golden hashes are the parent-accepted Stage 2 R1 S2-08 fixed-fixture values (including the approved Q-001 ascii-letter hash), not Stage 6 observations.",
+  "expectedTarball": {
+    "filename": "dither-face-0.1.0.tgz",
+    "sha256": "ed4c359b1b023e9b68a584334faef914390372f5e589b8c28d569b6932c20021",
+    "gzipBytes": 23220,
+    "source": "/Users/aditya/Projects/dither-face/out/qualification/S2-R1/sandbox/dither-face-0.1.0.tgz",
+    "rule": "Hash-verified locally, copied as bytes to the sandbox fixture directory, and installed only from that local tarball in a consumer outside the repository. A different hash stops the stage and is reported, never accepted silently."
+  },
+  "fixedArtifacts": {
+    "golden": {
+      "path": "tests/qualification/s3/fixtures/golden.json",
+      "sha256AtCreation": "7f8a2c7090d85338f3d35e83c344a2adc38bad86353af154a6e86d29db91ae1a",
+      "input": {
+        "seed": "preview-output",
+        "name": "7even",
+        "px": 80
+      },
+      "hashes": {
+        "pixel-sprite": "5414be3e1bbb2b9304c9c4a6c7f5f40bc3b4fc88db16397ca46b59315659619a",
+        "pixel-letter": "e8f2d8daacae04528d067dff9662ca3504257617c5a2b3001b8a398662dd04af",
+        "dither-orb": "aa34f938e15fa5118670d99f38e9e5688c42dce29c09f99832fe5e96037c6bf2",
+        "pixel-landscape": "7c4ce7ef787fb50b8f0c7912749f695dc56857a69698b884d32a19e1fa1be7d2",
+        "ascii-letter": "ebfcb2cf41b1437e9637deb4304ed20555a84d5f12a1739813c78af8514bade8",
+        "ascii-field": "4d24f0abd032e710e7bb6c8c128ed4e48a17ff763b6eebe7cf8bb92e43eb71b1",
+        "ascii-face": "ae48967cd0368741b830a70d6316a8d402b9da791e9830c5aa613a97a33502b2",
+        "pixelify-letter": "d0cc056ec36b95c5efcf06d538f721696e4113509e0b943d7fefd25200bdbd37"
+      },
+      "q001Note": "ascii-letter ebfcb2cf... is the parent-approved Q-001 post-fix hash; 449be0ce... is historical and is not accepted."
+    },
+    "library": {
+      "source": "src/ (unchanged product source) built with npm run build to dist/index.js inside the sandbox",
+      "rule": "Non-golden URL cases compare the exact textarea source and DOM-rendered SVG against the library build from the unchanged product source. The golden cases additionally require the independently recorded SHA-256 values above."
+    }
+  },
+  "environment": {
+    "image": "blaxel/ts-app:latest",
+    "region": "us-pdx-1",
+    "memoryMB": 4096,
+    "cpu": "platform default (no CPU override)",
+    "volumes": [],
+    "activeCapSeconds": 1800,
+    "perCommandCapSeconds": 600,
+    "node": "24.x in image (exact version recorded by preflight)",
+    "npm": "11.x in image (exact version recorded by preflight)",
+    "playwright": "1.64.1",
+    "browsers": [
+      "Chromium (desktop and Pixel 7 mobile emulation)",
+      "Firefox (Linux build, not native Safari)",
+      "WebKit (Linux build, not native Safari)"
+    ],
+    "server": "node scripts/serve-site.mjs --port 4173 bound to 127.0.0.1 only inside the sandbox"
+  },
+  "caseCountRule": "Exactly 90 logical cases across the nine scenarios; each scenario's expected case count is the length of its cases array. The checker records the actual count, names and order and fails on any mismatch. Assertion counts are observed and recorded, not predeclared.",
+  "expectedTotals": {
+    "scenarios": 9,
+    "cases": 90,
+    "expectedStatuses": {
+      "PASS": 9
+    },
+    "negativeControls": 3
+  },
+  "expectations": {
+    "S6-01": {
+      "title": "URL state restore",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Every valid share URL restores seed, display name, renderer and size; the exact textarea source and the DOM preview match the requested configuration; the size select and rendered width match; the usage snippet is the exact current configuration; all eight gallery thumbnails exist; the URL is normalized to the canonical form. Empty seed and blank name are valid and preserved. Every style is exercised, with the eight parent-accepted golden hashes used for the seed/name/px=80 fixture.",
+      "cases": [
+        "defaults-no-query",
+        "empty-seed-explicit",
+        "name-blank-explicit-48",
+        "numeric-seed-pixel-letter-48",
+        "unicode-seed-and-name-ascii-letter-128",
+        "golden-pixel-sprite-80",
+        "golden-pixel-letter-80",
+        "golden-dither-orb-80",
+        "golden-pixel-landscape-80",
+        "golden-ascii-letter-80",
+        "golden-ascii-field-80",
+        "golden-ascii-face-80",
+        "golden-pixelify-letter-80",
+        "size-192-pixel-landscape"
+      ]
+    },
+    "S6-02": {
+      "title": "Back/forward history",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Real document history entries created from distinct share URLs restore the correct UI on back and forward. Edits within an entry use replaceState and do not add per-keystroke or per-control history entries. Hash fragments survive state edits and are present in the current URL. Same-document hash navigation creates a history entry and a back traversal fires popstate and restores the current share state without stale UI.",
+      "cases": [
+        "initial-share-url-restored",
+        "seed-keystrokes-replace-not-push",
+        "control-edits-replace-not-push",
+        "second-share-url-restored",
+        "back-restores-edited-entry",
+        "forward-restores-second-entry",
+        "hash-preserved-in-share-url",
+        "hash-back-popstate-restores"
+      ]
+    },
+    "S6-03": {
+      "title": "Invalid parameters",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Unknown, wrong-case or wrong-type renderer values fall back to the documented default pixel-sprite. Non-numeric, out-of-range and non-whitelisted sizes fall back to the documented playground default 80. Empty style/size values use defaults; an empty seed and blank name remain valid. The URL is replaced with the normalized canonical state. No page error or crash occurs and the preview/gallery stay valid. The playground UI whitelist is exactly 48/80/128/192; the library itself remains broader and accepts other positive finite sizes including 1 and 1000.",
+      "cases": [
+        "unknown-style-fallback",
+        "case-and-type-style-fallback",
+        "nonnumeric-size-fallback",
+        "out-of-range-size-fallback",
+        "ui-whitelist-size-64-falls-back",
+        "empty-values-default-with-empty-seed",
+        "url-normalized-after-invalid",
+        "invalid-input-no-crash",
+        "ui-whitelist-and-library-broader"
+      ]
+    },
+    "S6-04": {
+      "title": "Duplicate parameters",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Repeated keys are handled consistently by the platform URLSearchParams.get behavior: the first value in the query string wins, including an explicitly empty first value. The site has no documented or invented app-specific precedence. Key order across distinct keys does not change the state. After render the URL is normalized to one value per key, and reloading is stable. No crash occurs.",
+      "cases": [
+        "duplicate-seed-first-wins",
+        "duplicate-style-first-wins",
+        "duplicate-size-first-wins",
+        "duplicate-name-first-wins",
+        "empty-first-seed-wins",
+        "key-order-and-duplicates-normalized",
+        "reload-consistent"
+      ]
+    },
+    "S6-05": {
+      "title": "Malformed and encoded parameters",
+      "severity": "S0",
+      "expectedStatus": "PASS",
+      "expected": "Malformed percent escapes and invalid UTF-8 are decoded or replaced without a crash. HTML, script, attribute and SVG payloads in seed/name are treated as text, never execute, and never create script/img/onload/foreignObject nodes. Window injection sentinels stay unset. Newlines and control characters are sanitized by the text input and safely re-encoded. A 12,000-character seed and a 4,000-character name complete within a bounded 15-second load budget without a stall. Malformed style/size/hash values fall back safely and the URL contains no raw injection text. All work is bounded.",
+      "cases": [
+        "bare-percent",
+        "invalid-percent-sequences",
+        "invalid-utf8-replacement",
+        "html-image-injection",
+        "script-tag-injection",
+        "attribute-and-svg-injection",
+        "newline-and-control-characters",
+        "long-seed-bounded",
+        "long-name-bounded",
+        "malformed-style-size-hash"
+      ]
+    },
+    "S6-06": {
+      "title": "Rapid input",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "A real 30-second rapid sequence of seed typing, size changes, style selection and name edits completes without a page error or unhandled rejection. The final state is exactly the last requested seed/name/style/size, the URL is the canonical final state, and all eight gallery thumbnails equal the final seed/name at px=64. Name changes affect only the three letter styles; the five non-letter styles are byte-identical with and without a name. After a two-second settle no orphan asynchronous render replaces the final state. DOM growth is bounded (eight gallery entries, one preview SVG, eight thumbnail SVGs) and no runaway work is observed.",
+      "cases": [
+        "rapid-30s-completes",
+        "final-state-exact",
+        "all-eight-thumbnails-final",
+        "name-affects-only-letter-styles",
+        "no-orphan-async-stale",
+        "bounded-dom-no-runaway"
+      ]
+    },
+    "S6-07": {
+      "title": "Copy and download",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "On Chromium with the clipboard permission actually granted, Copy SVG, Copy usage and Copy link write the exact current source, exact usage text and exact current URL including hash. Download produces dither-face.svg with bytes exactly equal to the current SVG, a Blob MIME type of image/svg+xml;charset=utf-8, and an independently opened XML/SVG document that parses without error and matches the displayed preview. Copy and download triggered while inputs are changing capture the state at the click instant without stale async content. When clipboard write is denied, every engine (Chromium desktop and mobile, Firefox, WebKit) opens the manual copy panel, puts the exact current text in the textarea, selects/focuses it and shows the documented unavailable status. A denied share also falls back to the exact current URL. Chromium mobile actual clipboard copy is checked as well.",
+      "cases": [
+        "chromium-copy-svg-actual",
+        "chromium-copy-usage-actual",
+        "chromium-copy-link-current-url",
+        "download-bytes-exact",
+        "download-blob-mime-xml",
+        "downloaded-svg-parses-and-opens",
+        "copy-during-rapid-input",
+        "download-during-rapid-input",
+        "fallback-chromium",
+        "fallback-firefox",
+        "fallback-webkit",
+        "fallback-mobile-chromium",
+        "fallback-share-link",
+        "mobile-chromium-copy-svg-actual"
+      ]
+    },
+    "S6-08": {
+      "title": "Executable snippets",
+      "severity": "S0",
+      "expectedStatus": "PASS",
+      "expected": "The generated usage text for all eight styles is valid ESM beginning with the package-root import, contains no eval/Function/require/script injection, and is written to a .mjs file and executed in a fresh Node process in an independent consumer that installed the actual approved tarball. Stdout exactly equals the displayed textarea source for every style. Empty name omits the name option and executes to the same seed-only display. Hostile seed/name strings remain valid escaped JavaScript, execute without injection sentinels, and produce output equal to the display. The installed package resolves from the consumer's real node_modules at version 0.1.0, not from the repository, a workspace or a symlink.",
+      "cases": [
+        "install-actual-tarball",
+        "exec-pixel-sprite",
+        "exec-pixel-letter",
+        "exec-dither-orb",
+        "exec-pixel-landscape",
+        "exec-ascii-letter",
+        "exec-ascii-field",
+        "exec-ascii-face",
+        "exec-pixelify-letter",
+        "name-empty-behavior",
+        "hostile-strings-safe",
+        "import-present-code-valid"
+      ]
+    },
+    "S6-09": {
+      "title": "Asset failure",
+      "severity": "S2",
+      "expectedStatus": "PASS",
+      "expected": "Blocking the JavaScript bundle and the CSS stylesheet separately produces one bounded failed request each, with no retry loop and no application unhandled exception. The static HTML fallback remains meaningful and is never a permanent blank page. With JavaScript blocked the static hero, docs and footer remain readable and the pre-existing status region shows explicit, readable failure feedback; playground controls stay disabled, the playground remains aria-busy, and no blank gallery or preview is presented as rendered. A synthetic runtime boot throw produces the same readable failure state and one bounded page error, not a network failure. A good load clears the loading status only after a successful render, clears the busy flag, and enables every control. With CSS blocked the playground remains fully functional but unstyled, recorded as S3. With JavaScript disabled entirely, the noscript message and static loading status explain that JavaScript is required, controls stay disabled, and static content remains visible. Broken-asset network failures are counted separately from application page errors.",
+      "cases": [
+        "js-blocked-static-fallback",
+        "js-blocked-explicit-status",
+        "js-blocked-network-vs-pageerror",
+        "js-blocked-no-retry-no-blank",
+        "css-blocked-playground-functional",
+        "css-blocked-no-retry-unstyled",
+        "js-disabled-noscript",
+        "js-bootthrow-explicit-status",
+        "good-load-loading-cleared",
+        "no-permanent-blank-both-modes"
+      ]
+    }
+  },
+  "negativeControls": [
+    {
+      "id": "S6-NC1",
+      "description": "The production SVG byte/digest comparator must accept the exact golden SVG and reject a one-byte-mutated decoded SVG and a wrong expected digest."
+    },
+    {
+      "id": "S6-NC2",
+      "description": "The production URL-state comparator must accept the same loaded state and reject a stale saved state after navigating to a different share URL."
+    },
+    {
+      "id": "S6-NC3",
+      "description": "Clipboard denial must actually trigger the manual fallback with the exact source; the production clipboard comparator must accept that exact value and reject a one-character mutation."
+    }
+  ]
+}

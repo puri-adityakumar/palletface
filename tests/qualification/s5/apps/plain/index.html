@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>S5 plain HTML offline qualification</title>
+  </head>
+  <body>
+    <main data-framework="plain">
+      <h1>Plain HTML offline qualification</h1>
+      <p id="status">classic IIFE loading</p>
+      <ul id="grid"></ul>
+    </main>
+    <script src="./dither-face.js"></script>
+    <script>
+      ;(function () {
+        var status = document.getElementById('status')
+        var grid = document.getElementById('grid')
+        try {
+          var api = window.DitherFace
+          if (!api || typeof api.ditherFace !== 'function' || !Array.isArray(api.STYLES)) {
+            throw new Error('classic IIFE did not expose ditherFace/STYLES')
+          }
+          api.STYLES.forEach(function (style) {
+            var item = document.createElement('li')
+            item.setAttribute('data-style', style.slug)
+            var img = document.createElement('img')
+            img.setAttribute('data-plain-style', style.slug)
+            img.setAttribute('alt', style.slug)
+            img.src =
+              'data:image/svg+xml;charset=utf-8,' +
+              encodeURIComponent(
+                api.ditherFace('preview-output', {
+                  style: style.slug,
+                  name: '7even',
+                  px: 80,
+                }),
+              )
+            item.appendChild(img)
+            grid.appendChild(item)
+          })
+          status.textContent = 'classic IIFE produced ' + api.STYLES.length + ' avatars'
+          document.documentElement.setAttribute('data-ready', 'true')
+          window.__plainStyles = api.STYLES.map(function (style) {
+            return style.slug
+          })
+        } catch (error) {
+          status.textContent = 'error: ' + error.message
+          window.__plainError = String(error && error.stack ? error.stack : error)
+        }
+      })()
+    </script>
+  </body>
+</html>

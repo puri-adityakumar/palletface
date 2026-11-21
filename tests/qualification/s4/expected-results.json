@@ -1,0 +1,167 @@
+{
+  "stage": "S4",
+  "title": "Independent Node/TypeScript/Vite browser use",
+  "createdBeforeExecution": "2026-11-04",
+  "productSourceCommitAtCreation": "a9763139c208a7149b75d8b93508ad778a265070",
+  "note": "Written before the Stage 4 sandbox harness ran. Every assigned scenario is expected to PASS. Any observed FAIL, BLOCKED or NOT RUN is a provisional agent result requiring parent review; this file is not self-approval and makes no release claim. The fixed golden hashes below are recorded product expectations from the parent-accepted Stage 2 R1 S2-08 record and the parent-approved Q-001 result, not Stage 4 observations.",
+  "expectedTarball": {
+    "filename": "dither-face-0.1.0.tgz",
+    "sha256": "ed4c359b1b023e9b68a584334faef914390372f5e589b8c28d569b6932c20021",
+    "gzipBytes": 23220,
+    "source": "/Users/aditya/Projects/dither-face/out/qualification/S2-R1/sandbox/dither-face-0.1.0.tgz",
+    "rule": "The approved actual tarball is hash-verified before upload, copied as bytes into the sandbox fixture directory, and never installed through a repository alias, workspace or symlink. A different hash stops the stage and is reported, never accepted silently."
+  },
+  "fixedArtifacts": {
+    "golden": {
+      "path": "tests/qualification/s3/fixtures/golden.json",
+      "sha256AtCreation": "7f8a2c7090d85338f3d35e83c344a2adc38bad86353af154a6e86d29db91ae1a",
+      "input": {
+        "seed": "preview-output",
+        "name": "7even",
+        "px": 80
+      },
+      "hashes": {
+        "pixel-sprite": "5414be3e1bbb2b9304c9c4a6c7f5f40bc3b4fc88db16397ca46b59315659619a",
+        "pixel-letter": "e8f2d8daacae04528d067dff9662ca3504257617c5a2b3001b8a398662dd04af",
+        "dither-orb": "aa34f938e15fa5118670d99f38e9e5688c42dce29c09f99832fe5e96037c6bf2",
+        "pixel-landscape": "7c4ce7ef787fb50b8f0c7912749f695dc56857a69698b884d32a19e1fa1be7d2",
+        "ascii-letter": "ebfcb2cf41b1437e9637deb4304ed20555a84d5f12a1739813c78af8514bade8",
+        "ascii-field": "4d24f0abd032e710e7bb6c8c128ed4e48a17ff763b6eebe7cf8bb92e43eb71b1",
+        "ascii-face": "ae48967cd0368741b830a70d6316a8d402b9da791e9830c5aa613a97a33502b2",
+        "pixelify-letter": "d0cc056ec36b95c5efcf06d538f721696e4113509e0b943d7fefd25200bdbd37"
+      },
+      "q001Note": "ascii-letter ebfcb2cf... is the parent-approved Q-001 post-fix hash; the prior hash 449be0ce... is historical and is not accepted."
+    }
+  },
+  "versions": {
+    "node": "24.22.2 (harness; exact sandbox preflight recorded)",
+    "npm": "11.19.1",
+    "vite": "8.3.5",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "typescript": "7.0.2",
+    "playwright": "1.64.1",
+    "browsers": [
+      "Chromium",
+      "Firefox (alternative engine; Linux build, not native Safari)"
+    ]
+  },
+  "negativeControlsAreRequired": true,
+  "expectations": {
+    "S4-01": {
+      "title": "Plain Node ESM JS",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "A plain JavaScript ESM project outside the repository installs the copied actual tarball and imports the package root. The resolved package path is a real installed node_modules copy, not a symlink, workspace or repository source path. All eight documented renderers and the STYLES registry draw non-empty, well-formed-looking SVG with the fixed seed/name/size and match the eight recorded golden SHA-256 values. ditherFace defaults, explicit sprite/80 options and pixelSprite(seed, 80) agree. Name handling changes only the three letter styles; numeric and fractional sizes work. Non-string seeds/names, invalid sizes (0, negative, NaN, Infinity, string), unknown styles and missing direct-renderer px throw. A broken package subpath import causes a real runtime failure.",
+      "cases": [
+        "tarball install and real installed path",
+        "eight renderers and registry",
+        "eight fixed golden hashes",
+        "high-level and direct defaults",
+        "name and numeric/Unicode inputs",
+        "invalid input matrix",
+        "broken import negative control"
+      ]
+    },
+    "S4-02": {
+      "title": "Strict TypeScript app",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "A strict TypeScript project with exact-pinned TypeScript 7.0.2 compiles under NodeNext with emit and Bundler with noEmit, using the installed tarball's declarations with no diagnostics. The emitted NodeNext program runs and reproduces all eight golden hashes. Resolution tracing points at the installed package dist/index.d.ts and never repository src. Every negative type fixture (invalid style, invalid options, invalid seed, readonly STYLES mutation) is rejected by tsc with a real diagnostic and no suppression.",
+      "cases": [
+        "NodeNext strict compile and run",
+        "Bundler strict compile",
+        "declaration resolution trace",
+        "four negative type fixtures"
+      ]
+    },
+    "S4-03": {
+      "title": "Vite vanilla dev",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "A Vite vanilla app outside the repository installs the tarball from a tracked lock. A real Chromium and a real Firefox load the dev server. All eight data-URL avatars decode, load at the expected dimensions, and Chromium's initial decoded SVG bytes match all eight recorded golden hashes. Seed and name edits update the page; size edits change rendered dimensions; only the three letter styles change when only the name changes. No console error or page error occurs, and every request is local to the dev origin (no external network), including after post-load updates. Smoke screenshots are captured.",
+      "cases": [
+        "dev server start",
+        "eight avatars loaded and golden-matched",
+        "seed update",
+        "name update semantics",
+        "size update",
+        "console and page errors",
+        "external network",
+        "screenshots",
+        "Chromium and Firefox"
+      ]
+    },
+    "S4-04": {
+      "title": "Vite vanilla production",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "The same vanilla app builds with Vite and serves through vite preview. The production page has no missing hashed assets, loads in Chromium and Firefox, passes the same eight-avatar golden, update, size, console-error and local-network assertions as dev, and produces the same decoded SVG hashes as dev for every style and engine. This is a functional browser result, not a build-only pass.",
+      "cases": [
+        "production build",
+        "asset references exist",
+        "preview browser checks",
+        "dev versus production parity",
+        "Chromium and Firefox"
+      ]
+    },
+    "S4-05": {
+      "title": "Vite React dev",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "A strict TypeScript React app outside the repository renders a typed <img> whose src is the generated SVG data URL. The optional inline specimen renders a real SVG element. Prop/state seed, name and size updates re-render the avatar, a 100-avatar list mounts with 100 loaded images, and mount/unmount toggles really remove and restore the tree. No console or page error occurs and all requests are local.",
+      "cases": [
+        "React typecheck",
+        "main data-URL avatar",
+        "inline specimen",
+        "prop and state updates",
+        "100-avatar list",
+        "mount and unmount",
+        "console and network",
+        "Chromium and Firefox"
+      ]
+    },
+    "S4-06": {
+      "title": "Vite React production",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "The React app builds and serves through vite preview. The same browser assertions pass in Chromium and Firefox, the main avatar and decoded output match the recorded golden, dev and production decoded SVG hashes agree, and the production dist contains no Playwright/Vitest/Node-only test tooling or Node built-in import. The runtime dependency tree contains React/React DOM only as consumer dependencies; dither-face itself has no runtime dependencies.",
+      "cases": [
+        "production build",
+        "dist test-tool and Node API scan",
+        "consumer production dependency tree",
+        "preview browser checks",
+        "dev versus production parity",
+        "Chromium and Firefox"
+      ]
+    },
+    "S4-07": {
+      "title": "Browser/Node parity",
+      "severity": "S1",
+      "expectedStatus": "PASS",
+      "expected": "Node renders from the installed tarball and the Chromium/Firefox paths decode the actual <img> SVG data URLs. All three sets of eight raw SVG SHA-256 values equal the independently recorded golden file values, including the Q-001 ascii-letter hash. The harness does not merely compare Node output to itself. A one-byte SVG mutation and a wrong expected digest are rejected by the same production comparator while the unmodified value is accepted. No native Safari or WebKit result is claimed.",
+      "cases": [
+        "Node installed-package golden",
+        "Chromium decoded data-URL golden",
+        "Firefox decoded data-URL golden",
+        "Node and browser byte parity",
+        "Q-001 ascii-letter hash",
+        "wrong SVG and wrong digest negative controls"
+      ]
+    }
+  },
+  "negativeControls": [
+    {
+      "id": "S4-NC1",
+      "description": "Broken package subpath import in a disposable copy of the Node app must exit non-zero with a module-resolution error."
+    },
+    {
+      "id": "S4-NC2",
+      "description": "Invalid TypeScript fixture must be rejected by the actual tsc checker while the valid fixture compiles."
+    },
+    {
+      "id": "S4-NC3",
+      "description": "The actual golden comparator must accept the unmodified fixed SVG, reject a one-byte mutation, and reject a wrong expected digest."
+    }
+  ]
+}

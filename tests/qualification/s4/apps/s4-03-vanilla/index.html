@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>dither-face — S4 vanilla Vite</title>
+  </head>
+  <body>
+    <main>
+      <h1>dither-face vanilla Vite consumer</h1>
+      <form id="controls" autocomplete="off">
+        <label for="seed">Seed</label>
+        <input id="seed" name="seed" value="preview-output" />
+        <label for="name">Name</label>
+        <input id="name" name="name" value="7even" />
+        <label for="size">Size</label>
+        <select id="size" name="size">
+          <option value="48">48</option>
+          <option value="80" selected>80</option>
+          <option value="120">120</option>
+        </select>
+        <button id="reset" type="button">Reset</button>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+      <section id="grid" aria-label="Eight dither-face avatars"></section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

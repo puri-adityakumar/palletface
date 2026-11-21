@@ -1,0 +1,30 @@
+{
+  "name": "s4-05-react-vite",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Stage 4 Vite React consumer used for dev (S4-05) and production (S4-06).",
+  "packageManager": "npm@11.19.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "dither-face": "file:../../fixtures/dither-face-0.1.0.tgz",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.2.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.5"
+  }
+}
