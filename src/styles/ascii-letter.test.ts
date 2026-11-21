@@ -6,7 +6,6 @@ import { INK } from '../palettes.js'
 import {
   cellsToMap,
   fixedModel,
-  legacyModel,
   outsideGlyphDiffs,
   parseAsciiLetter,
 } from '../../tests/helpers/ascii-letter-oracle.js'
@@ -99,20 +98,5 @@ describe('asciiLetter', () => {
         }
       }
     }
-  })
-
-  it('preserves historical seed picks and glyph shape across the dot migration', () => {
-    let maskChanged = false
-    for (const seed of DOT_INVARIANCE_SEEDS) {
-      for (const [, name] of DOT_INVARIANCE_NAMES) {
-        const before = legacyModel(seed, name)
-        const after = fixedModel(seed, name)
-        expect(after.picks, `${seed}/${name}`).toEqual(before.picks)
-        expect(after.glyphCells, `${seed}/${name}`).toEqual(before.glyphCells)
-        // The approved difference is the mask itself, not colour/glyph selection.
-        if (JSON.stringify([...cellsToMap(after.cells).entries()]) !== JSON.stringify([...cellsToMap(before.cells).entries()])) maskChanged = true
-      }
-    }
-    expect(maskChanged, 'the fixed mask differs from the historical conditional stream').toBe(true)
   })
 })

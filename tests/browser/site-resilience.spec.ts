@@ -152,18 +152,7 @@ test('meets AA contrast for placeholders and control boundaries in normal, hover
   boundaryPass(await boundaryContrast(page, selectedSelector), 'selected style card hover')
 })
 
-test('clears the static loading status only after a successful initial render', async ({ page }) => {
-  await page.goto('/')
-  await expect(page.locator('#preview svg')).toHaveCount(1)
-  await expect(page.locator('#status')).toHaveText('')
-  await expect(page.locator('#status')).not.toHaveAttribute('data-state', 'loading')
-  await expect(page.locator('#seed')).toBeEnabled()
-  await expect(page.locator('#gallery button')).toHaveCount(8)
-  await expect(page.locator('.playground')).toHaveAttribute('aria-busy', 'false')
-  expect(await page.evaluate(() => document.documentElement.dataset.appReady)).toBe('true')
-})
-
-test('does not report a false failure while the app script is slow to load', async ({ page }) => {
+test('keeps the playground loading until the app is ready', async ({ page }) => {
   let release!: () => void
   const gate = new Promise<void>((resolve) => { release = resolve })
   await page.route('**/assets/app.js', async (route) => {
@@ -178,21 +167,29 @@ test('does not report a false failure while the app script is slow to load', asy
   await navigation
   await expect(page.locator('#preview svg')).toHaveCount(1)
   await expect(page.locator('#status')).toHaveText('')
+  await expect(page.locator('#status')).not.toHaveAttribute('data-state', 'loading')
   await expect(page.locator('#seed')).toBeEnabled()
+  await expect(page.locator('#gallery button')).toHaveCount(8)
+  await expect(page.locator('.playground')).toHaveAttribute('aria-busy', 'false')
+  await expect(page.locator('html')).toHaveAttribute('data-app-ready', 'true')
 })
 
-test('shows a readable failure status and disabled controls when the JS asset is blocked', async ({ page }) => {
+test('shows an accessible failure state when the app script is blocked', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.route('**/assets/app.js', (route) => route.abort())
   await page.goto('/')
 
-  await expect(page.locator('#status')).toBeVisible()
-  await expect(page.locator('#status')).toHaveAttribute('data-state', 'failed')
-  await expect(page.locator('#status')).toContainText('could not start')
-  await expect(page.locator('#seed')).toBeDisabled()
-  await expect(page.locator('#name')).toBeDisabled()
-  await expect(page.locator('#size')).toBeDisabled()
+  const status = page.getByRole('status')
+  await expect(status).toBeVisible()
+  await expect(status).toHaveAttribute('data-state', 'failed')
+  await expect(status).toContainText('could not start')
+  await expect(page.getByLabel('Seed', { exact: true })).toBeDisabled()
+  await expect(page.getByLabel('Display name', { exact: false })).toBeDisabled()
+  await expect(page.getByLabel('Size', { exact: true })).toBeDisabled()
+  await expect(page.getByLabel('Text to copy', { exact: true })).toHaveCount(1)
+  await expect(page.getByLabel('SVG source', { exact: true })).toHaveCount(1)
+  await expect(page.getByRole('group', { name: 'All eight styles', exact: true })).toHaveCount(1)
   await expect(page.getByRole('button', { name: 'Download SVG', exact: true })).toBeDisabled()
   await expect(page.locator('#gallery button')).toHaveCount(0)
   await expect(page.locator('#preview svg')).toHaveCount(0)
@@ -219,7 +216,7 @@ test('shows a readable failure status when the app throws during boot', async ({
   expect(errors.some((message) => message.includes('bounded boot regression'))).toBe(true)
 })
 
-test('keeps labels and gallery group semantics with and without the app', async ({ page }) => {
+test('keeps labels and gallery group semantics when the app is ready', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByLabel('Seed', { exact: true })).toBeVisible()
   await expect(page.getByLabel('Display name', { exact: false })).toBeVisible()
@@ -227,41 +224,6 @@ test('keeps labels and gallery group semantics with and without the app', async 
   await expect(page.getByRole('group', { name: 'All eight styles', exact: true })).toHaveCount(1)
   await expect(page.getByRole('img', { name: 'pixel sprite avatar preview', exact: true })).toHaveCount(1)
   await expect(page.getByRole('status')).toHaveCount(1)
-})
-
-test('keeps static labels and gallery group semantics when the app cannot start', async ({ page }) => {
-  await page.route('**/assets/app.js', (route) => route.abort())
-  await page.goto('/')
-
-  await expect(page.getByLabel('Seed', { exact: true })).toBeDisabled()
-  await expect(page.getByLabel('Display name', { exact: false })).toBeDisabled()
-  await expect(page.getByLabel('Size', { exact: true })).toBeDisabled()
-  await expect(page.getByLabel('Text to copy', { exact: true })).toHaveCount(1)
-  await expect(page.getByLabel('SVG source', { exact: true })).toHaveCount(1)
-  await expect(page.getByRole('group', { name: 'All eight styles', exact: true })).toHaveCount(1)
-  await expect(page.getByRole('status')).toHaveCount(1)
-  await expect(page.getByRole('status')).toContainText('could not start')
-})
-
-test('reports a bounded download failure and revokes created object URLs', async ({ page }) => {
-  await page.addInitScript(() => {
-    const revoked: string[] = []
-    ;(window as unknown as { __revoked: string[] }).__revoked = revoked
-    const original = URL.revokeObjectURL.bind(URL)
-    URL.revokeObjectURL = (url: string) => {
-      revoked.push(url)
-      original(url)
-    }
-  })
-  await page.goto('/')
-  const [download] = await Promise.all([
-    page.waitForEvent('download'),
-    page.getByRole('button', { name: 'Download SVG', exact: true }).click(),
-  ])
-  expect(download.suggestedFilename()).toBe('dither-face.svg')
-  await expect(page.locator('#status')).toHaveText('SVG downloaded.')
-  await page.waitForFunction(() => (window as unknown as { __revoked: string[] }).__revoked.length === 1)
-  expect(await page.evaluate(() => (window as unknown as { __revoked: string[] }).__revoked.length)).toBe(1)
 })
 
 test('reports createObjectURL failure and revokes when the download click throws', async ({ browser }) => {

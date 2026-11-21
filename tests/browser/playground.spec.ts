@@ -70,7 +70,16 @@ test('rejects invalid URL settings and treats HTML-looking input as data', async
   expect(url.searchParams.get('seed')).toBe(seed.replace(/\n/g, ''))
 })
 
-test('downloads the exact selected standalone SVG bytes', async ({ page }) => {
+test('downloads the exact selected SVG and revokes its object URL', async ({ page }) => {
+  await page.addInitScript(() => {
+    const revoked: string[] = []
+    ;(window as unknown as { __revoked: string[] }).__revoked = revoked
+    const original = URL.revokeObjectURL.bind(URL)
+    URL.revokeObjectURL = (url: string) => {
+      original(url)
+      revoked.push(url)
+    }
+  })
   await page.goto('/?seed=download&name=7even&style=pixelify-letter&size=192')
   const expected = ditherFace('download', { style: 'pixelify-letter', px: 192, name: '7even' })
   const [download] = await Promise.all([
@@ -81,9 +90,11 @@ test('downloads the exact selected standalone SVG bytes', async ({ page }) => {
   const path = await download.path()
   expect(await readFile(path!, 'utf8')).toBe(expected)
   expect(await page.evaluate(svg => new DOMParser().parseFromString(svg, 'image/svg+xml').querySelector('parsererror') === null, expected)).toBe(true)
+  await expect(page.getByRole('status')).toHaveText('SVG downloaded.')
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __revoked: string[] }).__revoked)).toHaveLength(1)
 })
 
-test('copies actual SVG, executable usage code and current share link', async ({ page, context, browserName }) => {
+test('copies the generated SVG, usage snippet and current share link', async ({ page, context, browserName }) => {
   test.skip(browserName !== 'chromium', 'Clipboard read permission differs by browser; fallback is tested separately on all engines')
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.goto('/?seed=copy-test&name=Ada&style=ascii-letter')
@@ -109,10 +120,12 @@ test('offers selected text when clipboard access fails', async ({ page }) => {
   await expect(page.getByLabel('Text to copy', { exact: true })).toBeFocused()
 })
 
-test('has keyboard-operable selection and fits a narrow viewport', async ({ page }) => {
+test('has keyboard-operable selection and fits a narrow viewport', async ({ page, browserName }) => {
   await page.setViewportSize({ width: 360, height: 800 })
   await page.goto('/')
-  await page.keyboard.press('Tab')
+  // With the default macOS WebKit settings, Option+Tab includes links.
+  const focusLinkKey = browserName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab'
+  await page.keyboard.press(focusLinkKey)
   await expect(page.getByRole('link', { name: 'Skip to playground' })).toBeFocused()
   const button = page.getByRole('button', { name: 'Select ascii face', exact: true })
   await button.focus()
