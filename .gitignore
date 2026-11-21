@@ -1,0 +1,16 @@
+node_modules/
+.DS_Store
+dist/
+playwright-report/
+test-results/
+*.tgz
+.env
+.env.*
+out-sheet/
+
+# session files, not part of the repo
+out/
+.dither-face-backup/
+.zcode/
+palletism-fixes.md
+dither-face-handover.md

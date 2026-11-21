@@ -1,0 +1,60 @@
+{
+  "name": "dither-face",
+  "version": "0.1.0",
+  "description": "Deterministic seeded SVG avatars — pixel and ascii faces picked from a user id, so they never change between renders.",
+  "type": "module",
+  "license": "MIT",
+  "author": "puri-adityakumar <contact@palletism.art>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/puri-adityakumar/dither-face.git"
+  },
+  "bugs": {
+    "url": "https://github.com/puri-adityakumar/dither-face/issues"
+  },
+  "homepage": "https://github.com/puri-adityakumar/dither-face#readme",
+  "keywords": [
+    "avatar",
+    "identicon",
+    "svg",
+    "pixel-art",
+    "ascii",
+    "dither",
+    "deterministic",
+    "palletism"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc",
+    "build:web": "esbuild src/index.ts --bundle --format=iife --global-name=DitherFace --outfile=dist/dither-face.js",
+    "sheet": "npm run build && node scripts/render-sheet.mjs",
+    "preview:render": "npm run build && node scripts/render-preview.mjs",
+    "check": "npm run typecheck && npm run test && npm run build",
+    "check:package": "node scripts/verify-package.mjs",
+    "check:all": "npm run check && npm run check:package",
+    "clean:dist": "node scripts/clean-dist.mjs",
+    "prepack": "npm run clean:dist && npm run check && npm run build:web"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

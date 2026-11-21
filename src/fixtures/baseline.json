@@ -1,0 +1,229 @@
+{
+  "source": "a6ed110 (renderers unchanged through 0ace3c7); definition identifiers canonicalized, geometry/content unchanged",
+  "records": [
+    {
+      "style": "pixel-sprite",
+      "seed": "",
+      "sha256": "1a5a2fe5f95fd9408606a9b6cf9ce5abd219d971b8b1acedc8676eaa2adea1af"
+    },
+    {
+      "style": "pixel-sprite",
+      "seed": "user-0",
+      "name": "Ada",
+      "sha256": "1812562f8a32fadc6d1386e1fcc1f7fbe984b07d32a94672853fe1125af2b858"
+    },
+    {
+      "style": "pixel-sprite",
+      "seed": "élodie",
+      "sha256": "86e2bf170aeacafdd6d5bd239acb2cbbd690264b641d1421d809cbe213d120e4"
+    },
+    {
+      "style": "pixel-sprite",
+      "seed": "東京",
+      "name": "Yuki",
+      "sha256": "4b1ec1f6efd4d113e35eb82d2a7cd9afc8b1f0fb56d3e0282674069d3fccf1a3"
+    },
+    {
+      "style": "pixel-sprite",
+      "seed": "<script>&\"",
+      "name": "Quinn",
+      "sha256": "ec4b89805e7a9ff1b83b29d8fc527cba333f49a4722c17cc6db2479ff733146a"
+    },
+    {
+      "style": "pixel-letter",
+      "seed": "",
+      "sha256": "63c559c58e143bf28593d96427f849046357be334cbebac52488fb6aba0af104"
+    },
+    {
+      "style": "pixel-letter",
+      "seed": "user-0",
+      "name": "Ada",
+      "sha256": "39a38aecd9ad74f7b9143d690c3da014009f50a4d614399ec722eb70d47d4cf9"
+    },
+    {
+      "style": "pixel-letter",
+      "seed": "élodie",
+      "sha256": "e5a97f517dfb5ab39441a6e4cccc3700f601d867bf2df97b951930329d672582"
+    },
+    {
+      "style": "pixel-letter",
+      "seed": "東京",
+      "name": "Yuki",
+      "sha256": "996616efc8e25cd51606afe91a280df46d0328dd2e7601291b1766a892accaee"
+    },
+    {
+      "style": "pixel-letter",
+      "seed": "<script>&\"",
+      "name": "Quinn",
+      "sha256": "a963c6f8bffba96d648fdbf80a2db9d7741f07ad4dd99c0c7ba400ea9c7e839e"
+    },
+    {
+      "style": "dither-orb",
+      "seed": "",
+      "sha256": "c84cac28136dced4177e79e5eee39a6de8275c2c9685892c9082a94235d49b74"
+    },
+    {
+      "style": "dither-orb",
+      "seed": "user-0",
+      "name": "Ada",
+      "sha256": "2e37f8b67502ec3c1e6363315ffc86b06db96842e3ba762bc1e0a4c33f2a47b5"
+    },
+    {
+      "style": "dither-orb",
+      "seed": "élodie",
+      "sha256": "7ef8548b3d7dadaa9fbb352f5caf81f3413109ed5427e0f4e0105314adf783d2"
+    },
+    {
+      "style": "dither-orb",
+      "seed": "東京",
+      "name": "Yuki",
+      "sha256": "578c059c1e0257f0370fd379251e2269b4a34f5423132c916d5e3e5d0e3b4c32"
+    },
+    {
+      "style": "dither-orb",
+      "seed": "<script>&\"",
+      "name": "Quinn",
+      "sha256": "850811b167e4d313006f1c78f2fa27dac9d6e29ad2ea800dc106619d10a7cb8b"
+    },
+    {
+      "style": "pixel-landscape",
+      "seed": "",
+      "sha256": "52d77d389d909f22428b8e108049ef8e27ce9fea73261fb773996f04f25dc1f2"
+    },
+    {
+      "style": "pixel-landscape",
+      "seed": "user-0",
+      "name": "Ada",
+      "sha256": "f9b604f38f2942bd06b857d2eab1982eaede90592d135a93d26d9aec470c5ee2"
+    },
+    {
+      "style": "pixel-landscape",
+      "seed": "élodie",
+      "sha256": "0b0a5bb4062483369cabbb19e709277827dd79421a23fe81af7b2b2b1d76e69e"
+    },
+    {
+      "style": "pixel-landscape",
+      "seed": "東京",
+      "name": "Yuki",
+      "sha256": "8a4815706d694069addda70e0bfb47f2b2aabbe1c2b0fd70278bcfb86d224c53"
+    },
+    {
+      "style": "pixel-landscape",
+      "seed": "<script>&\"",
+      "name": "Quinn",
+      "sha256": "9a70b795601b84cf3e8764800b762e9df890d9348d5d0831159e39474d725a20"
+    },
+    {
+      "style": "ascii-letter",
+      "seed": "",
+      "sha256": "861f97a5287185bb615d278594c8c0e3dc0a4e1ca6294269d12cc082e51e1f84"
+    },
+    {
+      "style": "ascii-letter",
+      "seed": "user-0",
+      "name": "Ada",
+      "sha256": "ae5aa8183826dbe1b609f5872292b97d7d7e26ef1ec47579e90851c0a1b258ea"
+    },
+    {
+      "style": "ascii-letter",
+      "seed": "élodie",
+      "sha256": "76d1a2e2967e43dd02b8b57725d3659d0e48fc0df17c407a7682f9f6dfa3411a"
+    },
+    {
+      "style": "ascii-letter",
+      "seed": "東京",
+      "name": "Yuki",
+      "sha256": "3450529e1c3378d99123f5174de4becfcd03f5e2178d0ac49275de4e2a269eeb"
+    },
+    {
+      "style": "ascii-letter",
+      "seed": "<script>&\"",
+      "name": "Quinn",
+      "sha256": "389b8a8f64bf859711388adffefb56593750ed0515df5a381d9563263f697a3a"
+    },
+    {
+      "style": "ascii-field",
+      "seed": "",
+      "sha256": "d2b69720f6477d80cec06d643c00f5e4fdddaac3bc0b7c1bfee5b392b550acab"
+    },
+    {
+      "style": "ascii-field",
+      "seed": "user-0",
+      "name": "Ada",
+      "sha256": "99384e2a037983f4202ecd48706d9360b99e8b8d0750764cefd99e5a4ca2413e"
+    },
+    {
+      "style": "ascii-field",
+      "seed": "élodie",
+      "sha256": "f8c4157e8643f06f8c5fd5ef152734cd6d392f0c812eb84a0525f32cc7f004a5"
+    },
+    {
+      "style": "ascii-field",
+      "seed": "東京",
+      "name": "Yuki",
+      "sha256": "ff652f47a6f46d69d2ed55d311f556fd217ac68d89151ef6b57392683d36d219"
+    },
+    {
+      "style": "ascii-field",
+      "seed": "<script>&\"",
+      "name": "Quinn",
+      "sha256": "761b5b7d693fc0d9d6c3a25cdf62e269f1a31a8e141c13a6f353e7f42de49044"
+    },
+    {
+      "style": "ascii-face",
+      "seed": "",
+      "sha256": "9b4f9a54d9b499b8da4a7f0b2966bf8ec14684deae5c65a7c6de7f8d6319a4bc"
+    },
+    {
+      "style": "ascii-face",
+      "seed": "user-0",
+      "name": "Ada",
+      "sha256": "3de1136ed44a2e6527e5fc9ea6dfd1a8407c0065093cb008dacff01f7fa51447"
+    },
+    {
+      "style": "ascii-face",
+      "seed": "élodie",
+      "sha256": "6ce23ac736c1c99aec52638d4c2464cdbd83855bd9a68ec20eadb140880b7c39"
+    },
+    {
+      "style": "ascii-face",
+      "seed": "東京",
+      "name": "Yuki",
+      "sha256": "e70e0ea6a3ad29041b2461584f52214e5de4f416f904f93258c09ff0cf083ef7"
+    },
+    {
+      "style": "ascii-face",
+      "seed": "<script>&\"",
+      "name": "Quinn",
+      "sha256": "927f1846aba36d8f917a0b3ec8d70aa871173139aa6ccde1d3cbc872e6f63e91"
+    },
+    {
+      "style": "pixelify-letter",
+      "seed": "",
+      "sha256": "f4df374c20194cb1d20f042d44d51da3a905215aaa53aba4ed2351e7400a6bc0"
+    },
+    {
+      "style": "pixelify-letter",
+      "seed": "user-0",
+      "name": "Ada",
+      "sha256": "3d63d14e0dfd4d474c24a21f80aea55dca693cbbf6729137b4d3fa5773a577b2"
+    },
+    {
+      "style": "pixelify-letter",
+      "seed": "élodie",
+      "sha256": "02cfea72cf746d4535854605c196b425bd539106d2c13bc5b26bb43054a0427a"
+    },
+    {
+      "style": "pixelify-letter",
+      "seed": "東京",
+      "name": "Yuki",
+      "sha256": "259d6b49eb0e4b44f60b570917555a0904be9cc5b1ab8d7e08c802ad74bddf09"
+    },
+    {
+      "style": "pixelify-letter",
+      "seed": "<script>&\"",
+      "name": "Quinn",
+      "sha256": "2a6152d0f94c1355ccc416a81660c2980d8490a244be9cdf0217cc6ecfd1d2a8"
+    }
+  ]
+}

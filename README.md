@@ -1,0 +1,110 @@
+# dither-face
+
+**Deterministic pixel and ASCII avatars. One seed, eight styles, zero runtime dependencies.**
+
+Turn a user ID into a standalone SVG, on the server or in the browser. No avatar service, image storage, account, or network request required. An independent, MIT-licensed sister project of [Palletism](https://palletism.art).
+
+![Eight styles: pixel sprite, pixel letter, dither orb, pixel landscape, ASCII letter, ASCII field, ASCII face, and pixelify letter](.github/preview.svg)
+
+> **0.x preview.** This repository is preparing its first npm release. Before 1.0, minor releases may change the API or avatar output. Pin an exact version when identities need to stay stable across upgrades.
+
+## Quick start
+
+After the public npm release:
+
+```sh
+npm install dither-face
+```
+
+```ts
+import { ditherFace } from 'dither-face'
+
+const svg = ditherFace('user-123', {
+  style: 'pixel-letter',
+  name: 'Aditya',
+  px: 80,
+})
+
+// Use as an image without inserting raw HTML.
+const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+```
+
+`svg` is a complete SVG string with an XML namespace, dimensions, and a viewBox. The same inputs produce the same output with the same package version in the tested runtimes. For the simplest call, `ditherFace('user-123')` uses `pixel-sprite` at 80px.
+
+## Eight styles
+
+| `style` | Appearance | Display name used? |
+| --- | --- | --- |
+| `pixel-sprite` | Mirrored 8×8 creature with ink eyes | No |
+| `pixel-letter` | 5×7 bitmap initial, shadow, and dithered background | Yes |
+| `dither-orb` | Three-color radial glow made of dithered pixels | No |
+| `pixel-landscape` | Tiny sky, sun, and layered hills | No |
+| `ascii-letter` | Bitmap initial built from a character on a dot field | Yes |
+| `ascii-field` | Seeded noise mapped to an ASCII density ramp | No |
+| `ascii-face` | Seeded kaomoji on a two-color gradient | No |
+| `pixelify-letter` | Bitmap initial over a two-tone checker | Yes |
+
+## Options
+
+```ts
+import { ditherFace, type DitherFaceOptions, type StyleSlug } from 'dither-face'
+```
+
+| Input | Type | Default | Behavior |
+| --- | --- | --- | --- |
+| `seed` | `string` | Required | Stable input to the seeded design; empty and Unicode strings are valid |
+| `style` | `StyleSlug` | `'pixel-sprite'` | One of the eight slugs above |
+| `px` | `number` | `80` | Positive finite width and height in CSS pixels |
+| `name` | `string` | Seed | Initial for the three letter styles; does not change seeded colors |
+
+Invalid seeds, names, sizes, and unknown styles throw descriptive errors. Letter styles use the first ASCII letter or digit after accent normalization; unsupported names use `?`.
+
+## Integrations
+
+### Browser
+
+```ts
+const image = document.querySelector<HTMLImageElement>('#avatar')!
+image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+image.alt = 'Aditya’s avatar'
+```
+
+Use your existing bundler, or run `npm run build:web` in this repository for the `DitherFace` browser global.
+
+### Server-side rendering
+
+```js
+import { ditherFace } from 'dither-face'
+
+const svg = ditherFace('user-123', { style: 'ascii-face', px: 80 })
+// Send as an SVG response with Content-Type: image/svg+xml,
+// or encode it into an image's data URL in your HTML template.
+```
+
+Package verification exercises Node against the installed tarball. Core rendering does not use `window`, a DOM, or server APIs.
+
+## Compatibility, privacy, and accessibility
+
+- **ESM only**, with TypeScript declarations. CI tests Node 22 and 24.
+- Pixel styles use SVG geometry. ASCII styles use a system monospace font stack, so glyph shape and layout can vary between platforms. No external font is fetched.
+- This is deterministic art, **not cryptography or a uniqueness guarantee**. Hash collisions and visually similar avatars are possible. An avatar is not proof of identity.
+- Use an opaque, stable ID. SVGs can reveal initials and generated design details, so keep emails, tokens, and secrets out of seeds.
+- For an avatar next to a visible user name, `alt=""` often avoids repetition. Otherwise provide a meaningful label. Generated SVG strings do not include a user-facing accessible name; the embedding application owns it.
+- Data URLs require `data:` in your application's `img-src` CSP. If your policy forbids them, serve the SVG from your own route.
+
+## Run locally
+
+Use Node 22.12+ or Node 24 and npm, then:
+
+```sh
+npm ci
+npm run build:web
+```
+
+Open `playground/index.html` in your browser. `npm run sheet -- out-sheet` generates the reference SVG sheet, and `npm run check:all` runs the library and installed-package checks.
+
+## Project
+
+- [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [MIT license](LICENSE)
+
+dither-face grew from Palletism's avatar experiments, but is independently installable and usable in any application. Palletism's existing avatars are not automatically migrated by this package.
