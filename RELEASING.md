@@ -11,10 +11,11 @@ Package versions always use three numeric SemVer components:
 MAJOR.MINOR.PATCH
 ```
 
-Prereleases add a numbered channel suffix:
+Prereleases add a channel suffix:
 
 ```text
 0.2.0-alpha.1
+0.2.0-beta
 0.2.0-beta.1
 0.2.0-beta.2
 0.2.0-rc.1
@@ -24,7 +25,8 @@ Prereleases add a numbered channel suffix:
 Use these rules:
 
 - `0.x` means the API is pre-1.0; it does not by itself mean beta.
-- Use `-beta.N` for a beta and increment `N` for each beta of the same base version.
+- Use `-beta` for the first beta of a version. Use `-beta.1`, `-beta.2`, and
+  so on for follow-up betas of the same version.
 - Omit the prerelease suffix only for a stable release.
 - Do not use `0.2` as a package version; npm requires `0.2.0`.
 - Published npm versions are immutable. Pick the next version rather than reusing one.
@@ -32,12 +34,12 @@ Use these rules:
 Typical progression:
 
 ```text
-0.1.0-beta.3  current beta line
-0.1.0-beta.4  next beta
-0.1.0-rc.1    release candidate
-0.1.0          first stable release
-0.1.1          patch release
-0.2.0-beta.1  next feature/API line
+0.2.0-beta    first beta
+0.2.0-beta.1  follow-up beta
+0.2.0-rc.1    release candidate
+0.2.0         stable release
+0.2.1         patch release
+0.3.0-beta    next feature/API line
 ```
 
 ## Names and release references
@@ -45,10 +47,10 @@ Typical progression:
 | Purpose | Example | Where it is stored |
 | --- | --- | --- |
 | npm package | `palletface` | `package.json` and `package-lock.json` |
-| npm version | `0.1.0-beta.3` | `package.json` and `package-lock.json` |
-| Git release tag | `v0.1.0-beta.3` | Git and GitHub |
+| npm version | `0.2.0-beta` | `package.json` and `package-lock.json` |
+| Git release tag and annotation | `v0.2.0-beta` | Git and GitHub |
 | npm distribution tag | `beta` | npm registry |
-| human-facing title | `Palletface v0.1 Beta` | GitHub Release, README, announcements |
+| GitHub Release title | `v0.2.0-beta` | GitHub Releases |
 
 The `v` is a Git tag convention; it is not part of the npm version. The npm
 `beta` dist-tag is a moving alias:
@@ -73,12 +75,39 @@ npm install palletface@beta
 
 Ordinary PRs merge without a package version change or a release tag. For a
 release PR, update the package version and lockfile, then merge into `main`
-before tagging the reviewed commit. Merging a PR does not publish to npm.
+before tagging the reviewed commit. Use the exact tag name as its annotation.
+Run the manual **Release** workflow when ready to stage the package on npm.
 
 If a release tag already exists on the PR branch, use a merge commit to keep
 the tagged commit in `main`'s history. A squash merge creates a new commit and
 leaves the tag pointing at the original commit. Keep pushed tags at their
 original commits.
+
+## Release notes
+
+Use the exact Git tag as the GitHub Release title. Write from the reader's
+point of view and cover everything shipping since the previous published tag
+on the same channel. Link relevant PRs and skip empty sections. A one-fix
+patch can use just **Fixes** and **Full changelog**. Omit the comparison if
+there is no previous release tag.
+
+```markdown
+## Highlights
+
+- Describe the most important changes users will see.
+
+## Fixes
+
+- Describe what was broken and what now works. Link the PR when useful.
+
+## Upgrade notes
+
+- Include breaking changes, migrations, and any actions users need to take.
+
+## Full changelog
+
+[Compare with the previous release](https://github.com/puri-adityakumar/dither-face/compare/vPREVIOUS...vX.Y.Z)
+```
 
 ## Release checklist
 
@@ -100,8 +129,8 @@ original commits.
 6. Create and push a matching annotated Git tag on that commit, for example:
 
    ```sh
-   git tag -a v0.2.0-beta.1 -m "Release palletface v0.2.0-beta.1"
-   git push origin refs/tags/v0.2.0-beta.1
+   git tag -a v0.2.0-beta -m "v0.2.0-beta"
+   git push origin refs/tags/v0.2.0-beta
    ```
 
 7. Run the **Release** GitHub Actions workflow with the matching tag, `main`
