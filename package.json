@@ -48,7 +48,6 @@
     "build:web": "esbuild src/index.ts --bundle --format=iife --global-name=DitherFace --outfile=dist/dither-face.js",
     "build:site": "node scripts/build-site.mjs",
     "preview:site": "node scripts/serve-site.mjs",
-    "sheet": "npm run build && node scripts/render-sheet.mjs",
     "preview:render": "npm run build && node scripts/render-preview.mjs",
     "check": "npm run typecheck && npm run test && npm run build",
     "check:package": "node scripts/verify-package.mjs",

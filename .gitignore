@@ -7,7 +7,6 @@ test-results/
 *.tgz
 .env
 .env.*
-out-sheet/
 
 # session files, not part of the repo
 out/

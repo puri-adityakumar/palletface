@@ -12,7 +12,7 @@
 
 ### Fixed
 
-- Site-only Q-002/Q-003 correction: placeholder and control-boundary contrast now meet WCAG AA, the playground exposes a static loading/failure status and stays disabled until a successful render, the gallery is a named group, and download failures get bounded status feedback with object-URL cleanup. Library output and the published package tarball are unchanged.
+- Improved placeholder and control contrast, added visible loading and failure states to the playground, labeled the style gallery, and added error feedback and object URL cleanup for downloads.
 
 ### Changed
 
@@ -20,6 +20,6 @@
 - ASCII field/face definition IDs are explicitly namespaced by style. SVG bytes change, while their seeded design is preserved.
 - Public and direct-renderer inputs are validated. Invalid sizes no longer emit malformed SVG dimensions.
 - Style names are a TypeScript union for autocomplete and typo checking.
-- `ascii-letter` now consumes exactly one dot decision per grid cell before overlaying the initial, so changing `name` no longer shifts dots outside the glyph (Q-001). Seeded background/character/dot/accent choices, glyph shape, IDs, and all other styles are unchanged; existing `ascii-letter` dot patterns change once as an approved migration. See [VERIFICATION.md](docs/VERIFICATION.md#ascii-letter-dot-migration-q-001).
+- `ascii-letter` now picks dots for every grid cell before overlaying the initial. Changing `name` keeps the dots outside the glyph in place. This updates the dot pattern for existing `ascii-letter` avatars.
 
 This entry describes release preparation, not an already published npm version. Preview minor versions may change seeded output; use an exact version when identity must remain stable.
