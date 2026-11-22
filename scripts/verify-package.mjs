@@ -42,8 +42,8 @@ try {
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
-import { ditherFace, STYLES } from 'palletface'
-assert.equal(STYLES.length, 9)
+import { ditherFace, STYLES, pixelFlora, pixelRelic, pixelStamp } from 'palletface'
+assert.equal(STYLES.length, 12)
 assert.equal(new Set(STYLES.map(s => s.slug)).size, STYLES.length)
 assert.equal(ditherFace('x'), ditherFace('x', { style: 'pixel-sprite', px: 80 }))
 for (const { slug } of STYLES) {
@@ -63,6 +63,15 @@ assert.throws(() => ditherFace(3), /seed/)
 const context = {}
 runInNewContext(readFileSync('node_modules/palletface/dist/dither-face.js', 'utf8'), context)
 for (const {slug} of STYLES) assert.equal(context.DitherFace.ditherFace('bundle-check', {style:slug}), ditherFace('bundle-check', {style:slug}))
+for (const [slug, draw, bundled] of [
+  ['pixel-flora', pixelFlora, context.DitherFace.pixelFlora],
+  ['pixel-relic', pixelRelic, context.DitherFace.pixelRelic],
+  ['pixel-stamp', pixelStamp, context.DitherFace.pixelStamp],
+]) {
+  const svg = ditherFace('x', {style:slug, px:24, name:'Élodie'})
+  assert.equal(draw('x', 24, 'Élodie'), svg)
+  assert.equal(bundled('x', 24, 'Élodie'), svg)
+}
 for (const style of ['ascii-letter', 'ascii-field', 'ascii-face']) {
   assert.ok(!STYLES.some(entry => entry.slug === style))
   assert.equal(context.DitherFace.ditherFace('legacy-check', {style}), ditherFace('legacy-check', {style}))
@@ -76,13 +85,18 @@ console.log('PASS runtime consumer and browser bundle parity')
     files: ['consumer.ts'],
   }))
   await writeFile(join(consumer, 'consumer.ts'), `
-import { ditherFace, pixelSprite, pixelLetter, pixelEmotes, STYLES, type StyleSlug, type DitherFaceOptions } from 'palletface'
+import { ditherFace, pixelSprite, pixelLetter, pixelEmotes, pixelFlora, pixelRelic, pixelStamp, STYLES, type StyleSlug, type DitherFaceOptions } from 'palletface'
 const style: StyleSlug = 'mirrored-signal'
 const options: DitherFaceOptions = {style, px:24, name:'Ada'}
 const svg: string = ditherFace('x', options)
 pixelSprite('x', 80)
 pixelLetter('x', 80, 'Ada')
 pixelEmotes('x', 80)
+const additions: StyleSlug[] = ['pixel-flora', 'pixel-relic', 'pixel-stamp']
+additions.forEach(style => ditherFace('x', {style}))
+pixelFlora('x', 24)
+pixelRelic('x', 32)
+pixelStamp('x', 80, 'Élodie')
 STYLES.forEach(s => ditherFace('x', {style:s.slug}))
 // @ts-expect-error invalid style must fail
 ditherFace('x', {style:'not-a-style'})

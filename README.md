@@ -1,10 +1,10 @@
 # dither-face
 
-**Deterministic pixel, dither, and geometric avatars. One seed, nine styles, zero runtime dependencies.**
+**Deterministic pixel, dither, and geometric avatars. One seed, twelve styles, zero runtime dependencies.**
 
 Turn a user ID into a standalone SVG, on the server or in the browser. No avatar service, image storage, account, or network request required. An independent, MIT-licensed sister project of [Palletism](https://palletism.art).
 
-![Nine styles: pixel sprite, pixel letter, dither orb, pixel landscape, pixelify letter, geometric tile, random contours, pixel emotes, and mirrored signal](.github/preview.svg)
+![Samples of all twelve avatar styles listed below](.github/preview.svg)
 
 > **0.1 beta.** Install the preview with the `beta` dist-tag. Before 1.0, minor releases may change the API or avatar output. Pin an exact version when identities need to stay stable across upgrades.
 
@@ -31,7 +31,7 @@ const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 
 `svg` is a complete SVG string with an XML namespace, dimensions, and a viewBox. The same inputs produce the same output with the same package version in the tested runtimes. For the simplest call, `ditherFace('user-123')` uses `pixel-sprite` at 80px.
 
-## Nine styles
+## Twelve styles
 
 | `style` | Appearance | Display name used? |
 | --- | --- | --- |
@@ -44,8 +44,13 @@ const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 | `random-contours` | Nested topographic lines with seeded shape, spacing, and count | No |
 | `pixel-emotes` | Emoji-like pixel silhouettes with dithered shading | No |
 | `mirrored-signal` | Symmetric 7×7 identicon with hollow terminals | No |
+| `pixel-flora` | 16×16 fern, cactus, or wildflower with seeded shape and colors | No |
+| `pixel-relic` | 16×16 key, lantern, or potion with chunky inventory-sprite highlights | No |
+| `pixel-stamp` | Bitmap initial cut through a chipped block on a rounded square | Yes |
 
 Use `STYLES` to populate a style picker. Saved `ascii-letter`, `ascii-field`, and `ascii-face` selections remain renderable through `ditherFace` and their direct exports.
+
+`pixelFlora(seed, px)`, `pixelRelic(seed, px)`, and `pixelStamp(seed, px, name?)` are also available as named exports.
 
 ## Options
 
@@ -58,9 +63,9 @@ import { ditherFace, type DitherFaceOptions, type StyleSlug } from 'palletface'
 | `seed` | `string` | Required | Stable input to the seeded design; empty and Unicode strings are valid |
 | `style` | `StyleSlug` | `'pixel-sprite'` | A current style slug or a legacy ASCII slug |
 | `px` | `number` | `80` | Positive finite width and height in CSS pixels |
-| `name` | `string` | Seed | Initial for the letter styles; does not change seeded colors |
+| `name` | `string` | Seed | Initial for Pixel Letter, Pixelify Letter, Pixel Stamp, and legacy ASCII Letter. Seeded colors stay the same. |
 
-Invalid seeds, names, sizes, and unknown styles throw descriptive errors. Letter styles use the first ASCII letter or digit after accent normalization; unsupported names use `?`.
+Invalid seeds, names, sizes, and unknown styles throw descriptive errors. Initials use the first ASCII letter or digit after accent normalization. Names without one use `?`.
 
 ## Integrations
 

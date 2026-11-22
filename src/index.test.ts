@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { ditherFace, STYLES } from './index.js'
 
 describe('public API', () => {
-  it('has nine distinct, stable slugs in sheet order and uses sprite/80 defaults', () => {
+  it('has twelve distinct, stable slugs in sheet order and uses sprite/80 defaults', () => {
     expect(STYLES.map(s => s.slug)).toEqual([
       'pixel-sprite', 'pixel-letter', 'dither-orb', 'pixel-landscape',
       'pixelify-letter', 'geometric-tile', 'random-contours', 'pixel-emotes', 'mirrored-signal',
+      'pixel-flora', 'pixel-relic', 'pixel-stamp',
     ])
     expect(ditherFace('user')).toBe(STYLES[0]!.draw('user', 80))
     expect(ditherFace('user', { px: undefined, name: undefined })).toBe(ditherFace('user'))
@@ -34,7 +35,9 @@ describe('public API', () => {
       expect(() => style.draw('x', undefined as never)).toThrow(/positive finite/)
       for (const name of [null, 1, {}]) {
         expect(() => ditherFace('x', { style: style.slug, name: name as never })).toThrow(/name must be a string/)
-        if (style.slug.endsWith('letter')) expect(() => style.draw('x', 80, name as never)).toThrow(/name must be a string/)
+        if (style.slug.endsWith('letter') || style.slug === 'pixel-stamp') {
+          expect(() => style.draw('x', 80, name as never)).toThrow(/name must be a string/)
+        }
       }
     })
   }
@@ -43,7 +46,7 @@ describe('public API', () => {
     for (const style of STYLES) {
       const a = ditherFace('user-0', { style: style.slug, name: 'Ada' })
       const b = ditherFace('user-0', { style: style.slug, name: 'Zeke' })
-      if (style.slug.endsWith('letter')) expect(a).not.toBe(b)
+      if (style.slug.endsWith('letter') || style.slug === 'pixel-stamp') expect(a).not.toBe(b)
       else expect(a).toBe(b)
     }
   })

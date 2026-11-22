@@ -40,8 +40,8 @@
 <body>
 <div class="sheet">
   <div class="eyebrow">playground · generated avatars</div>
-  <h1>one seed, nine styles<i>.</i></h1>
-  <p class="lede">type a seed and every avatar below re-renders as you type: each one is drawn from <b>seed-user</b> by ../dist/dither-face.js — deterministic, offline, no framework. nine styles at 80px, the real nav (30px) and profile (56px) sizes on the right, and a copy-svg button under every avatar. open with <b>?seed=&lt;text&gt;</b> to land on a chosen seed for a capture.</p>
+  <h1>one seed, <span id="style-count">many</span> styles<i>.</i></h1>
+  <p class="lede">each avatar is drawn from <b>seed-user</b> by ../dist/dither-face.js and updates as you type. see every style at 80px, with nav (30px) and profile (56px) sizes on the right. open with <b>?seed=&lt;text&gt;</b> to start on a chosen seed.</p>
   <div class="error" id="error"></div>
   <div class="seedbar">
     <label for="seed">seed</label>
@@ -69,6 +69,7 @@ if (!lib || typeof lib.ditherFace !== 'function' || !Array.isArray(lib.STYLES)) 
   errorBox.textContent = 'window.DitherFace is missing — build it first: run `npm run build:web`, then reload this page. (it looks for ../dist/dither-face.js next to playground/.)'
   errorBox.classList.add('on')
 } else {
+  document.getElementById('style-count').textContent = String(lib.STYLES.length)
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   const el = (tag, className, text) => {
     const node = document.createElement(tag)
@@ -172,9 +173,7 @@ if (!lib || typeof lib.ditherFace !== 'function' || !Array.isArray(lib.STYLES)) 
     }
   }
 
-  // render straight on input: 80 avatars cost ~3ms (measured in chrome), so
-  // per-keystroke rendering needs no frame coalescing — and a rAF gate would
-  // stall forever in an occluded tab, freezing an automated ?seed= capture.
+  // Render directly so an occluded tab can still update for a capture.
   document.getElementById('seed').addEventListener('input', render)
 
   render()
