@@ -77,7 +77,7 @@ const preview = JSON.parse(readFileSync(new URL('./fixtures/preview.json', impor
 }
 describe('preview exact SVG output', () => {
   for (const record of preview.records) {
-    it(`pins ${record.style} bytes, including namespaced IDs and numeric initial`, () => {
+    it(`pins ${record.style} bytes for ${JSON.stringify(record.seed)}`, () => {
       const svg = ditherFace(record.seed, { style: record.style, px: 80, name: record.name })
       if (record.style === 'ascii-letter') {
         const migration = record.migration

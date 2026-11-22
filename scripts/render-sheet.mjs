@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * Renders every registered avatar style x the eight reference users into one
- * sheet.svg: one numbered row per style ("01 pixel sprite" … "08 pixelify
- * letter"), 80px per user, plus the real nav (30px) and profile (56px) sizes
+ * sheet.svg: one numbered row per style, 80px per user, plus the real
+ * nav (30px) and profile (56px) sizes
  * on the right. The geometry mirrors the reference mockup
  * (mockups/avatars/index.html) so the two sheets can be laid side by side and
  * compared cell for cell.

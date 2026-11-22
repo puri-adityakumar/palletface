@@ -4,7 +4,7 @@ The repository is `dither-face`. The npm package is `palletface`, and the standa
 
 ## Project layout
 
-- `src/index.ts` is the public entry point and style registry. `src/styles/` contains the eight SVG renderers.
+- `src/index.ts` is the public entry point and style registry. `src/styles/` contains the SVG renderers.
 - Unit tests live beside the source. `src/fixtures/` pins representative SVG output, and `tests/` contains shared test helpers and release checks.
 - `playground/index.html` is the standalone demo. It loads `dist/dither-face.js` after `npm run build:web`.
 - `scripts/` contains the package verifier, release guard, and SVG preview and sheet generators. GitHub CI and release workflows live in `.github/workflows/`.

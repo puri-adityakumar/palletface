@@ -1,7 +1,6 @@
 /**
- * dither-face entry point. The registry holds the eight ported styles in
- * sheet order ("01 pixel sprite" … "08 pixelify letter"); `ditherFace` is the
- * one-call consumer API over it. Every avatar is a pure function of its seed
+ * The registry holds the avatar styles in sheet order. `ditherFace` is the
+ * one-call consumer API. Every avatar is a pure function of its seed
  * string for a given package version and runtime configuration.
  */
 export * from './seed.js'
@@ -25,7 +24,13 @@ import { asciiLetter } from './styles/ascii-letter.js'
 import { asciiField } from './styles/ascii-field.js'
 import { asciiFace } from './styles/ascii-face.js'
 import { pixelifyLetter } from './styles/pixelify-letter.js'
+import { geometricTile } from './styles/geometric-tile.js'
+import { randomContours } from './styles/random-contours.js'
+import { pixelEmotes } from './styles/pixel-emotes.js'
+import { mirroredSignal } from './styles/mirrored-signal.js'
 import { validateRenderArgs } from './validation.js'
+
+export { geometricTile, randomContours, pixelEmotes, mirroredSignal }
 
 /** One look in the registry. */
 export interface AvatarStyle {
@@ -46,18 +51,22 @@ export interface AvatarStyle {
 }
 
 /**
- * Every style, in sheet order — the same rows the sheet renderer lays out.
- * Slugs are stable api: pick one for `ditherFace(seed, { style })`.
+ * Slugs accepted by `ditherFace(seed, { style })`, including legacy ASCII styles.
+ * Use `STYLES` for the current style picker and sheet order.
  */
 export type StyleSlug =
   | 'pixel-sprite'
   | 'pixel-letter'
   | 'dither-orb'
   | 'pixel-landscape'
+  | 'pixelify-letter'
+  | 'geometric-tile'
+  | 'random-contours'
+  | 'pixel-emotes'
+  | 'mirrored-signal'
   | 'ascii-letter'
   | 'ascii-field'
   | 'ascii-face'
-  | 'pixelify-letter'
 
 export const STYLES: readonly AvatarStyle[] = [
   {
@@ -85,30 +94,43 @@ export const STYLES: readonly AvatarStyle[] = [
     draw: pixelLandscape,
   },
   {
-    slug: 'ascii-letter',
-    title: 'ascii letter',
-    note: 'the initial drawn with one random character on a sprinkled dot field.',
-    draw: asciiLetter,
-  },
-  {
-    slug: 'ascii-field',
-    title: 'ascii field',
-    note: 'value noise mapped to a density ramp ( .:-=+*#%@), a glow rendered in text.',
-    draw: asciiField,
-  },
-  {
-    slug: 'ascii-face',
-    title: 'ascii face',
-    note: 'a kaomoji assembled from random brackets, eyes and a mouth.',
-    draw: asciiFace,
-  },
-  {
     slug: 'pixelify-letter',
     title: 'pixelify letter',
     note: 'a bundled bitmap initial on a two-tone checker.',
     draw: pixelifyLetter,
   },
+  {
+    slug: 'geometric-tile',
+    title: 'geometric tile',
+    note: 'curved color tiles in a seeded turn and colorway.',
+    draw: geometricTile,
+  },
+  {
+    slug: 'random-contours',
+    title: 'random contours',
+    note: 'topographic lines with seeded centers, outlines, and spacing.',
+    draw: randomContours,
+  },
+  {
+    slug: 'pixel-emotes',
+    title: 'pixel emotes',
+    note: 'an emoji-like pixel silhouette with dither and a pixel shadow.',
+    draw: pixelEmotes,
+  },
+  {
+    slug: 'mirrored-signal',
+    title: 'mirrored signal',
+    note: 'a 7×7 identicon with mirrored blocks and hollow terminals.',
+    draw: mirroredSignal,
+  },
 ] as const satisfies readonly AvatarStyle[]
+
+// Saved selections can keep rendering after a style leaves the picker.
+const LEGACY_STYLES = new Map<string, AvatarStyle['draw']>([
+  ['ascii-letter', asciiLetter],
+  ['ascii-field', asciiField],
+  ['ascii-face', asciiFace],
+])
 
 /** Options for `ditherFace`; everything is optional. */
 export interface DitherFaceOptions {
@@ -140,9 +162,9 @@ export function ditherFace(seed: string, options: DitherFaceOptions = {}): strin
   validateRenderArgs(seed, px, options.name)
   if (options.style !== undefined && typeof options.style !== 'string') throw new TypeError(`style must be a style slug string; received ${typeof options.style}`)
   const slug = options.style === undefined ? 'pixel-sprite' : options.style
-  const style = STYLES.find((s) => s.slug === slug)
-  if (!style) {
+  const draw = STYLES.find((s) => s.slug === slug)?.draw ?? LEGACY_STYLES.get(slug)
+  if (!draw) {
     throw new Error(`ditherFace: unknown style ${JSON.stringify(slug)}; available: ${STYLES.map((s) => s.slug).join(', ')}`)
   }
-  return style.draw(seed, px, options.name)
+  return draw(seed, px, options.name)
 }
