@@ -1,5 +1,5 @@
 {
-  "note": "Exact SVG bytes after intentional ASCII ID namespacing, 0-9 glyph addition, and the parent-approved Q-001 ascii-letter dot migration; do not update without output review.",
+  "note": "Exact SVG bytes after intentional ASCII ID namespacing, 0-9 glyph addition, and the parent-approved Q-001 ascii-letter dot migration; do not update without output review. Added exact SVG fixtures for the four approved styles using representative canvas designs. Previous fixture digests are unchanged.",
   "records": [
     {
       "style": "pixel-sprite",
@@ -52,6 +52,31 @@
       "seed": "preview-output",
       "name": "7even",
       "sha256": "d0cc056ec36b95c5efcf06d538f721696e4113509e0b943d7fefd25200bdbd37"
+    },
+    {
+      "style": "geometric-tile",
+      "seed": "tile-30",
+      "sha256": "e292d1fa3d82264b49b536d8d5dcee86b56d15c5ae3c651bed92c19bcbb59a61"
+    },
+    {
+      "style": "geometric-tile",
+      "seed": "tile-17",
+      "sha256": "81ae41818a6712ec5735c007b4b8af0f22e2153524dda4fa1d63b996a91a8eac"
+    },
+    {
+      "style": "random-contours",
+      "seed": "aditya",
+      "sha256": "53f6a37d500dd82c44572a0d5415c700f300ea4b260211398f5be0027ecde504"
+    },
+    {
+      "style": "pixel-emotes",
+      "seed": "ada",
+      "sha256": "d030728bec3cce472c47f8d03d6464ae7aeadcc59095c69a7c7ed1fd8b5091dd"
+    },
+    {
+      "style": "mirrored-signal",
+      "seed": "ada",
+      "sha256": "01acb05f8e3004a572ffc533dd77ca06166624d544b9f4b06e2137741f3f400c"
     }
   ]
 }

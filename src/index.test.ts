@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { ditherFace, STYLES } from './index.js'
 
 describe('public API', () => {
-  it('has eight distinct, stable slugs in sheet order and uses sprite/80 defaults', () => {
-    expect(STYLES.map(s => s.slug)).toEqual(['pixel-sprite', 'pixel-letter', 'dither-orb', 'pixel-landscape', 'ascii-letter', 'ascii-field', 'ascii-face', 'pixelify-letter'])
+  it('has nine distinct, stable slugs in sheet order and uses sprite/80 defaults', () => {
+    expect(STYLES.map(s => s.slug)).toEqual([
+      'pixel-sprite', 'pixel-letter', 'dither-orb', 'pixel-landscape',
+      'pixelify-letter', 'geometric-tile', 'random-contours', 'pixel-emotes', 'mirrored-signal',
+    ])
     expect(ditherFace('user')).toBe(STYLES[0]!.draw('user', 80))
     expect(ditherFace('user', { px: undefined, name: undefined })).toBe(ditherFace('user'))
   })
@@ -49,6 +52,9 @@ describe('public API', () => {
     for (const options of [null, 3, 'x', [], true]) expect(() => ditherFace('x', options as never)).toThrow(/options must be an object/)
     for (const style of [null, 3, {}, false]) expect(() => ditherFace('x', { style: style as never })).toThrow(/style must be a style slug string/)
     expect(() => ditherFace('x', { style: 'bad' as never })).toThrow(/unknown style "bad"; available: pixel-sprite, pixel-letter/)
+    for (const style of ['grainy-pixelify-letter', '__proto__', 'constructor']) {
+      expect(() => ditherFace('x', { style: style as never })).toThrow(/unknown style/)
+    }
   })
 
   it('resolves all SVG references locally and avoids cross-style definition IDs', () => {

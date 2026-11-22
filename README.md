@@ -1,10 +1,10 @@
 # dither-face
 
-**Deterministic pixel and ASCII avatars. One seed, eight styles, zero runtime dependencies.**
+**Deterministic pixel, dither, and geometric avatars. One seed, nine styles, zero runtime dependencies.**
 
 Turn a user ID into a standalone SVG, on the server or in the browser. No avatar service, image storage, account, or network request required. An independent, MIT-licensed sister project of [Palletism](https://palletism.art).
 
-![Eight styles: pixel sprite, pixel letter, dither orb, pixel landscape, ASCII letter, ASCII field, ASCII face, and pixelify letter](.github/preview.svg)
+![Nine styles: pixel sprite, pixel letter, dither orb, pixel landscape, pixelify letter, geometric tile, random contours, pixel emotes, and mirrored signal](.github/preview.svg)
 
 > **0.1 beta.** Install the preview with the `beta` dist-tag. Before 1.0, minor releases may change the API or avatar output. Pin an exact version when identities need to stay stable across upgrades.
 
@@ -31,7 +31,7 @@ const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 
 `svg` is a complete SVG string with an XML namespace, dimensions, and a viewBox. The same inputs produce the same output with the same package version in the tested runtimes. For the simplest call, `ditherFace('user-123')` uses `pixel-sprite` at 80px.
 
-## Eight styles
+## Nine styles
 
 | `style` | Appearance | Display name used? |
 | --- | --- | --- |
@@ -39,10 +39,13 @@ const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 | `pixel-letter` | 5×7 bitmap initial, shadow, and dithered background | Yes |
 | `dither-orb` | Three-color radial glow made of dithered pixels | No |
 | `pixel-landscape` | Tiny sky, sun, and layered hills | No |
-| `ascii-letter` | Bitmap initial built from a character on a dot field | Yes |
-| `ascii-field` | Seeded noise mapped to an ASCII density ramp | No |
-| `ascii-face` | Seeded kaomoji on a two-color gradient | No |
 | `pixelify-letter` | Bitmap initial over a two-tone checker | Yes |
+| `geometric-tile` | Curved color tiles with a seeded palette and rotation | No |
+| `random-contours` | Nested topographic lines with seeded shape, spacing, and count | No |
+| `pixel-emotes` | Emoji-like pixel silhouettes with dithered shading | No |
+| `mirrored-signal` | Symmetric 7×7 identicon with hollow terminals | No |
+
+Use `STYLES` to populate a style picker. Saved `ascii-letter`, `ascii-field`, and `ascii-face` selections remain renderable through `ditherFace` and their direct exports.
 
 ## Options
 
@@ -53,9 +56,9 @@ import { ditherFace, type DitherFaceOptions, type StyleSlug } from 'palletface'
 | Input | Type | Default | Behavior |
 | --- | --- | --- | --- |
 | `seed` | `string` | Required | Stable input to the seeded design; empty and Unicode strings are valid |
-| `style` | `StyleSlug` | `'pixel-sprite'` | One of the eight slugs above |
+| `style` | `StyleSlug` | `'pixel-sprite'` | A current style slug or a legacy ASCII slug |
 | `px` | `number` | `80` | Positive finite width and height in CSS pixels |
-| `name` | `string` | Seed | Initial for the three letter styles; does not change seeded colors |
+| `name` | `string` | Seed | Initial for the letter styles; does not change seeded colors |
 
 Invalid seeds, names, sizes, and unknown styles throw descriptive errors. Letter styles use the first ASCII letter or digit after accent normalization; unsupported names use `?`.
 
@@ -76,7 +79,7 @@ Use your existing bundler, or run `npm run build:web` in this repository for the
 ```js
 import { ditherFace } from 'palletface'
 
-const svg = ditherFace('user-123', { style: 'ascii-face', px: 80 })
+const svg = ditherFace('user-123', { style: 'pixel-emotes', px: 80 })
 // Send as an SVG response with Content-Type: image/svg+xml,
 // or encode it into an image's data URL in your HTML template.
 ```
