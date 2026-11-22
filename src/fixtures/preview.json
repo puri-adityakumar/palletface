@@ -1,5 +1,5 @@
 {
-  "note": "Exact SVG bytes after intentional ASCII ID namespacing, 0-9 glyph addition, and the parent-approved Q-001 ascii-letter dot migration; do not update without output review. Added exact SVG fixtures for the four approved styles using representative canvas designs. Previous fixture digests are unchanged.",
+  "note": "Exact SVG bytes after intentional ASCII ID namespacing, 0-9 glyph addition, and the parent-approved Q-001 ascii-letter dot migration; do not update without output review. Added exact SVG fixtures for the four approved styles using representative canvas designs. Previous fixture digests are unchanged. Added Pixel Flora, Pixel Relic, and Pixel Stamp samples for the three approved designs.",
   "records": [
     {
       "style": "pixel-sprite",
@@ -77,6 +77,54 @@
       "style": "mirrored-signal",
       "seed": "ada",
       "sha256": "01acb05f8e3004a572ffc533dd77ca06166624d544b9f4b06e2137741f3f400c"
+    },
+    {
+      "style": "pixel-flora",
+      "seed": "avatar-1",
+      "sha256": "9cd46341f650b2e79cb9c30bca487ba2aa4694bf9f448c430b86422a572db315"
+    },
+    {
+      "style": "pixel-flora",
+      "seed": "avatar-2",
+      "sha256": "ae1fb3872ebd0f85d173b55e4e20238585ab74a6d7fbea5116f03defb00c9802"
+    },
+    {
+      "style": "pixel-flora",
+      "seed": "avatar-8",
+      "sha256": "3a478aa0e0209f81d6ab132c14737c5e7fca13b9f31a26dac46e43a69a6b1f7d"
+    },
+    {
+      "style": "pixel-relic",
+      "seed": "avatar-7",
+      "sha256": "bfc63674f7aa8441c6177aaac49bf7ca6090b8e88c16b1245eb36171528230f4"
+    },
+    {
+      "style": "pixel-relic",
+      "seed": "avatar-0",
+      "sha256": "0c603dd8edc4c91fd4a04b252725a137f52b44cfaf43999a5a4afe8b0ceb4391"
+    },
+    {
+      "style": "pixel-relic",
+      "seed": "avatar-10",
+      "sha256": "6cfd85d4531569f1dc862ba87e48ffc4aabee571cc6aa3bca32bbec0cc8a9cee"
+    },
+    {
+      "style": "pixel-stamp",
+      "seed": "dither-face-aditya",
+      "name": "Ada",
+      "sha256": "87505e8e73d7e874fd4d74e70b9ef29a3e29e043997b6935e6604b55a57be286"
+    },
+    {
+      "style": "pixel-stamp",
+      "seed": "marcus",
+      "name": "Marcos",
+      "sha256": "d3aa2eee75dde82b48d515085d2ee016c5dbd88a6db84cdfc478147036ffc2cd"
+    },
+    {
+      "style": "pixel-stamp",
+      "seed": "élodie",
+      "name": "Rhea",
+      "sha256": "850edad8960674c6d909ca2b7d48ab09f9c8781d503fa5008e4be5540880547e"
     }
   ]
 }

@@ -28,9 +28,13 @@ import { geometricTile } from './styles/geometric-tile.js'
 import { randomContours } from './styles/random-contours.js'
 import { pixelEmotes } from './styles/pixel-emotes.js'
 import { mirroredSignal } from './styles/mirrored-signal.js'
+import { pixelFlora } from './styles/pixel-flora.js'
+import { pixelRelic } from './styles/pixel-relic.js'
+import { pixelStamp } from './styles/pixel-stamp.js'
 import { validateRenderArgs } from './validation.js'
 
 export { geometricTile, randomContours, pixelEmotes, mirroredSignal }
+export { pixelFlora, pixelRelic, pixelStamp }
 
 /** One look in the registry. */
 export interface AvatarStyle {
@@ -41,11 +45,9 @@ export interface AvatarStyle {
   /** One-line note shown under the title on the sheet. */
   readonly note: string
   /**
-   * Draw the avatar as a standalone `<svg>` string: `seed` drives the rng
-   * and `px` is the box size in css pixels. The letter styles take their
-   * initial from `name` when the caller supplies one — the mockup passes the
-   * display name while keeping the rng on its `user-<j>` seeds — and from
-   * `seed` otherwise.
+   * Draw a standalone `<svg>`. The `seed` drives the rng and `px` sets the
+   * size in CSS pixels. Styles with an initial use `name` when supplied
+   * and `seed` otherwise.
    */
   readonly draw: (seed: string, px: number, name?: string) => string
 }
@@ -64,6 +66,9 @@ export type StyleSlug =
   | 'random-contours'
   | 'pixel-emotes'
   | 'mirrored-signal'
+  | 'pixel-flora'
+  | 'pixel-relic'
+  | 'pixel-stamp'
   | 'ascii-letter'
   | 'ascii-field'
   | 'ascii-face'
@@ -123,6 +128,24 @@ export const STYLES: readonly AvatarStyle[] = [
     note: 'a 7×7 identicon with mirrored blocks and hollow terminals.',
     draw: mirroredSignal,
   },
+  {
+    slug: 'pixel-flora',
+    title: 'pixel flora',
+    note: 'a tiny fern, cactus, or wildflower on a pastel disc.',
+    draw: pixelFlora,
+  },
+  {
+    slug: 'pixel-relic',
+    title: 'pixel relic',
+    note: 'a key, lantern, or potion drawn as a retro inventory sprite.',
+    draw: pixelRelic,
+  },
+  {
+    slug: 'pixel-stamp',
+    title: 'pixel stamp',
+    note: 'a bitmap initial cut through a chipped stamp on a rounded square.',
+    draw: pixelStamp,
+  },
 ] as const satisfies readonly AvatarStyle[]
 
 // Saved selections can keep rendering after a style leaves the picker.
@@ -139,7 +162,7 @@ export interface DitherFaceOptions {
   /** Box size in css pixels. Defaults to 80, the sheet's avatar size. */
   px?: number
   /**
-   * Display name the letter styles draw the initial of, e.g. `"aditya"` for
+   * Display name for styles that draw an initial, e.g. `"aditya"` for
    * an `A`. Defaults to the seed.
    */
   name?: string
