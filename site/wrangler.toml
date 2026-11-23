@@ -1,0 +1,5 @@
+# Cloudflare Pages — deploy with `npx wrangler pages deploy dist` from site/
+# (or connect the repo in the dashboard: root directory `site`, build command
+# `npm run build`, output directory `dist`).
+name = "palletface-landing"
+pages_build_output_dir = "dist"
