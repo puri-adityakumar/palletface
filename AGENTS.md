@@ -24,4 +24,4 @@ Keep rendering deterministic and free of runtime dependencies. Rendering must wo
 
 ## Releases
 
-Use [RELEASING.md](RELEASING.md) for versioning, Git tags, release notes, npm distribution tags, staged approval, and verification. Follow the release checklist when a release is requested. Keep credentials and generated output out of Git.
+Read and follow the [release runbook](RELEASING.md) whenever you prepare a release or create a release tag.
