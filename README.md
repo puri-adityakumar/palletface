@@ -1,3 +1,5 @@
+<img src="site/public/icon-512.png" width="72" height="72" alt="palletface pixel bloom logo">
+
 # dither-face
 
 **Deterministic pixel, dither, and geometric avatars. One seed, twelve styles, zero runtime dependencies.**
