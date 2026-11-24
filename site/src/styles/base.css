@@ -1,0 +1,354 @@
+:root {
+  --paper: #e7e7e3;
+  --paper-2: #dcdcd7;
+  --paper-3: #f2f2ef;
+  --ink: #1d1d1b;
+  --ink-2: #2b2b28;
+  --ink-line: #3c3c38;
+  --muted: #64645f;
+  --muted-ink: #93938d;
+  --blue: #2633d9;
+  --blue-soft: #a9b0ff;
+  --line: #1d1d1b;
+  --sans: 'Inter Tight Variable', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'Geist Mono Variable', ui-monospace, Menlo, monospace;
+  --pixel: 'Pixelify Sans Variable', ui-monospace, monospace;
+  --pad: 28px;
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+  scroll-behavior: smooth;
+  scroll-padding-top: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 16px/1.5 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img {
+  display: block;
+  image-rendering: pixelated;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--blue);
+  color: #fff;
+}
+
+code,
+pre {
+  font-family: var(--mono);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 var(--pad);
+}
+
+.field-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* type */
+
+.kicker {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 500 12px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.kicker::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--ink);
+  box-shadow: 10px 0 0 var(--blue);
+  margin-right: 10px;
+}
+
+.h2 {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.h2 em {
+  font-style: normal;
+  color: var(--blue);
+}
+
+.note {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.section {
+  padding: 128px 0;
+}
+
+.section-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 24px 48px;
+  align-items: end;
+  margin-bottom: 56px;
+}
+
+.section-head > div {
+  display: grid;
+  gap: 22px;
+}
+
+/* buttons */
+
+.install {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  height: 52px;
+  padding: 0 8px 0 18px;
+  background: var(--ink);
+  color: var(--paper);
+  font: 500 15px/1 var(--mono);
+  transition: background 0.15s;
+}
+
+.install:hover {
+  background: var(--blue);
+}
+
+.install code {
+  font: inherit;
+}
+
+.install__prompt {
+  color: var(--muted-ink);
+}
+
+.install:hover .install__prompt {
+  color: var(--blue-soft);
+}
+
+.install__label {
+  display: grid;
+  place-items: center;
+  height: 36px;
+  min-width: 70px;
+  padding: 0 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.install--paper {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.install--paper .install__label {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.install--paper:hover {
+  background: var(--blue);
+  color: #fff;
+}
+
+.copy-code {
+  all: unset;
+  cursor: pointer;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.copy-code:hover {
+  color: var(--blue-soft);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 20px;
+  border: 1.5px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font: 500 14px/1 var(--mono);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn--blue {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+}
+
+.btn--blue:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.out {
+  display: inline-block;
+  vertical-align: 0.05em;
+}
+
+/* the seed box, in the hero (lg) and the styles section (sm) */
+
+.seed-input {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  font: 500 15px/1 var(--mono);
+}
+
+.seed-input label {
+  display: grid;
+  place-items: center;
+  padding: 0 14px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.seed-input input {
+  all: unset;
+  min-width: 0;
+  width: 16ch;
+  padding: 0 14px;
+  caret-color: var(--blue);
+}
+
+.seed-input:focus-within {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.seed-input button {
+  all: unset;
+  cursor: pointer;
+  width: 44px;
+  display: grid;
+  place-items: center;
+  border-left: 1.5px solid var(--ink);
+  font-size: 18px;
+}
+
+.seed-input button:hover {
+  background: var(--blue);
+  color: #fff;
+}
+
+.seed-input button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -4px;
+}
+
+.seed-input--lg {
+  height: 58px;
+  font-size: 18px;
+}
+
+.seed-input--lg input {
+  width: 18ch;
+  padding: 0 18px;
+}
+
+.seed-input--lg button {
+  width: 58px;
+  font-size: 20px;
+}
+
+.seed-input--sm {
+  height: 44px;
+}
+
+@media (max-width: 860px) {
+  :root {
+    --pad: 20px;
+  }
+
+  .section {
+    padding: 96px 0;
+  }
+
+  .section-head {
+    grid-template-columns: minmax(0, 1fr);
+    margin-bottom: 40px;
+  }
+}
