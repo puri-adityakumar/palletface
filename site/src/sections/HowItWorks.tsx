@@ -23,12 +23,9 @@ export function HowItWorks({ seed }: { seed: string }) {
     <section className="section how" id="how" aria-labelledby="how-title">
       <div className="wrap">
         <div className="section-head">
-          <div>
-            <p className="kicker">How it works</p>
-            <h2 className="h2" id="how-title">
-              Generate an avatar <em>in three steps.</em>
-            </h2>
-          </div>
+          <h2 className="h2" id="how-title">
+            Generate an avatar <em>in three steps.</em>
+          </h2>
           <p className="note">Shown with your seed in Pixel Sprite.</p>
         </div>
 
@@ -115,7 +112,6 @@ export function QuickStart() {
     <section className="quick" id="start" aria-labelledby="start-title">
       <div className="wrap quick__layout">
         <div className="quick__intro">
-          <p className="kicker kicker--ink">Quick start</p>
           <h2 className="h2" id="start-title">
             Seed in.
             <br />

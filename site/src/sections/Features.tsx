@@ -72,14 +72,11 @@ export function Features() {
     <section className="section features" id="features" aria-labelledby="features-title">
       <div className="wrap">
         <div className="section-head">
-          <div>
-            <p className="kicker">Features</p>
-            <h2 className="h2" id="features-title">
-              Everything an avatar needs.
-              <br />
-              <em>Nothing it doesn’t.</em>
-            </h2>
-          </div>
+          <h2 className="h2" id="features-title">
+            Everything an avatar needs.
+            <br />
+            <em>Nothing it doesn’t.</em>
+          </h2>
           <p className="note">A small library with one job: turn a string into a face.</p>
         </div>
         <ul className="features__grid">

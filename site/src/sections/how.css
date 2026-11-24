@@ -226,14 +226,6 @@
   color: #bdbdb7;
 }
 
-.kicker--ink {
-  color: var(--muted-ink);
-}
-
-.kicker--ink::before {
-  background: var(--paper);
-}
-
 .code {
   min-width: 0;
   border: 1px solid var(--ink-line);

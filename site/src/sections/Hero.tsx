@@ -5,7 +5,7 @@ import { CopyButton } from '../components/CopyButton'
 import { GitHubLink } from '../components/GitHubLink'
 import { Out } from '../components/Pixel'
 import { SeedField, type Dig } from '../field/SeedField'
-import { INSTALL, LINKS, SAMPLE_SEEDS, STYLE_COUNT, VERSION } from '../lib/content'
+import { INSTALL, LINKS, SAMPLE_SEEDS, STYLE_COUNT } from '../lib/content'
 import { Face, LETTER_STYLES } from '../lib/faces'
 import { useReducedMotion } from '../lib/hooks'
 import { Pixelate, usePixelSteps } from '../lib/pixelate'
@@ -114,7 +114,6 @@ export function Hero({ seed }: { seed: string }) {
 
       <div className="hero__grid">
         <div ref={copyRef} className="hero__copy" data-nodig>
-          <p className="kicker">v{VERSION}</p>
           <h1>
             Generate <span>unique-looking</span> avatars from seeds.
           </h1>

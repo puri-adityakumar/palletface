@@ -11,12 +11,9 @@ export function Showcase() {
       <div className="showcase__pin">
         <div className="wrap">
           <div className="section-head">
-            <div>
-              <p className="kicker">Examples</p>
-              <h2 className="h2" id="examples-title">
-                Give every user a face <em>of their own.</em>
-              </h2>
-            </div>
+            <h2 className="h2" id="examples-title">
+              Give every user a face <em>of their own.</em>
+            </h2>
             <p className="note">
               {SHOWCASE_SEEDS.length} seeds across all {STYLE_COUNT} styles. Drag to look around.
             </p>
