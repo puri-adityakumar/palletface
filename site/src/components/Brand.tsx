@@ -7,7 +7,7 @@ export function Brand({ ref }: { ref?: Ref<HTMLDivElement> }) {
   return (
     <div ref={ref} className="brand" data-nodig>
       <a className="brand__home" href="#top">
-        <PixelBloom size={22} />
+        <PixelBloom size={26} />
         palletface
       </a>
       <a className="brand__by" href={LINKS.palletism} target="_blank" rel="noreferrer">

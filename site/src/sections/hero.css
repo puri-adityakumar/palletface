@@ -38,8 +38,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
-  font: 500 12px/1 var(--mono);
+  padding: 11px 16px;
+  font: 500 13px/1 var(--mono);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   text-decoration: none;
@@ -88,8 +88,8 @@
 .brand__home {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  font: 700 24px/1 var(--brand);
+  gap: 10px;
+  font: 700 30px/1 var(--brand);
   letter-spacing: -0.05em;
 }
 
@@ -97,17 +97,17 @@
   flex: none;
 }
 
-/* sits under the name, past the 22px bloom and the gap */
+/* sits under the name, past the 26px bloom and the gap */
 .brand__by {
-  margin-left: 31px;
-  font: 500 11px/1 var(--brand);
+  margin-left: 36px;
+  font: 500 12px/1 var(--brand);
   letter-spacing: 0.01em;
   color: var(--muted);
 }
 
 /* the palletism wordmark: ink, bold, tight, with its red dot */
 .brand__pm {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: -0.05em;
   color: var(--ink);
@@ -350,6 +350,6 @@
   }
 
   .brand__home {
-    font-size: 21px;
+    font-size: 23px;
   }
 }
