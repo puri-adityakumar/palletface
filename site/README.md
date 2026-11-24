@@ -18,7 +18,6 @@ npm run dev        # http://localhost:5173/
 | --- | --- |
 | `npm run dev` | Start the dev server for the landing page. |
 | `npm run prototype` | Open the throwaway design prototypes at `/prototype.html`. They are never deployed. |
-
 | `npm run typecheck` | Typecheck the site and the library source it imports. |
 | `npm run build` | Typecheck, then build the landing page into `dist/`. |
 | `npm run preview` | Serve the built `dist/` locally. |
@@ -32,6 +31,19 @@ npm run dev        # http://localhost:5173/
 - `src/prototype/` and `prototype.html` are the five throwaway design prototypes the page grew from. Keep them out of production code. Their extra fonts are dev dependencies.
 
 Keep claims in `src/lib/content.ts` and the sections in line with the package README.
+
+The GitHub link in the nav shows the repo's star count from the public GitHub API, cached for an hour per tab. It stays hidden while the count is zero, while the repo is private, or when the API fails.
+
+## Brand images
+
+The mark is the pixel bloom from `src/components/Pixel.tsx`. The name is set in Geist, the font Palletism uses for its wordmark.
+
+| File | Use |
+| --- | --- |
+| `public/favicon.svg` | Browser tab icon. |
+| `public/apple-touch-icon.png` | Home screen icon on iOS (180 × 180). |
+| `public/icon-512.png` | Square icon for avatars and profiles (512 × 512). |
+| `public/social-preview.png` | Link preview image (1280 × 640). Upload it in the repo's **Settings → General → Social preview**. |
 
 ## Deploy to Cloudflare Pages
 

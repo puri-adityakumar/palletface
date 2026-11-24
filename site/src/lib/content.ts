@@ -7,6 +7,7 @@ export const STYLE_COUNT = STYLES.length
 export const INSTALL = 'npm install palletface'
 
 const REPO = 'https://github.com/puri-adityakumar/palletface'
+export const REPO_API = 'https://api.github.com/repos/puri-adityakumar/palletface'
 
 export const LINKS = {
   github: REPO,

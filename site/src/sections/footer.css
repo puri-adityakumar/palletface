@@ -35,8 +35,8 @@
   align-content: start;
 }
 
-.foot__head .brand {
-  font-size: 21px;
+.foot__head .brand__home {
+  font-size: 22px;
 }
 
 .foot__head h2 {

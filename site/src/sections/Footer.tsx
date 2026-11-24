@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { CopyButton } from '../components/CopyButton'
-import { FieldMark, Out } from '../components/Pixel'
+import { Brand } from '../components/Brand'
+import { Out } from '../components/Pixel'
 import { SeedField } from '../field/SeedField'
 import { INSTALL, LINKS, PROVENANCE, STYLE_COUNT, VERSION } from '../lib/content'
 import './footer.css'
@@ -53,10 +54,7 @@ export function Footer({ seed }: { seed: string }) {
       <SeedField seed={`${seed}/footer`} shape="footer" clear={clear} solid={solid} />
       <div className="wrap foot__layout">
         <div ref={headRef} className="foot__head">
-          <a className="brand" href="#top">
-            <FieldMark size={20} />
-            palletface
-          </a>
+          <Brand />
           <h2>Plant a seed.</h2>
           <p>Give every user a face of their own, in one line of code.</p>
           <CopyButton value={INSTALL} variant="install" />

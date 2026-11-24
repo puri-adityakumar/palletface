@@ -50,18 +50,77 @@
   color: var(--paper);
 }
 
-.brand {
+.gh svg {
+  flex: none;
+}
+
+.gh__stars {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font: 600 24px/1 var(--pixel);
-  letter-spacing: 0.01em;
-  text-decoration: none;
+  gap: 6px;
+  margin-left: 4px;
+  padding-left: 10px;
+  border-left: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+.gh__stars svg {
+  color: var(--blue);
+}
+
+.gh:hover .gh__stars svg {
+  color: var(--blue-soft);
+}
+
+/* the palletface lockup, in the nav and the footer */
+
+.brand {
+  display: inline-grid;
+  justify-items: start;
+  gap: 6px;
   color: var(--ink);
 }
 
-.brand svg {
+.brand a {
+  text-decoration: none;
+}
+
+.brand__home {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font: 700 24px/1 var(--brand);
+  letter-spacing: -0.05em;
+}
+
+.brand__home svg {
   flex: none;
+}
+
+/* sits under the name, past the 22px bloom and the gap */
+.brand__by {
+  margin-left: 31px;
+  font: 500 11px/1 var(--brand);
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+
+/* the palletism wordmark: ink, bold, tight, with its red dot */
+.brand__pm {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+}
+
+.brand__dot {
+  color: #fb2c36;
+  color: oklch(63.7% 0.237 25.331);
+}
+
+.brand__by:hover .brand__pm {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .hero__grid {
@@ -219,13 +278,7 @@
 }
 
 @media (max-width: 520px) {
-  .kicker__ver {
-    display: none;
-  }
-}
-
-@media (max-width: 1100px) {
-  .nav__wide {
+  .gh__name {
     display: none;
   }
 }
@@ -237,10 +290,6 @@
 
   .nav {
     padding: 16px var(--pad);
-  }
-
-  .brand {
-    font-size: 21px;
   }
 
   .nav ul a {
@@ -297,5 +346,29 @@
   .card__art img {
     width: 194px;
     height: 194px;
+  }
+}
+
+@media (max-width: 400px) {
+  .nav {
+    gap: 12px;
+  }
+
+  .nav ul a {
+    padding: 8px 4px;
+  }
+
+  .nav ul .out {
+    display: none;
+  }
+
+  .gh__stars {
+    gap: 4px;
+    margin-left: 2px;
+    padding-left: 6px;
+  }
+
+  .brand__home {
+    font-size: 21px;
   }
 }

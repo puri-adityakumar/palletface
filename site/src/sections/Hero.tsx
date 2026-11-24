@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { STYLES, type StyleSlug } from 'palletface'
+import { Brand } from '../components/Brand'
 import { CopyButton } from '../components/CopyButton'
-import { FieldMark, Out } from '../components/Pixel'
+import { GitHubLink } from '../components/GitHubLink'
+import { Out } from '../components/Pixel'
 import { SeedInput } from '../components/SeedInput'
 import { SeedField, type Dig } from '../field/SeedField'
 import { INSTALL, LINKS, SAMPLE_SEEDS, STYLE_COUNT, VERSION } from '../lib/content'
@@ -70,7 +72,7 @@ function DugFace({ dug }: { dug: Dug }) {
 }
 
 export function Hero({ seed, setSeed }: { seed: string; setSeed: (s: string) => void }) {
-  const brandRef = useRef<HTMLAnchorElement>(null)
+  const brandRef = useRef<HTMLDivElement>(null)
   const linksRef = useRef<HTMLUListElement>(null)
   const copyRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -99,38 +101,22 @@ export function Hero({ seed, setSeed }: { seed: string; setSeed: (s: string) => 
       ))}
 
       <nav className="nav" aria-label="Main">
-        <a ref={brandRef} className="brand" href="#top" data-nodig>
-          <FieldMark size={22} />
-          palletface
-        </a>
+        <Brand ref={brandRef} />
         <ul ref={linksRef} data-nodig>
-          <li className="nav__wide">
-            <a href="#styles">Styles</a>
-          </li>
-          <li className="nav__wide">
-            <a href="#how">How it works</a>
-          </li>
-          <li className="nav__wide">
-            <a href="#faq">FAQ</a>
-          </li>
           <li>
-            <a href={LINKS.github} target="_blank" rel="noreferrer">
-              GitHub <Out />
+            <a href={LINKS.docs} target="_blank" rel="noreferrer">
+              Docs <Out />
             </a>
           </li>
           <li>
-            <a href={LINKS.npm} target="_blank" rel="noreferrer">
-              npm <Out />
-            </a>
+            <GitHubLink />
           </li>
         </ul>
       </nav>
 
       <div className="hero__grid">
         <div ref={copyRef} className="hero__copy" data-nodig>
-          <p className="kicker">
-            SVG avatars from any string<span className="kicker__ver"> · v{VERSION}</span>
-          </p>
+          <p className="kicker">v{VERSION}</p>
           <h1>
             Every seed
             <br />

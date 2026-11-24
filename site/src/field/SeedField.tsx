@@ -309,6 +309,12 @@ export function SeedField({ seed, shape, cell: cellWide = 28, clear = [], solid 
     resize()
     const ro = new ResizeObserver(() => resize())
     ro.observe(host)
+    // a cleared area can change size on its own, like the nav once the star count loads
+    const refit = new ResizeObserver(() => {
+      next = build()
+      dirty = true
+    })
+    for (const ref of latest.current.clear) if (ref.current) refit.observe(ref.current)
     const io = new IntersectionObserver(([entry]) => {
       visible = !!entry?.isIntersecting
       if (visible) dirty = true
@@ -325,6 +331,7 @@ export function SeedField({ seed, shape, cell: cellWide = 28, clear = [], solid 
     return () => {
       cancelAnimationFrame(raf)
       ro.disconnect()
+      refit.disconnect()
       io.disconnect()
       host.removeEventListener('pointermove', onMove)
       host.removeEventListener('click', onClick)
