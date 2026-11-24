@@ -4,7 +4,6 @@ import { Brand } from '../components/Brand'
 import { CopyButton } from '../components/CopyButton'
 import { GitHubLink } from '../components/GitHubLink'
 import { Out } from '../components/Pixel'
-import { SeedInput } from '../components/SeedInput'
 import { SeedField, type Dig } from '../field/SeedField'
 import { INSTALL, LINKS, SAMPLE_SEEDS, STYLE_COUNT, VERSION } from '../lib/content'
 import { Face, LETTER_STYLES } from '../lib/faces'
@@ -71,13 +70,12 @@ function DugFace({ dug }: { dug: Dug }) {
   )
 }
 
-export function Hero({ seed, setSeed }: { seed: string; setSeed: (s: string) => void }) {
+export function Hero({ seed }: { seed: string }) {
   const brandRef = useRef<HTMLDivElement>(null)
   const linksRef = useRef<HTMLUListElement>(null)
   const copyRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const [dug, setDug] = useState<Dug[]>([])
-  const [ink, setInk] = useState(0)
   const digs = useRef(0)
 
   useEffect(() => setDug([]), [seed])
@@ -95,7 +93,7 @@ export function Hero({ seed, setSeed }: { seed: string; setSeed: (s: string) => 
 
   return (
     <header className="hero" aria-label="palletface">
-      <SeedField seed={seed} shape="hero" clear={clear} solid={solid} onDig={onDig} onStats={setInk} />
+      <SeedField seed={seed} shape="hero" clear={clear} solid={solid} onDig={onDig} />
       {dug.map((d) => (
         <DugFace key={d.id} dug={d} />
       ))}
@@ -124,19 +122,12 @@ export function Hero({ seed, setSeed }: { seed: string; setSeed: (s: string) => 
             Turn any string, like a user ID, into a <strong>deterministic SVG</strong> in <strong>Node or the browser</strong>. No network requests,{' '}
             <strong>zero dependencies</strong>.
           </p>
-          <SeedInput id="hero-seed" seed={seed} setSeed={setSeed} label="Type any string" size="lg" />
           <div className="hero__actions">
             <CopyButton value={INSTALL} variant="install" />
             <a className="btn" href={LINKS.docs} target="_blank" rel="noreferrer">
               Read the docs <Out />
             </a>
           </div>
-          <p className="hero__hint" aria-live="polite">
-            <span>
-              {ink.toLocaleString('en-US')} cells grown from “{seed}”
-            </span>
-            <span>Click the field to dig up a face</span>
-          </p>
         </div>
 
         <div className="hero__stage">

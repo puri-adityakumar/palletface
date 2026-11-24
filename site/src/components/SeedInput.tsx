@@ -5,17 +5,16 @@ type Props = {
   seed: string
   setSeed: (seed: string) => void
   label?: string
-  size?: 'lg' | 'sm'
 }
 
 /** The seed text box with a button that steps through sample seeds. Any string, including an empty one, is a valid seed. */
-export function SeedInput({ id, seed, setSeed, label = 'Seed', size = 'sm' }: Props) {
+export function SeedInput({ id, seed, setSeed, label = 'Seed' }: Props) {
   const next = () => {
     const i = SAMPLE_SEEDS.findIndex((s) => s === seed)
     setSeed(SAMPLE_SEEDS[(i + 1) % SAMPLE_SEEDS.length]!)
   }
   return (
-    <div className={`seed-input seed-input--${size}`} data-nodig>
+    <div className="seed-input" data-nodig>
       <label htmlFor={id}>{label}</label>
       <input
         id={id}

@@ -264,10 +264,11 @@ pre {
   vertical-align: 0.05em;
 }
 
-/* the seed box, in the hero (lg) and the styles section (sm) */
+/* the seed box in the styles section */
 
 .seed-input {
   display: inline-flex;
+  height: 44px;
   align-items: stretch;
   border: 1.5px solid var(--ink);
   background: var(--paper);
@@ -317,25 +318,6 @@ pre {
 .seed-input button:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: -4px;
-}
-
-.seed-input--lg {
-  height: 58px;
-  font-size: 18px;
-}
-
-.seed-input--lg input {
-  width: 18ch;
-  padding: 0 18px;
-}
-
-.seed-input--lg button {
-  width: 58px;
-  font-size: 20px;
-}
-
-.seed-input--sm {
-  height: 44px;
 }
 
 @media (max-width: 860px) {

@@ -20,7 +20,7 @@ export default function App() {
   return (
     <div id="top">
       <main>
-        <Hero seed={seed} setSeed={setSeed} />
+        <Hero seed={seed} />
         <Problem />
         <Features />
         <Styles seed={later} input={seed} setSeed={setSeed} />
