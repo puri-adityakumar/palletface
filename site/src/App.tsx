@@ -8,11 +8,21 @@ import { HowItWorks, QuickStart } from './sections/HowItWorks'
 import { Sponsor } from './sections/Sponsor'
 import { Faq } from './sections/Faq'
 import { Footer } from './sections/Footer'
+import { StylesPage } from './pages/StylesPage'
+import { ChangelogPage } from './pages/ChangelogPage'
+import { usePath } from './lib/router'
 
 const PAPER = '#e7e7e3'
 const INK = '#1d1d1b'
 
 export default function App() {
+  const path = usePath()
+  if (path === '/styles') return <StylesPage />
+  if (path === '/changelog') return <ChangelogPage />
+  return <Landing />
+}
+
+function Landing() {
   const [seed, setSeed] = useState('ada')
   // the hero follows every keystroke; sections below the fold may lag a frame behind
   const later = useDeferredValue(seed)

@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { GitHubMark, Out } from '../components/Pixel'
 import { CliffScene } from '../field/CliffScene'
 import { LINKS, VERSION } from '../lib/content'
+import { Link } from '../lib/router'
 import './footer.css'
 
 const COLUMNS = [
@@ -11,7 +12,8 @@ const COLUMNS = [
       ['GitHub', LINKS.github],
       ['npm', LINKS.npm],
       ['Docs', LINKS.docs],
-      ['Releases', LINKS.releases],
+      ['Styles', '/styles'],
+      ['Changelog', '/changelog'],
     ],
   },
   {
@@ -80,9 +82,13 @@ export function Footer({ seed }: { seed: string }) {
               <ul>
                 {col.links.map(([label, href]) => (
                   <li key={label}>
-                    <a href={href} target="_blank" rel="noreferrer">
-                      {label} <Out />
-                    </a>
+                    {href.startsWith('/') ? (
+                      <Link to={href}>{label}</Link>
+                    ) : (
+                      <a href={href} target="_blank" rel="noreferrer">
+                        {label} <Out />
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -104,7 +110,7 @@ export function Footer({ seed }: { seed: string }) {
             </a>
           </span>
           <span>
-            v{VERSION} · A sister project of{' '}
+            <Link to="/changelog">v{VERSION}</Link> · A sister project of{' '}
             <a className="foot__pm" href={LINKS.palletism} target="_blank" rel="noreferrer">
               <span className="brand__pm">
                 palletism<span className="brand__dot">.</span>art
