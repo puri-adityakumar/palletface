@@ -50,7 +50,7 @@ export function Styles({ seed, input, setSeed }: { seed: string; input: string; 
     <section className="section styles" id="styles" aria-labelledby="styles-title">
       <div className="wrap styles__layout">
         <div className="styles__head">
-          <p className="kicker">03 / Styles</p>
+          <p className="kicker">Styles</p>
           <h2 className="h2" id="styles-title">
             {STYLE_COUNT} styles.
             <br />

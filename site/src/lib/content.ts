@@ -39,6 +39,13 @@ export const OPTIONS = [
   { name: 'name', controls: 'The initial in Letter and Stamp styles', fallback: 'seed' },
 ] as const
 
+/** The example strip: three seeds per style, in style order. */
+export const SHOWCASE_SEEDS = [
+  'ada', 'kai', 'yuki', 'élodie', 'marcus', 'rhea', 'quinn', 'zeke', 'noor', 'tomás', 'aditya', 'mina',
+  'sol', 'ivo', 'priya', 'otto', 'lena', 'ravi', 'juno', 'amara', 'felix', 'hana', 'bo', 'zara',
+  'leo', 'iris', 'omar', 'saga', 'theo', 'nia', 'kenji', 'inès', 'arlo', 'maya', 'dev', 'lior',
+] as const
+
 /** Seeds that read as people. Unicode on purpose: any string is a valid seed. */
 export const SAMPLE_SEEDS = ['ada', 'kai', 'yuki', 'élodie', 'marcus', 'rhea', 'quinn', 'zeke', 'noor', 'tomás', 'aditya', 'mina'] as const
 

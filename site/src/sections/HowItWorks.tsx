@@ -24,7 +24,7 @@ export function HowItWorks({ seed }: { seed: string }) {
       <div className="wrap">
         <div className="section-head">
           <div>
-            <p className="kicker">04 / How it works</p>
+            <p className="kicker">How it works</p>
             <h2 className="h2" id="how-title">
               Generate an avatar <em>in three steps.</em>
             </h2>

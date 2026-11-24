@@ -40,7 +40,7 @@ export function Sponsor({ seed }: { seed: string }) {
       <div className="wrap">
         <div className="sponsor__panel">
           <div className="sponsor__copy">
-            <p className="kicker">05 / Sponsor</p>
+            <p className="kicker">Sponsor</p>
             <h2 className="h2" id="sponsor-title">
               Keep the field <em>growing.</em>
             </h2>

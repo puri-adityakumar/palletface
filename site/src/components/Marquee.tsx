@@ -1,45 +1,62 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, type RefObject } from 'react'
 import { STYLES, type StyleSlug } from 'palletface'
+import { SHOWCASE_SEEDS } from '../lib/content'
 import { Face, LETTER_STYLES } from '../lib/faces'
 import { useInView, useReducedMotion } from '../lib/hooks'
 
-const SEEDS = [
-  'ada', 'kai', 'yuki', 'élodie', 'marcus', 'rhea', 'quinn', 'zeke', 'noor', 'tomás', 'aditya', 'mina',
-  'sol', 'ivo', 'priya', 'otto', 'lena', 'ravi', 'juno', 'amara', 'felix', 'hana', 'bo', 'zara',
-] as const
-
 const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+/** How far the strip travels across one full pin: 1.5 viewport widths, and at least 8 tiles on narrow screens. */
+const TRAVEL_WIDTHS = 1.5
+const TRAVEL_TILES = 8
 
 type Item = { seed: string; style: StyleSlug; title: string }
 
 /**
- * An endless line of avatars. It drifts on its own, follows page scroll a
- * little, pauses on hover, and can be dragged. Under reduced motion it only
- * moves when dragged.
+ * An endless line of avatars. It drifts on its own, pauses on hover, and can
+ * be dragged. While `pin` is held in place by a sticky layout, page scroll
+ * moves the strip sideways. Under reduced motion it only moves when dragged.
  */
-export function Marquee() {
+export function Marquee({ pin }: { pin?: RefObject<HTMLElement | null> }) {
   const items = useMemo<Item[]>(
-    () => SEEDS.map((seed, i) => ({ seed, style: STYLES[i % STYLES.length]!.slug, title: STYLES[i % STYLES.length]!.title })),
+    () =>
+      SHOWCASE_SEEDS.map((seed, i) => ({ seed, style: STYLES[i % STYLES.length]!.slug, title: STYLES[i % STYLES.length]!.title })),
     [],
   )
   const [wrap, inView] = useInView<HTMLDivElement>({ once: false, rootMargin: '0px' })
   const track = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
-  const state = useRef({ offset: 0, hover: false, drag: null as null | { x: number; offset: number }, speed: 0, kick: 0 })
+  const state = useRef({ offset: 0, hover: false, drag: null as null | { x: number; offset: number }, speed: 0, pinned: false })
 
   useEffect(() => {
     const el = track.current
     const host = wrap.current
     if (!el || !host) return
     const s = state.current
+    const section = pin?.current ?? null
     let raf = 0
     let last = performance.now()
-    let lastScroll = window.scrollY
+
+    const measure = () => {
+      const inner = section?.firstElementChild
+      s.pinned = !reduced && !!inner && getComputedStyle(inner).position === 'sticky'
+    }
+
+    const scrolled = () => {
+      if (!s.pinned || !section) return 0
+      const r = section.getBoundingClientRect()
+      const span = r.height - window.innerHeight
+      if (span <= 0) return 0
+      const tile = el.querySelector('li')?.offsetWidth ?? 0
+      const travel = Math.max(window.innerWidth * TRAVEL_WIDTHS, tile * TRAVEL_TILES)
+      return Math.min(1, Math.max(0, -r.top / span)) * travel
+    }
 
     const place = () => {
       const half = el.scrollWidth / 2
       if (half > 0) s.offset = ((s.offset % half) + half) % half
-      el.style.transform = `translate3d(${-s.offset}px, 0, 0)`
+      const x = s.offset + scrolled()
+      el.style.transform = `translate3d(${-(half > 0 ? x % half : x)}px, 0, 0)`
     }
 
     const tick = (now: number) => {
@@ -47,18 +64,11 @@ export function Marquee() {
       last = now
       const target = reduced || s.hover || s.drag ? 0 : 34
       s.speed += (target - s.speed) * Math.min(1, dt * 4)
-      s.offset += s.speed * dt + s.kick
-      s.kick *= 0.86
-      if (Math.abs(s.kick) < 0.01) s.kick = 0
+      s.offset += s.speed * dt
       place()
       raf = requestAnimationFrame(tick)
     }
 
-    const onScroll = () => {
-      const y = window.scrollY
-      if (!reduced) s.kick += Math.max(-40, Math.min(40, (y - lastScroll) * 0.06))
-      lastScroll = y
-    }
     const onDown = (e: PointerEvent) => {
       s.drag = { x: e.clientX, offset: s.offset }
       host.setPointerCapture(e.pointerId)
@@ -76,9 +86,10 @@ export function Marquee() {
     const onEnter = () => (s.hover = true)
     const onLeave = () => (s.hover = false)
 
+    measure()
     place()
     if (inView) raf = requestAnimationFrame(tick)
-    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', measure)
     host.addEventListener('pointerdown', onDown)
     host.addEventListener('pointermove', onMove)
     host.addEventListener('pointerup', onUp)
@@ -87,7 +98,7 @@ export function Marquee() {
     host.addEventListener('pointerleave', onLeave)
     return () => {
       cancelAnimationFrame(raf)
-      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', measure)
       host.removeEventListener('pointerdown', onDown)
       host.removeEventListener('pointermove', onMove)
       host.removeEventListener('pointerup', onUp)
@@ -95,7 +106,7 @@ export function Marquee() {
       host.removeEventListener('pointerenter', onEnter)
       host.removeEventListener('pointerleave', onLeave)
     }
-  }, [inView, reduced, wrap])
+  }, [inView, reduced, wrap, pin])
 
   const tiles = (copy: number) =>
     items.map((item) => (

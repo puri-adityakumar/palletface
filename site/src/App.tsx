@@ -1,7 +1,7 @@
 import { useDeferredValue, useState } from 'react'
 import { DitherBand } from './lib/dither'
 import { Hero } from './sections/Hero'
-import { Problem } from './sections/Problem'
+import { Showcase } from './sections/Showcase'
 import { Features } from './sections/Features'
 import { Styles } from './sections/Styles'
 import { HowItWorks, QuickStart } from './sections/HowItWorks'
@@ -21,7 +21,7 @@ export default function App() {
     <div id="top">
       <main>
         <Hero seed={seed} />
-        <Problem />
+        <Showcase />
         <Features />
         <Styles seed={later} input={seed} setSeed={setSeed} />
         <HowItWorks seed={later} />

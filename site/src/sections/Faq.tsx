@@ -61,7 +61,7 @@ export function Faq() {
     <section className="section faq" id="faq" aria-labelledby="faq-title">
       <div className="wrap faq__layout">
         <div className="faq__head">
-          <p className="kicker">06 / FAQ</p>
+          <p className="kicker">FAQ</p>
           <h2 className="h2" id="faq-title">
             Questions, <em>answered.</em>
           </h2>

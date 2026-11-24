@@ -73,7 +73,7 @@ export function Features() {
       <div className="wrap">
         <div className="section-head">
           <div>
-            <p className="kicker">02 / Features</p>
+            <p className="kicker">Features</p>
             <h2 className="h2" id="features-title">
               Everything an avatar needs.
               <br />
