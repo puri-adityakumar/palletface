@@ -17,6 +17,7 @@ npm run dev        # http://localhost:5173/
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the dev server for the landing page. |
+| `npm run prototype` | Open the throwaway design prototypes at `/prototype.html`. They are never deployed. |
 
 | `npm run typecheck` | Typecheck the site and the library source it imports. |
 | `npm run build` | Typecheck, then build the landing page into `dist/`. |
@@ -28,6 +29,7 @@ npm run dev        # http://localhost:5173/
 - `src/sections/` holds one component and one stylesheet per page section.
 - `src/field/SeedField.tsx` draws the seed field on a canvas behind the hero, the sponsor panel, and the footer. Ink cells grow from the seed, paper cells show how many ink neighbours they have, and areas passed as `clear` or `solid` stay paper or ink.
 - `src/components/` and `src/lib/` hold shared pieces: copy buttons, the seed input, pixel icons, avatar helpers, pixel reveals, and the page copy in `lib/content.ts`.
+- `src/prototype/` and `prototype.html` are the five throwaway design prototypes the page grew from. Keep them out of production code. Their extra fonts are dev dependencies.
 
 Keep claims in `src/lib/content.ts` and the sections in line with the package README.
 

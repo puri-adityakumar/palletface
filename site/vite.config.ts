@@ -9,5 +9,6 @@ export default defineConfig({
     alias: { palletface: fileURLToPath(new URL('../src/index.ts', import.meta.url)) },
   },
   server: { fs: { allow: ['..'] } },
+  // Only the landing page ships. prototype.html is served by `npm run dev` for design reference.
   build: { rollupOptions: { input: 'index.html' } },
 })
