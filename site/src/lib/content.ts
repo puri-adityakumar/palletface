@@ -24,20 +24,7 @@ export const LINKS = {
 
 export const QUICK_START = `import { ditherFace } from 'palletface'
 
-const svg = ditherFace('user-123', {
-  style: 'pixel-letter',
-  name: 'Aditya',
-  px: 80,
-})
-
-img.src = \`data:image/svg+xml;charset=utf-8,\${encodeURIComponent(svg)}\``
-
-/** The `ditherFace` options, with the defaults from the package source. */
-export const OPTIONS = [
-  { name: 'style', controls: `Which of the ${STYLE_COUNT} styles to draw`, fallback: "'pixel-sprite'" },
-  { name: 'px', controls: 'Size in CSS pixels', fallback: '80' },
-  { name: 'name', controls: 'The initial in Letter and Stamp styles', fallback: 'seed' },
-] as const
+const svg = ditherFace('user-123')`
 
 /** The example strip: three seeds per style, in style order. */
 export const SHOWCASE_SEEDS = [

@@ -1,14 +1,15 @@
-import { useMemo } from 'react'
+import { useMemo, useState, type UIEvent } from 'react'
 import { fnv1a } from 'palletface'
 import { CopyButton } from '../components/CopyButton'
 import { face, Face, svgUrl } from '../lib/faces'
-import { useInView } from '../lib/hooks'
+import { useInView, useReducedMotion } from '../lib/hooks'
 import { Pixelate, usePixelSteps } from '../lib/pixelate'
-import { INSTALL, OPTIONS, QUICK_START } from '../lib/content'
+import { INSTALL, LINKS, QUICK_START, STYLE_COUNT } from '../lib/content'
 import './how.css'
 
 const bytes = (s: string) => new TextEncoder().encode(s).length
 const MAX_CHARS = 12
+const STEPS = ['Seed', 'Hash', 'SVG'] as const
 
 export function HowItWorks({ seed }: { seed: string }) {
   const [ref, inView] = useInView<HTMLOListElement>({ threshold: 0.25 })
@@ -18,6 +19,25 @@ export function HowItWorks({ seed }: { seed: string }) {
   const svg = useMemo(() => face(seed, 'pixel-sprite', 104), [seed])
   const chars = [...seed]
   const shown = chars.slice(0, MAX_CHARS)
+  const reduced = useReducedMotion()
+  const [active, setActive] = useState(0)
+
+  // Below 1000px the steps become a swipe slider; these only matter there.
+  const onScroll = (e: UIEvent<HTMLOListElement>) => {
+    const el = e.currentTarget
+    const [a, b] = el.children as unknown as HTMLElement[]
+    const step = a && b ? b.offsetLeft - a.offsetLeft : 0
+    if (step <= 0) return
+    // On wide screens the last step cannot scroll all the way to the left edge, so the end counts as last.
+    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2
+    setActive(atEnd ? STEPS.length - 1 : Math.min(STEPS.length - 1, Math.max(0, Math.round(el.scrollLeft / step))))
+  }
+  const go = (i: number) => {
+    const el = ref.current
+    const target = el?.children[i] as HTMLElement | undefined
+    if (!el || !target) return
+    el.scrollTo({ left: target.offsetLeft - (el.children[0] as HTMLElement).offsetLeft, behavior: reduced ? 'auto' : 'smooth' })
+  }
 
   return (
     <section className="section how" id="how" aria-labelledby="how-title">
@@ -29,7 +49,7 @@ export function HowItWorks({ seed }: { seed: string }) {
           <p className="note">Shown with your seed in Pixel Sprite.</p>
         </div>
 
-        <ol className="how__steps" ref={ref}>
+        <ol className="how__steps" ref={ref} onScroll={onScroll}>
           <li className="how__step">
             <span className="how__n">01 · Seed</span>
             <div className="how__visual">
@@ -81,6 +101,26 @@ export function HowItWorks({ seed }: { seed: string }) {
             <p>Use it in an image, return it from an API, or save it to disk.</p>
           </li>
         </ol>
+        <div className="how__nav">
+          <button type="button" onClick={() => go(active - 1)} disabled={active === 0} aria-label="Previous step">
+            ←
+          </button>
+          <div className="how__dots">
+            {STEPS.map((name, i) => (
+              <button
+                key={name}
+                type="button"
+                className={i === active ? 'is-on' : undefined}
+                onClick={() => go(i)}
+                aria-label={`Step ${i + 1}: ${name}`}
+                aria-current={i === active ? 'step' : undefined}
+              />
+            ))}
+          </div>
+          <button type="button" onClick={() => go(active + 1)} disabled={active === STEPS.length - 1} aria-label="Next step">
+            →
+          </button>
+        </div>
       </div>
     </section>
   )
@@ -106,8 +146,7 @@ function Line({ text }: { text: string }) {
 }
 
 export function QuickStart() {
-  const sample = useMemo(() => face('user-123', 'pixel-letter', 80, 'Aditya'), [])
-  const lines = QUICK_START.split('\n')
+  const sample = useMemo(() => face('user-123', 'pixel-sprite', 80), [])
   return (
     <section className="quick" id="start" aria-labelledby="start-title">
       <div className="wrap quick__layout">
@@ -117,59 +156,38 @@ export function QuickStart() {
             <br />
             SVG out.
           </h2>
-          <CopyButton value={INSTALL} variant="install" tone="paper" />
           <p className="quick__pin">
             Before 1.0, a minor release may change the output. Pin it with <code>--save-exact</code>.
           </p>
         </div>
-        <div className="code">
-          <div className="code__bar">
-            <span>avatar.ts</span>
-            <CopyButton value={QUICK_START} label="quick start code" />
+        <div className="quick__steps">
+          <div className="quick__step">
+            <h3>Install the package</h3>
+            <CopyButton value={INSTALL} variant="install" tone="paper" />
           </div>
-          <pre>
-            <code>
-              {lines.map((line, i) => (
-                <span key={i} className="code__line">
-                  <span className="code__n" aria-hidden="true">
-                    {i + 1}
-                  </span>
-                  <Line text={line || ' '} />
-                </span>
-              ))}
-            </code>
-          </pre>
-          <div className="code__out">
-            <img src={svgUrl(sample)} width={64} height={64} alt="Pixel Letter avatar with an A" />
-            <p>
-              <span>Output</span>
-              An {bytes(sample).toLocaleString('en-US')}-byte SVG string.
-            </p>
+          <div className="quick__step">
+            <h3>Call it with any string</h3>
+            <div className="quick__call">
+              <pre className="code">
+                <code>
+                  {QUICK_START.split('\n').map((line, i) => (
+                    <span key={i} className="code__line">
+                      <Line text={line || ' '} />
+                    </span>
+                  ))}
+                </code>
+              </pre>
+              <span className="quick__arrow" aria-hidden="true">
+                →
+              </span>
+              <img src={svgUrl(sample)} width={80} height={80} alt="Pixel Sprite avatar for user-123" />
+            </div>
           </div>
+          <p className="quick__more">
+            Change it with <code>style</code>, <code>px</code>, and <code>name</code>. See the <a href={LINKS.docs}>README</a> for all{' '}
+            {STYLE_COUNT} styles.
+          </p>
         </div>
-        <table className="opts">
-          <caption>ditherFace(seed, options)</caption>
-          <thead>
-            <tr>
-              <th scope="col">Option</th>
-              <th scope="col">Controls</th>
-              <th scope="col">Default</th>
-            </tr>
-          </thead>
-          <tbody>
-            {OPTIONS.map((o) => (
-              <tr key={o.name}>
-                <th scope="row">
-                  <code>{o.name}</code>
-                </th>
-                <td>{o.controls}</td>
-                <td>
-                  <code>{o.fallback}</code>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
     </section>
   )
