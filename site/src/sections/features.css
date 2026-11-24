@@ -1,0 +1,118 @@
+.features {
+  padding: clamp(70px, 8vw, 110px) 0;
+  background: var(--paper-2);
+  border-top: 1px solid var(--paper-line);
+}
+
+.features .section-head > div:first-child {
+  flex: 1;
+}
+
+.features__title {
+  font-size: clamp(40px, 5.2vw, 76px);
+}
+
+.features__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 26px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature {
+  --chamfer: polygon(0 6px, 6px 6px, 6px 0, calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px));
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 22px 22px 26px;
+  background: #6a6253;
+  clip-path: var(--chamfer);
+}
+
+.feature::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: #fffdf6;
+  clip-path: var(--chamfer);
+}
+
+.feature__icon {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  margin-bottom: 8px;
+  border: 1px solid rgb(48 45 38 / 22%);
+  background-image: radial-gradient(rgb(69 58 47 / 16%) 0.55px, transparent 0.75px);
+  background-size: 5px 5px;
+}
+
+.feature:hover .feature__icon svg {
+  animation: hop 480ms steps(4) 1;
+}
+
+@keyframes hop {
+  40% {
+    transform: translateY(-5px);
+  }
+}
+
+.feature h3 {
+  font: 580 clamp(20px, 1.8vw, 25px) / 1.15 var(--serif);
+  letter-spacing: -0.04em;
+}
+
+.feature p {
+  font-size: 15px;
+  color: #4b4436;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature:hover .feature__icon svg {
+    animation: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .features__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .features {
+    padding: 52px 0 64px;
+  }
+
+  .features__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .feature {
+    grid-template-columns: 64px minmax(0, 1fr);
+    column-gap: 16px;
+    row-gap: 4px;
+    padding: 16px 16px 18px;
+  }
+
+  .feature__icon {
+    grid-row: span 2;
+    width: 64px;
+    height: 64px;
+    margin: 0;
+  }
+
+  .feature h3 {
+    font-size: 19px;
+  }
+
+  .feature p {
+    font-size: 14px;
+  }
+}
