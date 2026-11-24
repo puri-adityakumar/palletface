@@ -26,19 +26,137 @@ const mix = (a: number, b: number, t: number) => {
 const NIGHT = rgb('#070a12')
 const NIGHT_CSS = '#070a12'
 const PAPER = rgb('#e7e7e3')
-const SKY = { top: rgb('#0a1530'), mid: rgb('#0e2044'), low: rgb('#1b3b6c') }
-const STAR = [rgb('#f3f6ff'), rgb('#a9c3ff'), rgb('#5a78b8')] as const
-const MOON = { face: rgb('#eef3b8'), crater: rgb('#cdd690'), glow: rgb('#2f5a8e') }
-const CLOUD = { hi: rgb('#86a8d4'), mid: rgb('#33547f'), low: rgb('#203d66') }
-const FAR = { lit: rgb('#22406f'), shade: rgb('#183159'), snow: rgb('#b4cbee'), snowShade: rgb('#5a7cae') }
-const NEAR = { lit: rgb('#16294c'), shade: rgb('#112140') }
-const SEA = { top: rgb('#18355f'), deep: rgb('#0b1a35'), glint: rgb('#5e82b8'), shine: rgb('#f0f4c8'), shineDim: rgb('#93b2da'), foam: rgb('#a7bfe0') }
-const ROCK = { lit: rgb('#7298bd'), mid: rgb('#335477'), base: rgb('#253f60'), dark: rgb('#1a2e49'), crack: rgb('#101e33') }
-const STONE = { lit: rgb('#9cc0dc'), mid: rgb('#45698d'), base: rgb('#325574'), dark: rgb('#213b56'), joint: rgb('#172b42') }
-const SPIRE = { body: rgb('#16294a'), lit: rgb('#2d4d77'), roof: rgb('#10203b') }
-const MOSS = { hi: rgb('#4f7a5c'), mid: rgb('#355a46'), dark: rgb('#223d33') }
-const WINDOW = rgb('#ffc760')
-const WARM = rgb('#ff9b45')
+/** The palette one moment of the day. `night` drives stars, lit windows and the torch. */
+type Pal = {
+  night: number
+  skyTop: number
+  skyMid: number
+  skyLow: number
+  star0: number
+  star1: number
+  star2: number
+  bodyFace: number
+  bodyCrater: number
+  bodyGlow: number
+  cloudHi: number
+  cloudMid: number
+  cloudLow: number
+  farLit: number
+  farShade: number
+  snow: number
+  snowShade: number
+  nearLit: number
+  nearShade: number
+  seaTop: number
+  seaDeep: number
+  seaGlint: number
+  seaShine: number
+  seaShineDim: number
+  foam: number
+  rockLit: number
+  rockMid: number
+  rockBase: number
+  rockDark: number
+  rockCrack: number
+  stoneLit: number
+  stoneMid: number
+  stoneBase: number
+  stoneDark: number
+  stoneJoint: number
+  spireBody: number
+  spireLit: number
+  spireRoof: number
+  mossHi: number
+  mossMid: number
+  mossDark: number
+  window: number
+  warm: number
+  flagPole: number
+}
+
+const NIGHT_P: Pal = {
+  night: 1,
+  skyTop: rgb('#0a1530'), skyMid: rgb('#0e2044'), skyLow: rgb('#1b3b6c'),
+  star0: rgb('#f3f6ff'), star1: rgb('#a9c3ff'), star2: rgb('#5a78b8'),
+  bodyFace: rgb('#eef3b8'), bodyCrater: rgb('#cdd690'), bodyGlow: rgb('#2f5a8e'),
+  cloudHi: rgb('#86a8d4'), cloudMid: rgb('#33547f'), cloudLow: rgb('#203d66'),
+  farLit: rgb('#22406f'), farShade: rgb('#183159'), snow: rgb('#b4cbee'), snowShade: rgb('#5a7cae'),
+  nearLit: rgb('#16294c'), nearShade: rgb('#112140'),
+  seaTop: rgb('#18355f'), seaDeep: rgb('#0b1a35'), seaGlint: rgb('#5e82b8'), seaShine: rgb('#f0f4c8'), seaShineDim: rgb('#93b2da'), foam: rgb('#a7bfe0'),
+  rockLit: rgb('#7298bd'), rockMid: rgb('#335477'), rockBase: rgb('#253f60'), rockDark: rgb('#1a2e49'), rockCrack: rgb('#101e33'),
+  stoneLit: rgb('#9cc0dc'), stoneMid: rgb('#45698d'), stoneBase: rgb('#325574'), stoneDark: rgb('#213b56'), stoneJoint: rgb('#172b42'),
+  spireBody: rgb('#16294a'), spireLit: rgb('#2d4d77'), spireRoof: rgb('#10203b'),
+  mossHi: rgb('#4f7a5c'), mossMid: rgb('#355a46'), mossDark: rgb('#223d33'),
+  window: rgb('#ffc760'), warm: rgb('#ff9b45'), flagPole: rgb('#4c6585'),
+}
+
+const DAWN_P: Pal = {
+  ...NIGHT_P,
+  night: 0.55,
+  skyTop: rgb('#3b3a63'), skyMid: rgb('#b5657f'), skyLow: rgb('#f2a35e'),
+  star0: rgb('#8a7a9a'), star1: rgb('#6e5f83'), star2: rgb('#4e4468'),
+  bodyFace: rgb('#ffd98a'), bodyCrater: rgb('#f2b96a'), bodyGlow: rgb('#b3546a'),
+  cloudHi: rgb('#ffd9b0'), cloudMid: rgb('#b07a8c'), cloudLow: rgb('#6e5570'),
+  farLit: rgb('#6a4a6e'), farShade: rgb('#4a3a58'), snow: rgb('#ffd0b0'), snowShade: rgb('#b08a9a'),
+  nearLit: rgb('#3a2f4e'), nearShade: rgb('#2c2440'),
+  seaTop: rgb('#7a5570'), seaDeep: rgb('#241f3a'), seaGlint: rgb('#e8a080'), seaShine: rgb('#ffe0a0'), seaShineDim: rgb('#d09090'), foam: rgb('#e8b8b0'),
+  rockLit: rgb('#b08a90'), rockMid: rgb('#6e5566'), rockBase: rgb('#4e3e52'), rockDark: rgb('#332a42'), rockCrack: rgb('#221c30'),
+  stoneLit: rgb('#d8a898'), stoneMid: rgb('#8a6472'), stoneBase: rgb('#644c60'), stoneDark: rgb('#453650'), stoneJoint: rgb('#302638'),
+  spireBody: rgb('#3a2f4e'), spireLit: rgb('#6e5570'), spireRoof: rgb('#2a2138'),
+}
+
+const DAY_P: Pal = {
+  ...NIGHT_P,
+  night: 0,
+  skyTop: rgb('#4a90d9'), skyMid: rgb('#7ab8ee'), skyLow: rgb('#bfe0f7'),
+  star0: rgb('#7ab8ee'), star1: rgb('#7ab8ee'), star2: rgb('#7ab8ee'),
+  bodyFace: rgb('#fff6d8'), bodyCrater: rgb('#fff6d8'), bodyGlow: rgb('#cfe8ff'),
+  cloudHi: rgb('#ffffff'), cloudMid: rgb('#dcecf8'), cloudLow: rgb('#b8d4e8'),
+  farLit: rgb('#6f87b0'), farShade: rgb('#4e6390'), snow: rgb('#ffffff'), snowShade: rgb('#c8d8ee'),
+  nearLit: rgb('#4d668c'), nearShade: rgb('#3a5074'),
+  seaTop: rgb('#2f6fb8'), seaDeep: rgb('#17406e'), seaGlint: rgb('#9cc8ee'), seaShine: rgb('#ffffff'), seaShineDim: rgb('#cfe4f8'), foam: rgb('#eaf4ff'),
+  rockLit: rgb('#9db8cc'), rockMid: rgb('#5f7d96'), rockBase: rgb('#45607c'), rockDark: rgb('#2e445e'), rockCrack: rgb('#1f3048'),
+  stoneLit: rgb('#cfdde8'), stoneMid: rgb('#8aa2b4'), stoneBase: rgb('#68839c'), stoneDark: rgb('#4a617a'), stoneJoint: rgb('#35485e'),
+  spireBody: rgb('#4a6488'), spireLit: rgb('#7d9cbc'), spireRoof: rgb('#35486a'),
+  mossHi: rgb('#6f9a68'), mossMid: rgb('#4e7a50'), mossDark: rgb('#33523c'),
+}
+
+function mixPal(a: Pal, b: Pal, t: number): Pal {
+  const out = {} as Pal
+  for (const k of Object.keys(a) as (keyof Pal)[]) out[k] = k === 'night' ? a[k] + (b[k] - a[k]) * t : mix(a[k], b[k], t)
+  return out
+}
+
+const DUSK_P: Pal = {
+  ...mixPal(DAWN_P, NIGHT_P, 0.3),
+  night: 0.5,
+  skyTop: rgb('#2e2545'), skyMid: rgb('#a84e5e'), skyLow: rgb('#f07a3e'),
+  bodyFace: rgb('#ffc06a'), bodyCrater: rgb('#f09850'), bodyGlow: rgb('#c25a4e'),
+}
+
+/** Midnight, sunrise, noon, sunset, midnight. The phase comes from the visitor's clock. */
+const STOPS: readonly [number, Pal][] = [
+  [0, NIGHT_P],
+  [0.25, DAWN_P],
+  [0.5, DAY_P],
+  [0.75, DUSK_P],
+  [1, NIGHT_P],
+]
+
+function palAt(phase: number): Pal {
+  let i = 0
+  while (i < STOPS.length - 2 && STOPS[i + 1]![0] <= phase) i++
+  const [p0, a] = STOPS[i]!
+  const [p1, b] = STOPS[i + 1]!
+  const f = Math.min(1, Math.max(0, (phase - p0) / (p1 - p0)))
+  return mixPal(a, b, f * f * (3 - 2 * f))
+}
+
+/** How far through the current local day, 0 at midnight. */
+function dayPhase(): number {
+  const d = new Date()
+  return (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()) / 86400
+}
 const FLAME = [rgb('#fff3b8'), rgb('#ffc24d'), rgb('#ff7a2e')] as const
 const FLAG = { cloth: rgb('#d0404a'), shade: rgb('#8f2a33'), pole: rgb('#4c6585') }
 const BLADE = { face: rgb('#f2f6ff'), edge: rgb('#8ea6c6') }
@@ -368,6 +486,8 @@ type Layout = {
   spireW: number
   spireTop: number
   fight: number
+  /** True while the sun is up; the moon takes the other half of the day. */
+  sun: boolean
   moonX: number
   moonY: number
   moonR: number
@@ -375,7 +495,7 @@ type Layout = {
   torchY: number
 }
 
-function layout(W: number, H: number, c: number, groundRow: number, left: number, right: number): Layout {
+function layout(W: number, H: number, c: number, groundRow: number, left: number, right: number, phase: number): Layout {
   const narrow = W * c < 640
   const u = (v: number) => Math.max(1, Math.round(v / c))
   const fade = Math.round(H * 0.11)
@@ -391,6 +511,11 @@ function layout(W: number, H: number, c: number, groundRow: number, left: number
   const base = top + (narrow ? u(28) : u(52))
   // the bottom blend must stay below the rampart, however little room is left
   const fadeB = Math.max(6, Math.min(Math.round(H * 0.16), Math.round((ground - base) * 0.6)))
+  // the sun crosses the sky from 04:48 to 19:12 local time, the moon the rest of the night
+  const sun = phase >= 0.2 && phase <= 0.8
+  const arc = sun ? (phase - 0.2) / 0.6 : ((phase + 0.2) % 1) / 0.4
+  const moonR = narrow ? u(18) : u(34)
+  const arcH = Math.max(u(20), horizon - fade - moonR * 3)
   return {
     W,
     H,
@@ -412,19 +537,21 @@ function layout(W: number, H: number, c: number, groundRow: number, left: number
     spireW,
     spireTop: fade + (narrow ? u(40) : u(70)),
     fight,
-    moonX: cliff - u(narrow ? 40 : 70),
-    moonY: fade + u(narrow ? 34 : 64),
-    moonR: narrow ? u(18) : u(34),
+    sun,
+    // kept over the sea and mountains so the castle never hides the sun or moon
+    moonX: Math.round(left + (right - left) * (0.05 + 0.5 * arc)),
+    moonY: Math.round(horizon - Math.sin(arc * Math.PI) * arcH),
+    moonR,
     torchX: towerX - 1,
     torchY: top - u(narrow ? 18 : 28),
   }
 }
 
 type Sprite = { w: number; h: number; px: Uint32Array; x: number; y: number; speed: number }
-type Scene = { sky: Uint32Array; fg: Uint32Array; sea: Uint8Array; foam: number[]; twinkle: number[]; clouds: Sprite[] }
+type Scene = { sky: Uint32Array; fg: Uint32Array; sea: Uint8Array; foam: number[]; twinkle: number[]; clouds: Sprite[]; pal: Pal }
 
 /** A thin, flat-bottomed cloud lit from above by the moon. */
-function makeCloud(r: () => number, size: number): Omit<Sprite, 'x' | 'y' | 'speed'> {
+function makeCloud(r: () => number, size: number, pal: Pal): Omit<Sprite, 'x' | 'y' | 'speed'> {
   const n = 3 + Math.floor(r() * 3)
   const puffs: { x: number; y: number; r: number }[] = []
   let x = size * 0.2
@@ -443,15 +570,15 @@ function makeCloud(r: () => number, size: number): Omit<Sprite, 'x' | 'y' | 'spe
   for (let py = 0; py < h; py++) {
     for (let px = 0; px < w; px++) {
       if (!inside(px, py)) continue
-      let c = (base - py) / h > 0.45 ? CLOUD.mid : CLOUD.low
-      if (!inside(px, py - 1) || !inside(px - 1, py - 1)) c = CLOUD.hi
+      let c = (base - py) / h > 0.45 ? pal.cloudMid : pal.cloudLow
+      if (!inside(px, py - 1) || !inside(px - 1, py - 1)) c = pal.cloudHi
       out[py * w + px] = c
     }
   }
   return { w, h, px: out }
 }
 
-function buildScene(L: Layout, seed: string): Scene {
+function buildScene(L: Layout, seed: string, pal: Pal): Scene {
   const { W, H } = L
   const u = (v: number) => Math.max(1, Math.round(v / L.c))
   const sky = new Uint32Array(W * H)
@@ -464,28 +591,29 @@ function buildScene(L: Layout, seed: string): Scene {
 
   for (let y = 0; y < H; y++) {
     const t = Math.min(1, Math.max(0, (y - L.fade * 0.5) / Math.max(1, L.horizon - L.fade * 0.5)))
-    const col = t < 0.5 ? mix(SKY.top, SKY.mid, t / 0.5) : mix(SKY.mid, SKY.low, (t - 0.5) / 0.5)
+    const col = t < 0.5 ? mix(pal.skyTop, pal.skyMid, t / 0.5) : mix(pal.skyMid, pal.skyLow, (t - 0.5) / 0.5)
     for (let x = 0; x < W; x++) sky[y * W + x] = col
   }
   const R = L.moonR
-  glow(sky, W, H, L.moonX, L.moonY, R * 3.6, MOON.glow, 0.85)
+  glow(sky, W, H, L.moonX, L.moonY, R * 3.6, pal.bodyGlow, 0.85)
   const twinkle: number[] = []
-  for (let y = L.fade; y < L.horizon - u(8); y++) {
+  for (let y = L.fade; pal.night > 0.15 && y < L.horizon - u(8); y++) {
     for (let x = 0; x < W; x++) {
       if (Math.hypot(x - L.moonX, y - L.moonY) < R * 2.4 || hash(x, y, ss) > 0.0045) continue
       const kind = hash(x, y, ss + 1)
       const i = y * W + x
-      sky[i] = kind < 0.15 ? STAR[0] : kind < 0.5 ? STAR[1] : STAR[2]
+      sky[i] = kind < 0.15 ? pal.star0 : kind < 0.5 ? pal.star1 : pal.star2
       if (kind < 0.5) twinkle.push(i)
-      if (kind < 0.03) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) if (x + dx >= 0 && x + dx < W) sky[(y + dy) * W + x + dx] = STAR[2]
+      if (kind < 0.03) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) if (x + dx >= 0 && x + dx < W) sky[(y + dy) * W + x + dx] = pal.star2
     }
   }
   for (let y = Math.floor(L.moonY - R); y <= L.moonY + R; y++) {
     for (let x = Math.floor(L.moonX - R); x <= L.moonX + R; x++) {
       const d = Math.hypot(x - L.moonX, y - L.moonY)
       if (d > R || x < 0 || y < 0 || x >= W || y >= H) continue
-      let c = noise2(x / (R * 0.32), y / (R * 0.32), ss + 2) > 0.62 ? MOON.crater : MOON.face
-      if (d > R - 1.2) c = mix(c, MOON.crater, 0.6)
+      // only the moon has craters; the sun is a plain bright disc
+      let c = !L.sun && noise2(x / (R * 0.32), y / (R * 0.32), ss + 2) > 0.62 ? pal.bodyCrater : pal.bodyFace
+      if (d > R - 1.2) c = mix(c, pal.bodyCrater, 0.6)
       sky[y * W + x] = c
     }
   }
@@ -499,14 +627,14 @@ function buildScene(L: Layout, seed: string): Scene {
     const snow = peak.h > H * 0.13 ? Math.round(peak.h * 0.3 - Math.abs(x - peak.x) * 0.25 + hash(x, 0, 41) * 2) : 0
     for (let y = L.horizon - hf; y <= L.horizon; y++) {
       const depth = y - (L.horizon - hf)
-      set(x, y, depth < snow ? (far.lit[x] ? FAR.snow : FAR.snowShade) : far.lit[x] ? FAR.lit : FAR.shade)
+      set(x, y, depth < snow ? (far.lit[x] ? pal.snow : pal.snowShade) : far.lit[x] ? pal.farLit : pal.farShade)
     }
     const hn = Math.round(near.height[x]!)
-    for (let y = L.horizon - hn; y <= L.horizon; y++) set(x, y, near.lit[x] ? NEAR.lit : NEAR.shade)
+    for (let y = L.horizon - hn; y <= L.horizon; y++) set(x, y, near.lit[x] ? pal.nearLit : pal.nearShade)
   }
 
   for (let y = L.horizon + 1; y < H; y++) {
-    const col = mix(SEA.top, SEA.deep, Math.min(1, (y - L.horizon) / Math.max(1, L.ground - L.horizon)))
+    const col = mix(pal.seaTop, pal.seaDeep, Math.min(1, (y - L.horizon) / Math.max(1, L.ground - L.horizon)))
     for (let x = 0; x < W; x++) {
       fg[y * W + x] = col
       sea[y * W + x] = 1
@@ -522,12 +650,12 @@ function buildScene(L: Layout, seed: string): Scene {
       if (y < L.spireTop) {
         const half = ((y - (L.spireTop - roof)) / roof) * (L.spireW / 2 + 1)
         if (Math.abs(lx + 0.5 - L.spireW / 2) > half) continue
-        set(x, y, lx < L.spireW / 2 ? SPIRE.lit : SPIRE.roof)
-      } else if (lx >= 0 && lx < L.spireW) set(x, y, lx === 0 ? SPIRE.lit : SPIRE.body)
+        set(x, y, lx < L.spireW / 2 ? pal.spireLit : pal.spireRoof)
+      } else if (lx >= 0 && lx < L.spireW) set(x, y, lx === 0 ? pal.spireLit : pal.spireBody)
     }
   }
-  for (let y = L.spireTop + u(14); y < L.spireTop + u(26); y++) set(sx0 + Math.floor(L.spireW / 2), y, WINDOW)
-  glow(fg, W, H, sx0 + L.spireW / 2, L.spireTop + u(20), u(10), WARM, 0.25)
+  for (let y = L.spireTop + u(14); y < L.spireTop + u(26); y++) set(sx0 + Math.floor(L.spireW / 2), y, mix(pal.spireBody, pal.window, pal.night))
+  glow(fg, W, H, sx0 + L.spireW / 2, L.spireTop + u(20), u(10), pal.warm, 0.25 * pal.night)
 
   // the rampart: a stone wall on the cliff, arched openings, merlons kept clear of the duel
   const bh = u(12)
@@ -537,11 +665,11 @@ function buildScene(L: Layout, seed: string): Scene {
       const ly = y - L.top
       const row = Math.floor(ly / bh)
       const brick = Math.floor((x - L.rampX + (row % 2) * (bw >> 1)) / bw)
-      let c = hash(brick, row, 151) < 0.3 ? STONE.mid : STONE.base
-      if (ly % bh === 0 || (x - L.rampX + (row % 2) * (bw >> 1)) % bw === 0) c = STONE.joint
-      if (ly < u(4)) c = ly === 0 ? STONE.lit : STONE.mid
-      if (x === L.rampX) c = STONE.lit
-      if (ly > u(4) && hash(x, y, 157) < 0.04) c = MOSS.dark
+      let c = hash(brick, row, 151) < 0.3 ? pal.stoneMid : pal.stoneBase
+      if (ly % bh === 0 || (x - L.rampX + (row % 2) * (bw >> 1)) % bw === 0) c = pal.stoneJoint
+      if (ly < u(4)) c = ly === 0 ? pal.stoneLit : pal.stoneMid
+      if (x === L.rampX) c = pal.stoneLit
+      if (ly > u(4) && hash(x, y, 157) < 0.04) c = pal.mossDark
       set(x, y, c)
     }
   }
@@ -550,17 +678,17 @@ function buildScene(L: Layout, seed: string): Scene {
   const archH = Math.min(L.base - archTop - u(8), u(30))
   let lit = 0
   for (let cx = L.rampX + u(26); cx < L.towerX - aw; cx += u(48)) {
-    const glowing = hash(cx, 0, 163) < 0.35
+    const glowing = hash(cx, 0, 163) < 0.35 && pal.night > 0.15
     for (let y = archTop; y < archTop + archH; y++) {
       for (let x = cx - (aw >> 1); x <= cx + (aw >> 1); x++) {
         const dx = x - cx
         const dy = y - archTop
         if (dy < aw / 2 && dx * dx + (dy - aw / 2) ** 2 > (aw / 2) ** 2) continue
-        set(x, y, glowing ? mix(WINDOW, WARM, (y - archTop) / archH) : NIGHT)
+        set(x, y, glowing ? mix(pal.window, pal.warm, (y - archTop) / archH) : NIGHT)
       }
     }
     if (glowing) {
-      glow(fg, W, H, cx, archTop + archH / 2, u(22), WARM, 0.3)
+      glow(fg, W, H, cx, archTop + archH / 2, u(22), pal.warm, 0.3 * pal.night)
       lit++
     }
   }
@@ -571,7 +699,7 @@ function buildScene(L: Layout, seed: string): Scene {
   for (let x = L.rampX; x < L.towerX; x++) {
     if (Math.abs(x - L.fight) < 36) continue
     if ((x - L.rampX) % (mw + mg) >= mw) continue
-    for (let y = L.top - mh; y < L.top; y++) set(x, y, y === L.top - mh ? STONE.lit : x === L.rampX || (x - L.rampX) % (mw + mg) === 0 ? STONE.lit : STONE.base)
+    for (let y = L.top - mh; y < L.top; y++) set(x, y, y === L.top - mh ? pal.stoneLit : x === L.rampX || (x - L.rampX) % (mw + mg) === 0 ? pal.stoneLit : pal.stoneBase)
   }
 
   // the round tower: bricks bunch up toward its edges, the moon side lit
@@ -582,14 +710,14 @@ function buildScene(L: Layout, seed: string): Scene {
     for (let x = L.towerX; x < L.towerX + tw; x++) {
       const t = (x - L.towerX + 0.5) / tw
       const turn = (Math.asin(2 * t - 1) / Math.PI + 0.5) * 9 + (row % 2) * 0.5
-      let c = t < 0.08 ? STONE.lit : t < 0.32 ? STONE.mid : t < 0.78 ? STONE.base : STONE.dark
-      if (y % bh === 0 || turn % 1 < 0.1) c = STONE.joint
-      if (hash(x, y, 167) < 0.03) c = MOSS.dark
+      let c = t < 0.08 ? pal.stoneLit : t < 0.32 ? pal.stoneMid : t < 0.78 ? pal.stoneBase : pal.stoneDark
+      if (y % bh === 0 || turn % 1 < 0.1) c = pal.stoneJoint
+      if (hash(x, y, 167) < 0.03) c = pal.mossDark
       set(x, y, c)
     }
     if (Math.abs(y - ledge) < u(6)) {
       const lip = u(5)
-      for (let x = L.towerX - lip; x < L.towerX + tw + lip; x++) set(x, y, y - ledge === -u(6) + 1 ? STONE.lit : y - ledge === u(6) - 1 ? STONE.joint : x < L.towerX + tw * 0.3 ? STONE.mid : STONE.base)
+      for (let x = L.towerX - lip; x < L.towerX + tw + lip; x++) set(x, y, y - ledge === -u(6) + 1 ? pal.stoneLit : y - ledge === u(6) - 1 ? pal.stoneJoint : x < L.towerX + tw * 0.3 ? pal.stoneMid : pal.stoneBase)
     }
   }
   const windows = [
@@ -602,11 +730,11 @@ function buildScene(L: Layout, seed: string): Scene {
     const ww = u(9)
     const wh = u(20)
     if (wy < L.fade) continue
-    for (let y = wy; y < wy + wh; y++) for (let x = cx - (ww >> 1); x <= cx + (ww >> 1); x++) if (y > wy + 1 || Math.abs(x - cx) < ww / 3) set(x, y, mix(WINDOW, WARM, (y - wy) / wh))
-    glow(fg, W, H, cx, wy + wh / 2, u(26), WARM, 0.3)
+    for (let y = wy; y < wy + wh; y++) for (let x = cx - (ww >> 1); x <= cx + (ww >> 1); x++) if (y > wy + 1 || Math.abs(x - cx) < ww / 3) set(x, y, mix(pal.stoneDark, mix(pal.window, pal.warm, (y - wy) / wh), pal.night))
+    glow(fg, W, H, cx, wy + wh / 2, u(26), pal.warm, 0.3 * pal.night)
   }
-  for (let y = L.torchY; y < L.torchY + u(10); y++) set(L.torchX, y, FLAG.pole)
-  set(L.torchX - 1, L.torchY, FLAG.pole)
+  for (let y = L.torchY; y < L.torchY + u(10); y++) set(L.torchX, y, pal.flagPole)
+  set(L.torchX - 1, L.torchY, pal.flagPole)
 
   // the cliff under the rampart: irregular facets, lit along the sea face
   const rough = noise1(rng('cliff/face'))
@@ -643,17 +771,17 @@ function buildScene(L: Layout, seed: string): Scene {
       const id = ids[y * W + x]!
       const depth = (y - L.base) / Math.max(1, L.ground - L.base)
       const tone = hash(id, 0, 79) * 0.7 + (d < u(30) ? 0.2 : 0) + 0.45 - depth * 0.75
-      let c = tone > 0.75 ? ROCK.mid : tone > 0.3 ? ROCK.base : ROCK.dark
+      let c = tone > 0.75 ? pal.rockMid : tone > 0.3 ? pal.rockBase : pal.rockDark
       const other = (dx: number, dy: number) => {
         const v = ids[(y + dy) * W + x + dx]
         return v !== undefined && v !== 0 && v !== id
       }
-      const lighter = c === ROCK.dark ? ROCK.base : c === ROCK.base ? ROCK.mid : ROCK.lit
+      const lighter = c === pal.rockDark ? pal.rockBase : c === pal.rockBase ? pal.rockMid : pal.rockLit
       if (other(0, -1) || (other(-1, 0) && hash(id, 2, 89) < 0.5)) c = lighter
-      else if (other(1, 0) || other(0, 1)) c = hash(id, 1, 83) < 0.45 ? ROCK.crack : ROCK.dark
-      if (d <= 1) c = d === 0 ? ROCK.lit : ROCK.mid
-      if (!rock(x, y - 1)) c = x < L.rampX ? MOSS.hi : ROCK.lit
-      else if (y - L.base < u(10) && d < u(10) && hash(x, y, 3) < 0.4) c = MOSS.mid
+      else if (other(1, 0) || other(0, 1)) c = hash(id, 1, 83) < 0.45 ? pal.rockCrack : pal.rockDark
+      if (d <= 1) c = d === 0 ? pal.rockLit : pal.rockMid
+      if (!rock(x, y - 1)) c = x < L.rampX ? pal.mossHi : pal.rockLit
+      else if (y - L.base < u(10) && d < u(10) && hash(x, y, 3) < 0.4) c = pal.mossMid
       fg[y * W + x] = c
       sea[y * W + x] = 0
     }
@@ -669,25 +797,26 @@ function buildScene(L: Layout, seed: string): Scene {
   for (let x = 0; x < W; x++) {
     const gt = L.ground + Math.round((shore(x / u(16)) - 0.5) * u(6))
     for (let y = Math.max(0, gt); y < H; y++) {
-      fg[y * W + x] = y === gt ? MOSS.dark : NIGHT
+      fg[y * W + x] = y === gt ? pal.mossDark : NIGHT
       sea[y * W + x] = 0
     }
-    if (hash(x, 1, 13) < 0.3) set(x, gt - 1, MOSS.dark)
+    if (hash(x, 1, 13) < 0.3) set(x, gt - 1, pal.mossDark)
   }
 
   const r = rng(`${seed}/clouds`)
   const clouds: Sprite[] = []
   const count = 2 + Math.round((W * L.c) / 520)
   for (let i = 0; i < count; i++) {
-    const c = makeCloud(r, H * (0.045 + r() * 0.035))
+    const c = makeCloud(r, H * (0.045 + r() * 0.035), pal)
     const y = Math.round(L.fade + u(10) + r() * Math.max(1, L.horizon - L.fade - c.h - u(90)))
     clouds.push({ ...c, x: r() * (W + c.w), y, speed: (0.004 + r() * 0.005) / L.c })
   }
-  return { sky, fg, sea, foam, twinkle, clouds }
+  return { sky, fg, sea, foam, twinkle, clouds, pal }
 }
 
 function paint(px: Uint32Array, L: Layout, S: Scene, t: number, sb: Uint32Array, fb: Uint32Array) {
   const { W, H } = L
+  const pal = S.pal
   const u = (v: number) => Math.max(1, Math.round(v / L.c))
   const put = (x: number, y: number, c: number) => {
     const xi = Math.round(x)
@@ -697,12 +826,12 @@ function paint(px: Uint32Array, L: Layout, S: Scene, t: number, sb: Uint32Array,
   px.set(S.sky)
 
   const tw = Math.floor(t / 420)
-  for (const i of S.twinkle) if (hash(i, tw, 101) < 0.3) px[i] = STAR[2]
+  if (pal.night > 0.6) for (const i of S.twinkle) if (hash(i, tw, 101) < 0.3) px[i] = pal.star2
 
   // a shooting star every few seconds
   const cycle = Math.floor(t / 7000)
   const phase = t - cycle * 7000
-  if (phase < 650) {
+  if (phase < 650 && pal.night > 0.7) {
     const p = phase / 650
     const x0 = L.left + (L.right - L.left) * (0.25 + hash(cycle, 1, 97) * 0.4)
     const y0 = L.fade + u(10) + hash(cycle, 2, 97) * (L.horizon - L.fade) * 0.25
@@ -710,7 +839,7 @@ function paint(px: Uint32Array, L: Layout, S: Scene, t: number, sb: Uint32Array,
     for (let k = 0; k < u(48); k++) {
       const d = len - k
       if (d < 0) break
-      put(x0 - d * 0.86, y0 + d * 0.5, mix(STAR[0], SKY.mid, k / u(48)))
+      put(x0 - d * 0.86, y0 + d * 0.5, mix(pal.star0, pal.skyMid, k / u(48)))
     }
   }
 
@@ -734,7 +863,7 @@ function paint(px: Uint32Array, L: Layout, S: Scene, t: number, sb: Uint32Array,
     if (!f) continue
     if (S.sea[i]) {
       const x = i % W
-      px[i] = hash(x >> 2, (i / W) | 0, tick + ((x >> 4) & 3)) < 0.006 ? SEA.glint : f
+      px[i] = hash(x >> 2, (i / W) | 0, tick + ((x >> 4) & 3)) < 0.006 ? pal.seaGlint : f
     } else px[i] = f
   }
   // the moon's path on the water, in short broken dashes
@@ -744,18 +873,18 @@ function paint(px: Uint32Array, L: Layout, S: Scene, t: number, sb: Uint32Array,
       const i = y * W + x
       if (!S.sea[i]) continue
       const k = 1 - Math.abs(x - L.moonX) / hw
-      if (hash(Math.floor(x / 3), y, tick) < k * 0.55) px[i] = hash(x, y, tick + 7) < 0.45 ? SEA.shine : SEA.shineDim
+      if (hash(Math.floor(x / 3), y, tick) < k * 0.55) px[i] = hash(x, y, tick + 7) < 0.45 ? pal.seaShine : pal.seaShineDim
     }
   }
   const surf = Math.floor(t / 180)
-  for (const i of S.foam) if (hash(i % W, (i / W) | 0, surf) < 0.4) px[i] = SEA.foam
+  for (const i of S.foam) if (hash(i % W, (i / W) | 0, surf) < 0.4) px[i] = pal.foam
 
   // a pennant on the spire
   const pole = L.spireX + Math.floor(L.spireW / 2)
   const roof = L.narrow ? u(34) : u(56)
   const tip = L.spireTop - roof
   const fh = u(14)
-  for (let y = tip - fh - u(8); y < tip; y++) put(pole, y, FLAG.pole)
+  for (let y = tip - fh - u(8); y < tip; y++) put(pole, y, pal.flagPole)
   const fl = u(26)
   for (let i = 1; i <= fl; i++) {
     const wave = Math.round(Math.sin(i * 0.35 - t * 0.008) * u(3) * (i / fl))
@@ -809,9 +938,10 @@ function paint(px: Uint32Array, L: Layout, S: Scene, t: number, sb: Uint32Array,
     for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) put(hit.x + dx, hit.y + dy, SPARK.core)
   }
 
-  // the torch on the tower: a flickering flame, its light, and a few embers
-  const flick = 0.75 + 0.25 * Math.sin(t * 0.017) * Math.sin(t * 0.031 + 1)
-  glow(px, W, H, L.torchX - 1, L.torchY - u(6), u(80), WARM, 0.32 * flick)
+  // the torch only burns once it gets dark
+  const flick = (0.75 + 0.25 * Math.sin(t * 0.017) * Math.sin(t * 0.031 + 1)) * pal.night
+  if (pal.night > 0.3) {
+  glow(px, W, H, L.torchX - 1, L.torchY - u(6), u(80), pal.warm, 0.32 * flick)
   const fhgt = u(14) + Math.round(flick * 2)
   for (let j = 0; j < fhgt; j++) {
     const half = Math.max(0, Math.round((u(4) + 0.5) * Math.sin((Math.PI * (j + 1)) / (fhgt + 1))))
@@ -821,6 +951,7 @@ function paint(px: Uint32Array, L: Layout, S: Scene, t: number, sb: Uint32Array,
   for (let e = 0; e < 4; e++) {
     const age = ((t / 1000 + e * 0.37) % 1.4) / 1.4
     put(L.torchX - 1 + Math.sin(age * 7 + e) * u(6), L.torchY - fhgt - age * u(70), mix(FLAME[1], NIGHT, age))
+  }
   }
 
   // both edges dissolve instead of ending on a line: a smoothstep mix, with
@@ -929,7 +1060,20 @@ export function CliffScene({ seed, ground }: Props) {
       }
     }
 
+    let base: { W: number; H: number; c: number; row: number; left: number; right: number } | null = null
+    // 96 palette steps over the day, so the scene repaints about every 15 minutes
+    let step = -1
+    const rebuild = () => {
+      if (!base) return
+      const p = dayPhase()
+      L = layout(base.W, base.H, base.c, base.row, base.left, base.right, p)
+      S = buildScene(L, seedRef.current, palAt(p))
+      looks.clear()
+      step = Math.floor(p * 96)
+    }
     const draw = (now: number) => {
+      if (!base) return
+      if (Math.floor(dayPhase() * 96) !== step) rebuild()
       if (!L || !S) return
       paint(px, L, S, reduced ? 300 : now, sb, fb)
       flush()
@@ -946,7 +1090,7 @@ export function CliffScene({ seed, ground }: Props) {
       const row = word ? Math.floor((word.top - b.top - offset) / c) - Math.round(18 / c) : Math.round(H * 0.6)
       const pad = Number.parseFloat(getComputedStyle(host).getPropertyValue('--pad')) || 28
       const side = Math.max(0, (b.width - 1360) / 2) + pad
-      L = layout(W, H, c, row, side / c, (b.width - side) / c)
+      base = { W, H, c, row, left: side / c, right: (b.width - side) / c }
       cd = c * Math.min(2, window.devicePixelRatio || 1)
       looks.clear()
       canvas.width = Math.round(W * cd)
@@ -956,13 +1100,12 @@ export function CliffScene({ seed, ground }: Props) {
       px = new Uint32Array(W * H)
       shown = new Uint32Array(W * H)
       full = true
-      S = buildScene(L, seedRef.current)
+      rebuild()
       draw(performance.now())
     }
 
     reseed.current = () => {
-      if (!L) return
-      S = buildScene(L, seedRef.current)
+      rebuild()
       draw(performance.now())
     }
 
