@@ -44,7 +44,7 @@ export function Sponsor({ seed }: { seed: string }) {
             <h2 className="h2" id="sponsor-title">
               Keep the field <em>growing.</em>
             </h2>
-            <p className="note">palletface is free, MIT-licensed, and made in the open. Sponsoring helps pay for new styles, fixes, and better docs.</p>
+            <p className="note">palletface is free and MIT-licensed. Sponsoring pays for new styles, fixes, and docs.</p>
             <div className="sponsor__actions">
               <a className="btn btn--blue" href={LINKS.sponsor} target="_blank" rel="noreferrer">
                 <span aria-hidden="true">♥</span> Sponsor on GitHub <Out />

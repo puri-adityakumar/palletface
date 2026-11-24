@@ -29,14 +29,14 @@ export function HowItWorks({ seed }: { seed: string }) {
               From seed to <em>face.</em>
             </h2>
           </div>
-          <p className="note">Three steps, all on your side. This example follows the seed you typed, drawn in the Pixel Sprite style.</p>
+          <p className="note">Three local steps, shown with your seed in Pixel Sprite.</p>
         </div>
 
         <ol className="how__steps" ref={ref}>
           <li className="how__step">
             <span className="how__n">01 · Seed</span>
             <div className="how__visual">
-              <div className="chars" aria-label={`The seed “${seed}”`}>
+              <div className="chars" aria-label={`Seed “${seed}”`}>
                 {shown.length ? (
                   shown.map((c, i) => (
                     <span key={i} className="chars__cell">
@@ -53,7 +53,7 @@ export function HowItWorks({ seed }: { seed: string }) {
               </code>
             </div>
             <h3>Pass any string</h3>
-            <p>A user ID, a handle, a row key. Empty and Unicode strings work too.</p>
+            <p>A user ID, handle, or key. Empty and Unicode strings work too.</p>
           </li>
           <li className="how__step">
             <span className="how__n">02 · Hash</span>
@@ -68,7 +68,7 @@ export function HowItWorks({ seed }: { seed: string }) {
               </code>
             </div>
             <h3>It hashes the seed</h3>
-            <p>Each style hashes the seed. A seeded generator then picks the palette, the shape, and every pixel. No clock, no randomness.</p>
+            <p>A seeded generator picks the palette, shape, and pixels. No clock or system randomness.</p>
           </li>
           <li className="how__step">
             <span className="how__n">03 · SVG</span>
@@ -81,7 +81,7 @@ export function HowItWorks({ seed }: { seed: string }) {
               </code>
             </div>
             <h3>You get an SVG string</h3>
-            <p>One complete SVG. Put it in an image, send it from your server, or save it as a file.</p>
+            <p>Use it in an image, return it from an API, or save it to disk.</p>
           </li>
         </ol>
       </div>
@@ -121,11 +121,6 @@ export function QuickStart() {
             <br />
             SVG out.
           </h2>
-          <ol className="quick__steps">
-            <li>Install the package. It has no runtime dependencies.</li>
-            <li>Call one function with any string and a style.</li>
-            <li>Use the SVG string anywhere: an image, a file, an API response.</li>
-          </ol>
           <CopyButton value={INSTALL} variant="install" tone="paper" />
         </div>
         <div className="code">
@@ -146,10 +141,10 @@ export function QuickStart() {
             </code>
           </pre>
           <div className="code__out">
-            <img src={svgUrl(sample)} width={64} height={64} alt="The avatar this code draws: a pixel letter A" />
+            <img src={svgUrl(sample)} width={64} height={64} alt="Pixel Letter avatar with an A" />
             <p>
               <span>Output</span>
-              An SVG string, {bytes(sample).toLocaleString('en-US')} bytes. The same bytes on every run.
+              An {bytes(sample).toLocaleString('en-US')}-byte SVG string.
             </p>
           </div>
         </div>

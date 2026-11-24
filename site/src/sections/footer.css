@@ -47,12 +47,6 @@
   letter-spacing: -0.045em;
 }
 
-.foot__head p {
-  margin: 0;
-  font-size: 17px;
-  color: var(--ink-2);
-}
-
 .foot__links {
   grid-area: links;
   display: flex;

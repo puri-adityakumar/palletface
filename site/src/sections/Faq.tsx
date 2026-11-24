@@ -6,26 +6,21 @@ import './faq.css'
 const QA: { q: string; a: ReactNode }[] = [
   {
     q: 'Is palletface free to use?',
-    a: 'Yes. It is MIT-licensed, so you can use it in personal and commercial projects.',
+    a: 'Yes. It is MIT-licensed, for personal and commercial use.',
   },
   {
     q: 'Will a user’s avatar ever change?',
-    a: 'Not while the inputs and package version stay the same. Before 1.0, a minor release may change the API or the avatar output, so pin an exact version if avatars must stay the same across upgrades.',
+    a: 'Not with the same inputs and version. Before 1.0, a minor release may change the output, so pin an exact version to keep avatars stable.',
   },
   {
     q: 'What should I use as the seed?',
-    a: 'An opaque, stable ID, like a user ID. Any string works, including empty and Unicode strings. Keep emails, tokens, and secrets out of seeds, because an SVG can reveal initials and design details.',
-  },
-  {
-    q: 'Does it call a server or store anything?',
-    a: 'No. Every avatar is computed on the spot. There is no avatar service, image storage, account, or network request, and no external font is fetched.',
+    a: 'A stable, opaque ID, like a user ID. Keep emails, tokens, and secrets out, because the SVG can reveal initials.',
   },
   {
     q: 'Can I render avatars on the server?',
     a: (
       <>
-        Yes. Core rendering does not use <code>window</code> or the DOM, and CI tests Node 22 and 24. Send the string with{' '}
-        <code>Content-Type: image/svg+xml</code>, or put it in an image’s data URL.
+        Yes. CI tests Node 22 and 24. Serve the string with <code>Content-Type: image/svg+xml</code>, or use a data URL.
       </>
     ),
   },
@@ -33,21 +28,20 @@ const QA: { q: string; a: ReactNode }[] = [
     q: 'How do I show it in React, Vue, or plain HTML?',
     a: (
       <>
-        Turn the string into a data URL and use it as an image source: <code>{'data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}'}</code>. No raw
-        HTML injection needed.
+        Use a data URL as the image source: <code>{'data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}'}</code>. No <code>innerHTML</code> needed.
       </>
     ),
   },
   {
     q: 'Is every avatar unique?',
-    a: 'No. This is deterministic art, not cryptography. Different seeds can collide or look alike, so an avatar is not proof of identity.',
+    a: 'No. Different seeds can collide or look alike, so an avatar is not proof of identity.',
   },
   {
     q: 'Which styles use a name?',
     a: (
       <>
-        Pixel Letter, Pixelify Letter, and Pixel Stamp draw an initial from <code>name</code>, which defaults to the seed. They use the first ASCII letter or
-        digit, and the colors still come from the seed.
+        Pixel Letter, Pixelify Letter, and Pixel Stamp use the first ASCII letter or digit of <code>name</code>, which defaults to the seed. Colors still come
+        from the seed.
       </>
     ),
   },
@@ -55,8 +49,8 @@ const QA: { q: string; a: ReactNode }[] = [
     q: 'What about accessibility and CSP?',
     a: (
       <>
-        Next to a visible user name, <code>alt=""</code> avoids saying the name twice. Otherwise, give the image a meaningful label. Data URLs need{' '}
-        <code>data:</code> in your <code>img-src</code> policy, or you can serve the SVG from your own route.
+        Use <code>alt=""</code> next to a visible user name, and a real label otherwise. For CSP, allow <code>data:</code> in <code>img-src</code>, or serve
+        the SVG from your own route.
       </>
     ),
   },

@@ -162,31 +162,6 @@
   background: var(--paper);
 }
 
-.quick__steps {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: qs;
-  display: grid;
-  gap: 12px;
-  max-width: 42ch;
-}
-
-.quick__steps li {
-  counter-increment: qs;
-  display: grid;
-  grid-template-columns: 36px 1fr;
-  font-size: 16px;
-  line-height: 1.45;
-  color: #d4d4cf;
-}
-
-.quick__steps li::before {
-  content: counter(qs, decimal-leading-zero);
-  font: 500 12px/1.9 var(--mono);
-  color: var(--muted-ink);
-}
-
 .code {
   min-width: 0;
   border: 1px solid var(--ink-line);

@@ -55,7 +55,7 @@ function StyleCard({ seed }: { seed: string }) {
       <span className="card__next" aria-hidden="true">
         next style →
       </span>
-      <span className="sr-only">Show the next style</span>
+      <span className="sr-only">Next style</span>
     </button>
   )
 }
@@ -123,8 +123,7 @@ export function Hero({ seed, setSeed }: { seed: string; setSeed: (s: string) => 
             grows a face.
           </h1>
           <p className="hero__lede">
-            palletface turns a user ID, a name, or any string into a deterministic SVG avatar, on the server or in the browser. No avatar service, no
-            storage, no network requests.
+            palletface turns any string, like a user ID, into a deterministic SVG avatar. Runs in Node or the browser. Zero dependencies, no network requests.
           </p>
           <SeedInput id="hero-seed" seed={seed} setSeed={setSeed} label="Type any string" size="lg" />
           <div className="hero__actions">

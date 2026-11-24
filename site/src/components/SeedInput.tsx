@@ -26,7 +26,7 @@ export function SeedInput({ id, seed, setSeed, label = 'Seed', size = 'sm' }: Pr
         spellCheck={false}
         maxLength={40}
       />
-      <button type="button" onClick={next} aria-label="Try the next sample seed" title="Try the next sample seed">
+      <button type="button" onClick={next} aria-label="Next sample seed" title="Next sample seed">
         ↻
       </button>
     </div>

@@ -56,7 +56,6 @@ export function Footer({ seed }: { seed: string }) {
         <div ref={headRef} className="foot__head">
           <Brand />
           <h2>Plant a seed.</h2>
-          <p>Give every user a face of their own, in one line of code.</p>
           <CopyButton value={INSTALL} variant="install" />
         </div>
 
@@ -81,10 +80,10 @@ export function Footer({ seed }: { seed: string }) {
           <p className="legend__title">Legend</p>
           <ul className="legend__keys">
             <li>
-              <span className="legend__cell legend__cell--ink" /> Ink cell, grown from the seed
+              <span className="legend__cell legend__cell--ink" /> Grown from the seed
             </li>
             <li>
-              <span className="legend__cell legend__cell--digit">3</span> Ink cells next to this one
+              <span className="legend__cell legend__cell--digit">3</span> Neighbor count
             </li>
             <li>
               <span className="legend__cell legend__cell--glow" /> Your pointer

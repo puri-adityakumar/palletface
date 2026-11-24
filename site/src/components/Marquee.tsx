@@ -112,7 +112,7 @@ export function Marquee() {
   return (
     <div className="strip" ref={wrap}>
       <div className="strip__track" ref={track}>
-        <ul aria-label={`Avatars for ${items.length} sample seeds across all ${STYLES.length} styles`}>{tiles(0)}</ul>
+        <ul aria-label={`${items.length} sample avatars across ${STYLES.length} styles`}>{tiles(0)}</ul>
         <ul aria-hidden="true">{tiles(1)}</ul>
       </div>
     </div>

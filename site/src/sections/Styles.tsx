@@ -38,7 +38,7 @@ function Tile({ seed, slug, title, index, play }: { seed: string; slug: StyleSlu
         </Pixelate>
         <span className="tile__name">{title}</span>
         <code className="tile__slug">'{slug}'</code>
-        <span className="sr-only">Copy the call for this style</span>
+        <span className="sr-only">Copy call</span>
       </button>
     </li>
   )
@@ -56,10 +56,10 @@ export function Styles({ seed, input, setSeed }: { seed: string; input: string; 
             <br />
             One seed: <em className="styles__word">{seed === '' ? '“”' : seed}</em>
           </h2>
-          <p className="note">Same input, same output, every time. Type a seed and all {STYLE_COUNT} follow it. Tap or click a tile to copy its call.</p>
+          <p className="note">Type a seed and all {STYLE_COUNT} follow it. Click a tile to copy its call.</p>
           <SeedInput id="styles-seed" seed={input} setSeed={setSeed} />
           <p className="styles__legend">
-            <span /> Pixel Letter, Pixelify Letter, and Pixel Stamp draw an initial from <code>name</code>.
+            <span /> Styles marked “Uses name” draw an initial from <code>name</code>.
           </p>
         </div>
         <ul ref={ref} className="tiles">

@@ -35,4 +35,4 @@ img.src = \`data:image/svg+xml;charset=utf-8,\${encodeURIComponent(svg)}\``
 /** Seeds that read as people. Unicode on purpose: any string is a valid seed. */
 export const SAMPLE_SEEDS = ['ada', 'kai', 'yuki', 'élodie', 'marcus', 'rhea', 'quinn', 'zeke', 'noor', 'tomás', 'aditya', 'mina'] as const
 
-export const PROVENANCE = 'An independent, MIT-licensed sister project of Palletism.'
+export const PROVENANCE = 'A sister project of Palletism.'

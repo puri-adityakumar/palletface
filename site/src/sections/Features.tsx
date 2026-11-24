@@ -38,32 +38,32 @@ const FEATURES = [
   {
     icon: ICONS.seed,
     title: 'Same seed, same face',
-    body: 'Pass any string. The same inputs and package version give the same SVG on every render, so there is no avatar table to keep.',
+    body: 'The same inputs and version always return the same SVG. No avatar column needed.',
   },
   {
     icon: ICONS.box,
     title: 'Zero runtime dependencies',
-    body: 'Nothing else gets installed with it. One small package, nothing extra to audit or keep up to date.',
+    body: 'One small package. Nothing else to install, audit, or update.',
   },
   {
     icon: ICONS.cloud,
     title: 'No network, no storage',
-    body: 'Avatars are computed, not fetched. No avatar service, no image bucket, no account, and no request.',
+    body: 'Computed, not fetched. No avatar service, bucket, or account.',
   },
   {
     icon: ICONS.windows,
     title: 'Server or browser',
-    body: 'Core rendering never touches window or the DOM. Render in Node and send the SVG, or draw it right in the page.',
+    body: 'Core rendering never touches window or the DOM. Render in Node or in the browser.',
   },
   {
     icon: ICONS.lens,
     title: 'Sharp at any size',
-    body: 'Pixel styles are plain SVG shapes, so they stay crisp from a tiny chat bubble to a full profile header. No fonts are fetched.',
+    body: 'Plain SVG shapes stay crisp at any size. No external fonts.',
   },
   {
     icon: ICONS.braces,
     title: 'One typed function',
-    body: 'ditherFace(seed, options) returns a string. ESM with TypeScript types, plus STYLES for building a style picker.',
+    body: 'ditherFace(seed, options) returns an SVG string. ESM, TypeScript types, and a STYLES list.',
   },
 ]
 
@@ -80,7 +80,7 @@ export function Features() {
               <em>Nothing it doesn’t.</em>
             </h2>
           </div>
-          <p className="note">A small library that does one job well: turn a string into a face you can use anywhere.</p>
+          <p className="note">A small library with one job: turn a string into a face.</p>
         </div>
         <ul className="features__grid">
           {FEATURES.map((f, i) => (

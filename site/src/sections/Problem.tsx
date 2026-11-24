@@ -75,9 +75,9 @@ type Tile = { Art: ComponentType; before: string; seed: string; style: StyleSlug
 const TILES: Tile[] = [
   { Art: Ghost, before: 'default.png', seed: 'ada', style: 'pixel-sprite' },
   { Art: Egg, before: 'the egg', seed: 'kai', style: 'dither-orb' },
-  { Art: Initials, before: 'two initials', seed: 'aditya', style: 'pixel-letter', name: 'Aditya' },
+  { Art: Initials, before: 'initials', seed: 'aditya', style: 'pixel-letter', name: 'Aditya' },
   { Art: Broken, before: 'image failed', seed: 'yuki', style: 'pixel-landscape' },
-  { Art: Nothing, before: 'no photo yet', seed: 'noor', style: 'geometric-tile' },
+  { Art: Nothing, before: 'no photo', seed: 'noor', style: 'geometric-tile' },
   { Art: Blank, before: 'grey square', seed: 'zeke', style: 'pixel-flora' },
 ]
 
@@ -97,7 +97,7 @@ function Swap({ tile, p }: { tile: Tile; p: number }) {
   const { Art } = tile
   return (
     <li className={after ? 'swap is-after' : 'swap'}>
-      <svg className="swap__art" viewBox="0 0 100 100" role="img" aria-label={after ? `${titleOf(tile.style)} avatar for “${tile.seed}”` : `A ${tile.before} placeholder`}>
+      <svg className="swap__art" viewBox="0 0 100 100" role="img" aria-label={after ? `${titleOf(tile.style)} avatar for “${tile.seed}”` : `Placeholder: ${tile.before}`}>
         {p < 1 && <Art />}
         <clipPath id={id}>
           {CELLS.filter((c) => c.at < p).map((c, i) => (
@@ -175,11 +175,8 @@ export function Problem() {
             </h2>
           </div>
           <div className="problem__aside">
-            <p className="note">Grey ghosts, eggs, and two letters on a flat circle. Every user looks the same, and nobody looks like themselves.</p>
-            <div className="toggle" role="group" aria-label="Compare placeholders and palletface avatars">
-              <span className="toggle__label" aria-hidden="true">
-                Compare
-              </span>
+            <p className="note">Grey ghosts, eggs, and initials. Every user looks the same.</p>
+            <div className="toggle" role="group" aria-label="Compare before and after">
               <button type="button" aria-pressed={target === 0} onClick={() => choose(0)}>
                 Before
               </button>
@@ -200,7 +197,7 @@ export function Problem() {
           <h3>
             Give every user a face <em>of their own.</em>
           </h3>
-          <p>One string in, one avatar out. Here are 24 seeds across all {STYLE_COUNT} styles. Drag the line to look around.</p>
+          <p>24 seeds across all {STYLE_COUNT} styles. Drag to look around.</p>
         </div>
       </div>
       <Marquee />
