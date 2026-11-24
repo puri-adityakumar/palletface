@@ -118,12 +118,11 @@ export function Hero({ seed, setSeed }: { seed: string; setSeed: (s: string) => 
         <div ref={copyRef} className="hero__copy" data-nodig>
           <p className="kicker">v{VERSION}</p>
           <h1>
-            Every seed
-            <br />
-            grows a face.
+            Generate <span>unique-looking</span> avatars from seeds.
           </h1>
           <p className="hero__lede">
-            palletface turns any string, like a user ID, into a deterministic SVG avatar. Runs in Node or the browser. Zero dependencies, no network requests.
+            Turn any string, like a user ID, into a <strong>deterministic SVG</strong> in <strong>Node or the browser</strong>. No network requests,{' '}
+            <strong>zero dependencies</strong>.
           </p>
           <SeedInput id="hero-seed" seed={seed} setSeed={setSeed} label="Type any string" size="lg" />
           <div className="hero__actions">

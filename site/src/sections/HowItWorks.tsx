@@ -4,7 +4,7 @@ import { CopyButton } from '../components/CopyButton'
 import { face, Face, svgUrl } from '../lib/faces'
 import { useInView } from '../lib/hooks'
 import { Pixelate, usePixelSteps } from '../lib/pixelate'
-import { INSTALL, QUICK_START } from '../lib/content'
+import { INSTALL, OPTIONS, QUICK_START } from '../lib/content'
 import './how.css'
 
 const bytes = (s: string) => new TextEncoder().encode(s).length
@@ -26,10 +26,10 @@ export function HowItWorks({ seed }: { seed: string }) {
           <div>
             <p className="kicker">04 / How it works</p>
             <h2 className="h2" id="how-title">
-              From seed to <em>face.</em>
+              Generate an avatar <em>in three steps.</em>
             </h2>
           </div>
-          <p className="note">Three local steps, shown with your seed in Pixel Sprite.</p>
+          <p className="note">Shown with your seed in Pixel Sprite.</p>
         </div>
 
         <ol className="how__steps" ref={ref}>
@@ -122,6 +122,9 @@ export function QuickStart() {
             SVG out.
           </h2>
           <CopyButton value={INSTALL} variant="install" tone="paper" />
+          <p className="quick__pin">
+            Before 1.0, a minor release may change the output. Pin it with <code>--save-exact</code>.
+          </p>
         </div>
         <div className="code">
           <div className="code__bar">
@@ -148,6 +151,29 @@ export function QuickStart() {
             </p>
           </div>
         </div>
+        <table className="opts">
+          <caption>ditherFace(seed, options)</caption>
+          <thead>
+            <tr>
+              <th scope="col">Option</th>
+              <th scope="col">Controls</th>
+              <th scope="col">Default</th>
+            </tr>
+          </thead>
+          <tbody>
+            {OPTIONS.map((o) => (
+              <tr key={o.name}>
+                <th scope="row">
+                  <code>{o.name}</code>
+                </th>
+                <td>{o.controls}</td>
+                <td>
+                  <code>{o.fallback}</code>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </section>
   )

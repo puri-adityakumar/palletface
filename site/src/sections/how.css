@@ -141,17 +141,89 @@
   padding: 96px 0 104px;
 }
 
+/* the options table sits under the intro on wide screens and after the code on narrow ones */
 .quick__layout {
   display: grid;
   grid-template-columns: minmax(300px, 1fr) minmax(0, 1.45fr);
-  gap: 56px;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'intro code'
+    'opts code';
+  gap: 48px 56px;
   align-items: start;
 }
 
 .quick__intro {
+  grid-area: intro;
   display: grid;
   gap: 24px;
   justify-items: start;
+}
+
+.quick__layout > .code {
+  grid-area: code;
+}
+
+.quick__pin {
+  margin: 0;
+  max-width: 38ch;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #bdbdb7;
+}
+
+.quick__pin code {
+  font: 500 13px/1 var(--mono);
+  color: var(--paper);
+}
+
+.opts {
+  grid-area: opts;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #bdbdb7;
+}
+
+.opts caption {
+  padding-bottom: 14px;
+  text-align: left;
+  font: 500 12px/1 var(--mono);
+  color: var(--paper);
+}
+
+.opts th,
+.opts td {
+  padding: 11px 16px 11px 0;
+  border-top: 1px solid var(--ink-line);
+  text-align: left;
+  font-weight: 400;
+  vertical-align: top;
+}
+
+.opts thead th {
+  padding-top: 0;
+  border-top: 0;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.opts th:last-child,
+.opts td:last-child {
+  padding-right: 0;
+  white-space: nowrap;
+}
+
+.opts code {
+  font: 500 13px/1.4 var(--mono);
+  color: var(--paper);
+}
+
+.opts td code {
+  color: #bdbdb7;
 }
 
 .kicker--ink {
@@ -259,6 +331,11 @@
 
   .quick__layout {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas:
+      'intro'
+      'code'
+      'opts';
     gap: 40px;
   }
 }
