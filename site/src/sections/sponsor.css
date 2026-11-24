@@ -6,6 +6,9 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   border: 1px solid var(--line);
+  border-top-right-radius: 14px;
+  /* clips the seed field to the rounded corner */
+  overflow: hidden;
 }
 
 .sponsor__copy {

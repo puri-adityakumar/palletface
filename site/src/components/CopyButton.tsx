@@ -1,4 +1,5 @@
 import { useCopy } from '../lib/hooks'
+import { CheckMark, CopyMark } from './Pixel'
 
 type Props = { value: string; variant?: 'install' | 'code'; label?: string; tone?: 'ink' | 'paper' }
 
@@ -19,8 +20,8 @@ export function CopyButton({ value, variant = 'code', label, tone = 'ink' }: Pro
       <span className="install__prompt" aria-hidden="true">$</span>
       <code>{value}</code>
       <span className="install__label" aria-live="polite">
-        {status}
-        <span className="sr-only"> install command</span>
+        {state === 'ok' ? <CheckMark /> : state === 'fail' ? 'Retry' : <CopyMark />}
+        <span className="sr-only">{status} install command</span>
       </span>
     </button>
   )

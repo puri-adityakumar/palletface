@@ -21,6 +21,7 @@
   padding: 13px;
   border: 1px solid var(--line);
   background: var(--paper);
+  border-bottom-right-radius: 12px;
   box-shadow: 0 16px 0 rgb(29 29 27 / 7%);
 }
 

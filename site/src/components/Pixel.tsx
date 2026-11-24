@@ -32,6 +32,25 @@ export function StarMark({ size = 12 }: { size?: number }) {
   )
 }
 
+/** Two overlapping squares, the copy glyph. Strokes only, so it works on any fill. */
+export function CopyMark({ size = 13 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M6 10H1V1h9v5" />
+      <rect x="6" y="6" width="9" height="9" />
+    </svg>
+  )
+}
+
+/** A check mark, shown once the copy lands. */
+export function CheckMark({ size = 13 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M2 8.5 6 12.5 14 3.5" />
+    </svg>
+  )
+}
+
 /** Small pixel arrow used after outbound links. */
 export function Out() {
   return (

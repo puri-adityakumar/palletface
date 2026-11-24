@@ -228,6 +228,7 @@
   width: 100%;
   padding: 22px 24px;
   border: 1px solid var(--ink-line);
+  border-top-left-radius: 10px;
 }
 
 .quick__arrow {

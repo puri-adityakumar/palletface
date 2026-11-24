@@ -4,6 +4,7 @@
   padding: 28px 48px;
   border: 1px solid var(--line);
   border-top: 0;
+  border-bottom-left-radius: 14px;
   flex-wrap: wrap;
   align-items: center;
   gap: 20px 32px;
