@@ -352,6 +352,8 @@ type Layout = {
   left: number
   right: number
   fade: number
+  /** Rows over which the scene dissolves into the dark ground. */
+  fadeB: number
   horizon: number
   ground: number
   /** The rampart walk the knights stand on. */
@@ -386,6 +388,9 @@ function layout(W: number, H: number, c: number, groundRow: number, left: number
   const rampX = cliff + u(narrow ? 10 : 18)
   const fight = Math.round(Math.min(rampX + 28 + u(narrow ? 6 : 60), towerX - 30 - u(narrow ? 30 : 90)))
   const spireW = narrow ? u(18) : u(30)
+  const base = top + (narrow ? u(28) : u(52))
+  // the bottom blend must stay below the rampart, however little room is left
+  const fadeB = Math.max(6, Math.min(Math.round(H * 0.16), Math.round((ground - base) * 0.6)))
   return {
     W,
     H,
@@ -394,10 +399,11 @@ function layout(W: number, H: number, c: number, groundRow: number, left: number
     left,
     right,
     fade,
+    fadeB,
     horizon,
     ground,
     top,
-    base: top + (narrow ? u(28) : u(52)),
+    base,
     cliff,
     rampX,
     towerX,
@@ -817,10 +823,21 @@ function paint(px: Uint32Array, L: Layout, S: Scene, t: number, sb: Uint32Array,
     put(L.torchX - 1 + Math.sin(age * 7 + e) * u(6), L.torchY - fhgt - age * u(70), mix(FLAME[1], NIGHT, age))
   }
 
-  // the sky dissolves into the page: squares shrink from paper into the night
-  for (let y = 0; y < L.fade; y++) {
-    const k = ((y + 0.5) / L.fade) ** 0.85
-    for (let x = 0; x < W; x++) px[y * W + x] = mix(PAPER, px[y * W + x]!, k)
+  // both edges dissolve instead of ending on a line: a smoothstep mix, with
+  // per-cell grain so the squares trail off one by one, halftone-style
+  const grain = 0.7
+  for (let y = 0; y < Math.min(H, Math.round(L.fade * (1 + grain))); y++) {
+    for (let x = 0; x < W; x++) {
+      const k = Math.min(1, Math.max(0, (y + 0.5 + (hash(x, y, 211) - 0.5) * L.fade * grain) / L.fade))
+      px[y * W + x] = mix(PAPER, px[y * W + x]!, k * k * (3 - 2 * k))
+    }
+  }
+  const start = L.ground - L.fadeB
+  for (let y = Math.max(0, Math.round(start - L.fadeB * grain)); y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const k = Math.min(1, Math.max(0, (y - start + (hash(x, y, 223) - 0.5) * L.fadeB * grain) / L.fadeB))
+      px[y * W + x] = mix(px[y * W + x]!, NIGHT, k * k * (3 - 2 * k))
+    }
   }
 }
 
