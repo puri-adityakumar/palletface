@@ -22,7 +22,7 @@ export default function App() {
       <main>
         <Hero seed={seed} />
         <Showcase />
-        <Features />
+        <Features seed={later} />
         <Styles seed={later} input={seed} setSeed={setSeed} />
         <HowItWorks seed={later} />
         <DitherBand from={PAPER} to={INK} height={72} cell={8} seed="field/band-down" />
