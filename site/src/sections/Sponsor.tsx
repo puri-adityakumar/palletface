@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { STYLES } from 'palletface'
 import { Out } from '../components/Pixel'
+import { Contribute } from './Contribute'
 import { SeedField } from '../field/SeedField'
 import { LINKS } from '../lib/content'
 import { Face } from '../lib/faces'
@@ -45,11 +46,11 @@ export function Sponsor({ seed }: { seed: string }) {
             </h2>
             <p className="note">palletface is free and MIT-licensed. Sponsoring pays for new styles, fixes, and docs.</p>
             <div className="sponsor__actions">
-              <a className="btn btn--blue" href={LINKS.sponsor} target="_blank" rel="noreferrer">
+              <a className="btn btn--sponsor" href={LINKS.sponsor} target="_blank" rel="noreferrer">
                 <span aria-hidden="true">♥</span> Sponsor on GitHub <Out />
               </a>
               <a className="btn" href={LINKS.github} target="_blank" rel="noreferrer">
-                <span aria-hidden="true">★</span> Star the repo <Out />
+                <span className="btn__star" aria-hidden="true">★</span> Star the repo <Out />
               </a>
             </div>
           </div>
@@ -62,6 +63,7 @@ export function Sponsor({ seed }: { seed: string }) {
             </div>
           </div>
         </div>
+        <Contribute />
       </div>
     </section>
   )

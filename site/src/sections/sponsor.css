@@ -23,6 +23,24 @@
   margin-top: 6px;
 }
 
+/* GitHub's sponsor pink */
+.btn--sponsor {
+  border-color: #bf3989;
+  background: #bf3989;
+  color: #fff;
+}
+
+.btn--sponsor:hover {
+  border-color: #99286e;
+  background: #99286e;
+  color: #fff;
+}
+
+/* GitHub's star yellow */
+.btn__star {
+  color: #e3b341;
+}
+
 .sponsor__field {
   position: relative;
   min-height: 400px;
