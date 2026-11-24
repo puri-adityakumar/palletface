@@ -6,11 +6,11 @@
  */
 import { useEffect, useRef, type RefObject } from 'react'
 import { fnv1a } from 'palletface'
-import { bayer } from '../lib/dither'
+import { bayer, hash } from '../lib/dither'
 import { useReducedMotion } from '../lib/hooks'
 
 export type Dig = { x: number; y: number }
-export type FieldShape = 'hero' | 'footer' | 'sponsor'
+export type FieldShape = 'hero' | 'sponsor'
 
 type Rect = { x0: number; y0: number; x1: number; y1: number }
 type Refs = readonly RefObject<HTMLElement | null>[]
@@ -35,14 +35,6 @@ const GLOW = '#2633d9'
 const GLOW_SOFT = '#a9b0ff'
 const DIGIT = '#8c8c88'
 
-const hash = (x: number, y: number, s: number) => {
-  let h = (s ^ Math.imul(x | 0, 0x27d4eb2d) ^ Math.imul(y | 0, 0x165667b1)) >>> 0
-  h = Math.imul(h ^ (h >>> 15), 0x2c1b3c6d)
-  h = Math.imul(h ^ (h >>> 12), 0x297a2d39)
-  h ^= h >>> 15
-  return (h >>> 0) / 4294967296
-}
-
 const noise = (x: number, y: number, s: number) => {
   const x0 = Math.floor(x)
   const y0 = Math.floor(y)
@@ -64,7 +56,6 @@ function shapeValue(shape: FieldShape, u: number, v: number, n: number, narrow: 
   // the hero erodes to paper along its bottom edge so the next section starts on paper
   const fade = Math.max(0, v - 0.8) * 14
   if (shape === 'hero') return (narrow ? (v - 0.56) * 3 + (u - 0.5) * 0.5 + (n - 0.5) * 1.4 : (u - 0.53) * 3.3 + (v - 0.5) * 0.8 + (n - 0.5) * 1.6) - fade
-  if (shape === 'footer') return (v - 0.34) * 2.6 + (u - 0.5) * 0.5 + (n - 0.5) * 1.4
   return (n - 0.5) * 2.4 + (v - 0.5) * 0.5
 }
 

@@ -25,6 +25,15 @@ export const BAYER8: number[][] = (() => {
 
 export const bayer = (x: number, y: number) => BAYER8[y & 7]![x & 7]!
 
+/** A stable [0, 1) value for one grid cell and seed. */
+export const hash = (x: number, y: number, s: number) => {
+  let h = (s ^ Math.imul(x | 0, 0x27d4eb2d) ^ Math.imul(y | 0, 0x165667b1)) >>> 0
+  h = Math.imul(h ^ (h >>> 15), 0x2c1b3c6d)
+  h = Math.imul(h ^ (h >>> 12), 0x297a2d39)
+  h ^= h >>> 15
+  return (h >>> 0) / 4294967296
+}
+
 /** A seeded [0, 1) generator from any string. */
 export const rng = (seed: string) => mulberry32(fnv1a(seed))
 

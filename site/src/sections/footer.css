@@ -122,11 +122,19 @@
   text-underline-offset: 2px;
 }
 
-/* the field, with the name sitting in solid ink at the bottom edge */
+/* the cliff scene, with the name sitting in its dark ground at the bottom edge */
 .foot__art {
   position: relative;
-  height: clamp(300px, 38vw, 540px);
+  height: clamp(360px, 46vw, 680px);
   overflow: hidden;
+}
+
+/* the scene's size is set in pixels from its cell grid and anchored to the ground */
+.foot__scene {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: block;
 }
 
 .foot__name {
@@ -177,6 +185,6 @@
   }
 
   .foot__art {
-    height: 240px;
+    height: 300px;
   }
 }

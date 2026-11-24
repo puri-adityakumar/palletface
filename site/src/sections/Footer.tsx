@@ -1,6 +1,6 @@
-import { useMemo, useRef } from 'react'
+import { useRef } from 'react'
 import { GitHubMark, Out } from '../components/Pixel'
-import { SeedField } from '../field/SeedField'
+import { CliffScene } from '../field/CliffScene'
 import { LINKS, VERSION } from '../lib/content'
 import './footer.css'
 
@@ -49,10 +49,9 @@ function XMark({ size = 16 }: { size?: number }) {
   )
 }
 
-/** Links and credits on paper, then the seed field with the name cut out of it. */
+/** Links and credits on paper, then the cliff scene with the name set in its ground. */
 export function Footer({ seed }: { seed: string }) {
   const wordRef = useRef<HTMLParagraphElement>(null)
-  const solid = useMemo(() => [wordRef], [])
   return (
     <footer className="foot">
       <div className="wrap foot__top">
@@ -116,7 +115,7 @@ export function Footer({ seed }: { seed: string }) {
       </div>
 
       <div className="foot__art">
-        <SeedField seed={`${seed}/footer`} shape="footer" solid={solid} />
+        <CliffScene seed={seed} ground={wordRef} />
         <div className="wrap foot__name">
           <p ref={wordRef} className="foot__word" aria-hidden="true">
             palletface<span className="foot__dot" />
