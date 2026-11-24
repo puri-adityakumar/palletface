@@ -58,7 +58,7 @@ export function Styles({ seed, input, setSeed }: { seed: string; input: string; 
           <p className="note">Type a seed and all {STYLE_COUNT} follow it. Click a tile to copy its call.</p>
           <SeedInput id="styles-seed" seed={input} setSeed={setSeed} />
           <p className="styles__legend">
-            <span /> Styles marked “Uses name” draw an initial from <code>name</code>.
+            <span /> Uses name: the style draws an initial from <code>name</code>.
           </p>
         </div>
         <ul ref={ref} className="tiles">
