@@ -1,9 +1,7 @@
 import { useMemo, useRef } from 'react'
-import { CopyButton } from '../components/CopyButton'
-import { Brand } from '../components/Brand'
-import { Out } from '../components/Pixel'
+import { GitHubMark, Out } from '../components/Pixel'
 import { SeedField } from '../field/SeedField'
-import { INSTALL, LINKS, PROVENANCE, STYLE_COUNT, VERSION } from '../lib/content'
+import { LINKS, VERSION } from '../lib/content'
 import './footer.css'
 
 const COLUMNS = [
@@ -17,49 +15,66 @@ const COLUMNS = [
     ],
   },
   {
-    title: 'Help',
+    title: 'Community',
     links: [
       ['Issues', LINKS.issues],
       ['Contributing', LINKS.contributing],
-      ['MIT license', LINKS.license],
-    ],
-  },
-  {
-    title: 'Friends',
-    links: [
       ['Sponsor', LINKS.sponsor],
       ['Palletism', LINKS.palletism],
     ],
   },
 ] as const
 
-const SPECS = [
-  ['Styles', String(STYLE_COUNT)],
-  ['Runtime deps', '0'],
-  ['Network requests', '0'],
-  ['Output', 'SVG string'],
-  ['Runs in', 'Node + browser'],
-  ['Ships as', 'ESM + types'],
-] as const
+/** The npm mark (Simple Icons `npm`). */
+function NpmMark({ size = 16 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.04 19.17H5.113z"
+      />
+    </svg>
+  )
+}
 
+/** The X mark (Simple Icons `x`). */
+function XMark({ size = 16 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"
+      />
+    </svg>
+  )
+}
+
+/** Links and credits on paper, then the seed field with the name cut out of it. */
 export function Footer({ seed }: { seed: string }) {
-  const headRef = useRef<HTMLDivElement>(null)
-  const linksRef = useRef<HTMLElement>(null)
-  const legendRef = useRef<HTMLDivElement>(null)
-  const metaRef = useRef<HTMLParagraphElement>(null)
-  const clear = useMemo(() => [headRef, linksRef], [])
-  const solid = useMemo(() => [legendRef, metaRef], [])
+  const wordRef = useRef<HTMLParagraphElement>(null)
+  const solid = useMemo(() => [wordRef], [])
   return (
     <footer className="foot">
-      <SeedField seed={`${seed}/footer`} shape="footer" clear={clear} solid={solid} />
-      <div className="wrap foot__layout">
-        <div ref={headRef} className="foot__head">
-          <Brand />
-          <h2>Plant a seed.</h2>
-          <CopyButton value={INSTALL} variant="install" />
+      <div className="wrap foot__top">
+        <div className="foot__intro">
+          <h2>
+            A unique face <em>for every user.</em>
+          </h2>
+          <p>Same user, same face, every time.</p>
+          <div className="foot__social">
+            <a href={LINKS.github} target="_blank" rel="noreferrer" aria-label="palletface on GitHub">
+              <GitHubMark size={20} />
+            </a>
+            <a href={LINKS.npm} target="_blank" rel="noreferrer" aria-label="palletface on npm">
+              <NpmMark size={20} />
+            </a>
+            <a href={LINKS.x} target="_blank" rel="noreferrer" aria-label="@adityawaslost on X">
+              <XMark size={18} />
+            </a>
+          </div>
         </div>
 
-        <nav ref={linksRef} className="foot__links" aria-label="Footer">
+        <nav className="foot__links" aria-label="Footer">
           {COLUMNS.map((col) => (
             <div key={col.title}>
               <p>{col.title}</p>
@@ -75,39 +90,38 @@ export function Footer({ seed }: { seed: string }) {
             </div>
           ))}
         </nav>
+      </div>
 
-        <div ref={legendRef} className="legend">
-          <p className="legend__title">Legend</p>
-          <ul className="legend__keys">
-            <li>
-              <span className="legend__cell legend__cell--ink" /> Grown from the seed
-            </li>
-            <li>
-              <span className="legend__cell legend__cell--digit">3</span> Neighbor count
-            </li>
-            <li>
-              <span className="legend__cell legend__cell--glow" /> Your pointer
-            </li>
-          </ul>
-          <dl className="legend__specs">
-            {SPECS.map(([k, v]) => (
-              <div key={k}>
-                <dt>{k}</dt>
-                <dd>{v}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-
-        <p ref={metaRef} className="foot__meta">
+      <div className="wrap">
+        <p className="foot__bar">
           <span>
-            v{VERSION} · MIT ·{' '}
+            © {new Date().getFullYear()}{' '}
             <a href={LINKS.author} target="_blank" rel="noreferrer">
               @puri-adityakumar
+            </a>{' '}
+            ·{' '}
+            <a href={LINKS.license} target="_blank" rel="noreferrer">
+              MIT
             </a>
           </span>
-          <span>{PROVENANCE}</span>
+          <span>
+            v{VERSION} · A sister project of{' '}
+            <a className="foot__pm" href={LINKS.palletism} target="_blank" rel="noreferrer">
+              <span className="brand__pm">
+                palletism<span className="brand__dot">.</span>art
+              </span>
+            </a>
+          </span>
         </p>
+      </div>
+
+      <div className="foot__art">
+        <SeedField seed={`${seed}/footer`} shape="footer" solid={solid} />
+        <div className="wrap foot__name">
+          <p ref={wordRef} className="foot__word" aria-hidden="true">
+            palletface<span className="foot__dot" />
+          </p>
+        </div>
       </div>
     </footer>
   )

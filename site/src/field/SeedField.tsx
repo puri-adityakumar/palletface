@@ -64,7 +64,7 @@ function shapeValue(shape: FieldShape, u: number, v: number, n: number, narrow: 
   // the hero erodes to paper along its bottom edge so the next section starts on paper
   const fade = Math.max(0, v - 0.8) * 14
   if (shape === 'hero') return (narrow ? (v - 0.56) * 3 + (u - 0.5) * 0.5 + (n - 0.5) * 1.4 : (u - 0.53) * 3.3 + (v - 0.5) * 0.8 + (n - 0.5) * 1.6) - fade
-  if (shape === 'footer') return (v - 0.42) * 2.6 + (u - 0.5) * 0.5 + (n - 0.5) * 1.4
+  if (shape === 'footer') return (v - 0.34) * 2.6 + (u - 0.5) * 0.5 + (n - 0.5) * 1.4
   return (n - 0.5) * 2.4 + (v - 0.5) * 0.5
 }
 

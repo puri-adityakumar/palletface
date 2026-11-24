@@ -20,6 +20,7 @@ export const LINKS = {
   sponsor: 'https://github.com/sponsors/puri-adityakumar',
   author: 'https://github.com/puri-adityakumar',
   palletism: 'https://palletism.art',
+  x: 'https://x.com/adityawaslost',
 } as const
 
 export const QUICK_START = `import { ditherFace } from 'palletface'
@@ -35,5 +36,3 @@ export const SHOWCASE_SEEDS = [
 
 /** Seeds that read as people. Unicode on purpose: any string is a valid seed. */
 export const SAMPLE_SEEDS = ['ada', 'kai', 'yuki', 'élodie', 'marcus', 'rhea', 'quinn', 'zeke', 'noor', 'tomás', 'aditya', 'mina'] as const
-
-export const PROVENANCE = 'A sister project of Palletism.'
