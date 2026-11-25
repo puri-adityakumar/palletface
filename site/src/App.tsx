@@ -8,7 +8,7 @@ import { HowItWorks, QuickStart } from './sections/HowItWorks'
 import { Sponsor } from './sections/Sponsor'
 import { Faq } from './sections/Faq'
 import { Footer } from './sections/Footer'
-import { StylesPage } from './pages/StylesPage'
+import { PlaygroundPage } from './pages/PlaygroundPage'
 import { ChangelogPage } from './pages/ChangelogPage'
 import { usePath } from './lib/router'
 
@@ -17,7 +17,7 @@ const INK = '#1d1d1b'
 
 export default function App() {
   const path = usePath()
-  if (path === '/styles') return <StylesPage />
+  if (path === '/playground') return <PlaygroundPage />
   if (path === '/changelog') return <ChangelogPage />
   return <Landing />
 }

@@ -21,12 +21,14 @@ npm run dev        # http://localhost:5173/
 | `npm run typecheck` | Typecheck the site and the library source it imports. |
 | `npm run build` | Typecheck, then build the site into `dist/`. |
 | `npm run preview` | Serve the built `dist/` locally. |
+| `npm run sync:releases` | Refresh the changelog's bundled releases from GitHub. Needs the `gh` CLI. |
 
 ## Layout
 
 - `index.html` and `src/main.tsx` are the entry points. `src/App.tsx` orders the sections.
-- [`public/docs/guide.md`](public/docs/guide.md) is the source for the static docs pages and the Markdown at `/docs/guide.md`. `docs/markdown.ts` maps each top-level section to its HTML route with a shared sidebar. `public/llms.txt` links agents to the full guide. The docs default to dark mode and remember the reader's theme preference.
+- [`public/docs/guide.md`](public/docs/guide.md) is the source for the static docs pages and the Markdown at `/docs/guide.md`. `docs/markdown.ts` maps each top-level section to its HTML route with a shared sidebar. Code blocks fenced with `` ```js example `` run when the docs build, and the avatars they draw appear under them. `public/llms.txt` links agents to the full guide. The docs default to dark mode and remember the reader's theme preference.
 - `src/sections/` holds one component and one stylesheet per page section.
+- `src/pages/` holds the playground at `/playground` and the changelog at `/changelog`. `src/App.tsx` picks the page from the path. The changelog shows the releases bundled in `src/lib/releases.ts` and refreshes them from the GitHub API when it can.
 - `src/field/SeedField.tsx` draws the seed field on a canvas behind the hero, the sponsor panel, and the footer. Ink cells grow from the seed, paper cells show how many ink neighbours they have, and areas passed as `clear` or `solid` stay paper or ink.
 - `src/components/` and `src/lib/` hold shared pieces: copy buttons, the seed input, pixel icons, avatar helpers, pixel reveals, and the page copy in `lib/content.ts`.
 - `src/prototype/` and `prototype.html` are the five throwaway design prototypes the page grew from. Keep them out of production code. Their extra fonts are dev dependencies.
@@ -72,7 +74,7 @@ npm run build
 npx wrangler pages deploy dist --project-name palletface
 ```
 
-`public/_headers` sets caching for hashed assets and a few security headers.
+`public/_headers` sets caching for hashed assets and a few security headers. The build has no top-level `404.html`, so Cloudflare Pages serves `index.html` for unknown paths and `/playground` and `/changelog` load directly.
 
 ## After a release
 

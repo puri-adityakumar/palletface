@@ -1,5 +1,6 @@
 import { useMemo, useState, type UIEvent } from 'react'
 import { fnv1a } from 'palletface'
+import { Code } from '../components/Code'
 import { CopyButton } from '../components/CopyButton'
 import { face, Face, svgUrl } from '../lib/faces'
 import { useInView, useReducedMotion } from '../lib/hooks'
@@ -126,25 +127,6 @@ export function HowItWorks({ seed }: { seed: string }) {
   )
 }
 
-const TOKENS = /('(?:[^']*)'|`.*`|\b(?:import|from|const)\b|\b\d+\b)/g
-
-function Line({ text }: { text: string }) {
-  const parts = text.split(TOKENS)
-  return (
-    <>
-      {parts.map((part, i) =>
-        i % 2 === 0 ? (
-          part
-        ) : (
-          <span key={i} className={part.startsWith("'") || part.startsWith('`') ? 'tok-str' : /^\d/.test(part) ? 'tok-num' : 'tok-kw'}>
-            {part}
-          </span>
-        ),
-      )}
-    </>
-  )
-}
-
 export function QuickStart() {
   const sample = useMemo(() => face('user-123', 'pixel-sprite', 80), [])
   return (
@@ -168,15 +150,7 @@ export function QuickStart() {
           <div className="quick__step">
             <h3>Call it with any string</h3>
             <div className="quick__call">
-              <pre className="code">
-                <code>
-                  {QUICK_START.split('\n').map((line, i) => (
-                    <span key={i} className="code__line">
-                      <Line text={line || ' '} />
-                    </span>
-                  ))}
-                </code>
-              </pre>
+              <Code code={QUICK_START} />
               <span className="quick__arrow" aria-hidden="true">
                 →
               </span>

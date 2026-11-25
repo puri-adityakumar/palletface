@@ -13,10 +13,13 @@ export function face(seed: string, style: StyleSlug, px = 80, name?: string): st
 
 export const svgUrl = (svg: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 
+/** A single-quoted JavaScript string literal. */
+export const quote = (s: string) => `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+
 /** The exact call that draws an avatar, for copy buttons and code captions. */
 export function callFor(seed: string, style: StyleSlug, px = 80, name?: string): string {
-  const named = LETTER_STYLES.has(style) && name !== undefined ? `, name: ${JSON.stringify(name)}` : ''
-  return `palletface(${JSON.stringify(seed)}, { style: '${style}', px: ${px}${named} })`
+  const named = LETTER_STYLES.has(style) && name !== undefined ? `, name: ${quote(name)}` : ''
+  return `palletface(${quote(seed)}, { style: '${style}', px: ${px}${named} })`
 }
 
 type FaceProps = {

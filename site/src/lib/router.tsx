@@ -39,10 +39,12 @@ export function Link({ to, children, onClick, ...rest }: LinkProps) {
 /** Sets the tab title and returns to the top on every page change. */
 export function usePageMeta(title: string) {
   useEffect(() => {
+    const previous = document.title
     document.title = title
-    window.scrollTo(0, 0)
+    // A new page starts at the top at once, even with smooth scrolling on the root.
+    window.scrollTo({ top: 0, behavior: 'instant' })
     return () => {
-      document.title = 'palletface'
+      document.title = previous
     }
   }, [title])
 }

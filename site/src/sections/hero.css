@@ -25,7 +25,8 @@
   cursor: default;
 }
 
-.nav ul {
+.nav ul,
+.subhead ul {
   display: flex;
   gap: 4px;
   list-style: none;
@@ -34,7 +35,8 @@
   background: var(--paper);
 }
 
-.nav ul a {
+.nav ul a,
+.subhead ul a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -45,7 +47,8 @@
   text-decoration: none;
 }
 
-.nav ul a:hover {
+.nav ul a:hover,
+.subhead ul a:hover {
   background: var(--ink);
   color: var(--paper);
 }
@@ -283,7 +286,8 @@
     padding: 16px var(--pad);
   }
 
-  .nav ul a {
+  .nav ul a,
+  .subhead ul a {
     padding: 8px 8px;
   }
 
@@ -332,11 +336,13 @@
 }
 
 @media (max-width: 400px) {
-  .nav {
+  .nav,
+  .subhead {
     gap: 12px;
   }
 
-  .nav ul a {
+  .nav ul a,
+  .subhead ul a {
     padding: 8px 4px;
   }
 

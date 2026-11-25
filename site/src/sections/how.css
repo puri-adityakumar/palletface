@@ -247,36 +247,6 @@
   color: var(--paper);
 }
 
-.code {
-  flex: 1;
-  min-width: 0;
-  margin: 0;
-  overflow-x: auto;
-  font: 400 15px/1.75 var(--mono);
-  color: var(--paper);
-}
-
-.code code {
-  font: inherit;
-}
-
-.code__line {
-  display: block;
-  white-space: pre;
-}
-
-.tok-kw {
-  color: var(--blue-soft);
-}
-
-.tok-str {
-  color: #e6e6a8;
-}
-
-.tok-num {
-  color: #f2b8a0;
-}
-
 @media (max-width: 1000px) {
   /* the three steps become a swipe slider; the next step peeks in from the right */
   .how__steps {
@@ -337,7 +307,7 @@
     display: none;
   }
 
-  .code {
+  .quick__call .code {
     width: 100%;
     font-size: 12.5px;
   }

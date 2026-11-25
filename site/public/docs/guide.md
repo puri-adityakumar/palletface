@@ -29,18 +29,78 @@ const svg = palletface('user-123', {
 writeFileSync('avatar.svg', svg)
 ```
 
-The examples work with `@beta`. The playground and style catalog show this site's source build, which can include styles ahead of npm.
+The snippets work with `@beta`. The avatars in these docs and in the [playground](/playground) come from this site's source build, which can include styles ahead of npm.
 
-## Playground
+## Examples
 
-1. Choose a style and enter a stable seed, such as a user ID.
-2. Set the size in pixels. For initial styles, enter a name or leave it blank to use the seed.
-3. Click **Copy** for the JavaScript or **Download SVG** to save the image.
+Each snippet below runs when the docs are built, and the avatars under it are what it returns. To try your own seed, open the [playground](/playground).
 
-<!-- playground -->
+The snippets use this import:
 
-The playground uses the site's source build. Some styles may be ahead of the published package.
+```js
+import { ditherFace as palletface, STYLES } from 'palletface'
+```
 
+### Default avatar
+
+Pass only a seed to get `pixel-sprite` at 80 px.
+
+```js example
+const svg = palletface('user-123')
+```
+
+### Choose a style
+
+Set `style` to any slug from the [style list](/docs/styles/).
+
+```js example
+const svg = palletface('user-123', { style: 'dither-orb' })
+```
+
+### Set the size
+
+`px` sets the width and height in CSS pixels.
+
+```js example
+const sizes = [24, 40, 64, 96]
+const avatars = sizes.map((px) =>
+  palletface('user-123', { style: 'pixel-landscape', px }),
+)
+```
+
+### Draw an initial
+
+Initial styles draw the first letter or digit of `name`. Accents are dropped, so `Élodie` draws `E`. The seed still picks the colors, and without a name the style uses the seed.
+
+```js example
+const names = ['Ada', 'Élodie', '42']
+const avatars = names.map((name) =>
+  palletface('user-123', { style: 'pixel-letter', name }),
+)
+```
+
+### Every style for one seed
+
+Loop over `STYLES` to show every style in your installed version.
+
+```js example
+const avatars = STYLES.map(({ slug }) =>
+  palletface('user-123', { style: slug, px: 64 }),
+)
+```
+
+### One style for many users
+
+Use a stable user ID as the seed. Each user keeps the same avatar every time it renders.
+
+```js example
+const users = ['ada', 'kai', 'yuki', 'noor', 'tomás', 'mina']
+const avatars = users.map((id) =>
+  palletface(id, { style: 'pixel-flora' }),
+)
+```
+
+To show an SVG in a page or return it from a server, see [Integrations](/docs/integrations/).
 ## API reference
 
 ### Options
