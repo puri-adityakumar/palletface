@@ -3,7 +3,6 @@ import { STYLES, type StyleSlug } from 'palletface'
 import { Brand } from '../components/Brand'
 import { CopyButton } from '../components/CopyButton'
 import { GitHubLink } from '../components/GitHubLink'
-import { Out } from '../components/Pixel'
 import { SeedField, type Dig } from '../field/SeedField'
 import { INSTALL, LINKS, SAMPLE_SEEDS, STYLE_COUNT } from '../lib/content'
 import { Face, LETTER_STYLES } from '../lib/faces'
@@ -49,7 +48,7 @@ function StyleCard({ seed }: { seed: string }) {
         <Face seed={seed} style={item.slug} px={232} name={capital(seed)} alt={`${item.title} avatar for “${seed}”`} />
       </Pixelate>
       <code className="card__call">
-        ditherFace('{seed}', {'{'} style: '{item.slug}'{LETTER_STYLES.has(item.slug) ? `, name: '${capital(seed)}'` : ''} {'}'})
+        palletface('{seed}', {'{'} style: '{item.slug}'{LETTER_STYLES.has(item.slug) ? `, name: '${capital(seed)}'` : ''} {'}'})
       </code>
       <span className="card__next" aria-hidden="true">
         next style →
@@ -102,9 +101,7 @@ export function Hero({ seed }: { seed: string }) {
         <Brand ref={brandRef} />
         <ul ref={linksRef} data-nodig>
           <li>
-            <a href={LINKS.docs} target="_blank" rel="noreferrer">
-              Docs <Out />
-            </a>
+            <a href={LINKS.docs}>Docs</a>
           </li>
           <li>
             <GitHubLink />
@@ -123,9 +120,7 @@ export function Hero({ seed }: { seed: string }) {
           </p>
           <div className="hero__actions">
             <CopyButton value={INSTALL} variant="install" />
-            <a className="btn" href={LINKS.docs} target="_blank" rel="noreferrer">
-              Read the docs <Out />
-            </a>
+            <a className="btn" href={LINKS.docs}>Read the docs</a>
           </div>
         </div>
 

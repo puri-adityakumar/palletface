@@ -82,7 +82,9 @@ export function Footer({ seed }: { seed: string }) {
               <ul>
                 {col.links.map(([label, href]) => (
                   <li key={label}>
-                    {href.startsWith('/') ? (
+                    {href === LINKS.docs ? (
+                      <a href={href}>{label}</a>
+                    ) : href.startsWith('/') ? (
                       <Link to={href}>{label}</Link>
                     ) : (
                       <a href={href} target="_blank" rel="noreferrer">

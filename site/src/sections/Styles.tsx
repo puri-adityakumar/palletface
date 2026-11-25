@@ -4,7 +4,7 @@ import { SeedInput } from '../components/SeedInput'
 import { callFor, Face, LETTER_STYLES } from '../lib/faces'
 import { useCopy, useInView } from '../lib/hooks'
 import { Pixelate, usePixelSteps } from '../lib/pixelate'
-import { STYLE_COUNT } from '../lib/content'
+import { AVATAR_IMPORT, STYLE_COUNT } from '../lib/content'
 import './styles.css'
 
 const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
@@ -12,7 +12,8 @@ const pad = (n: number) => String(n).padStart(2, '0')
 
 function Tile({ seed, slug, title, index, play }: { seed: string; slug: StyleSlug; title: string; index: number; play: boolean }) {
   const named = LETTER_STYLES.has(slug)
-  const [state, copy] = useCopy(callFor(seed, slug, 80, named ? capital(seed) : undefined))
+  const call = callFor(seed, slug, 80, named ? capital(seed) : undefined)
+  const [state, copy] = useCopy(`${AVATAR_IMPORT}\n\nconst svg = ${call}`)
   const [hover, setHover] = useState(0)
   const block = usePixelSteps(play ? `${seed}:${hover}` : null, { from: 30, duration: 520, steps: 6 })
   return (

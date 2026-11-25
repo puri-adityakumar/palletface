@@ -9,7 +9,7 @@ const FEATURES = [
   {
     title: 'Same seed, same face',
     body: 'Pass the same seed and options and you get the same SVG back, byte for byte. On the same package version, a user keeps the same avatar across visits, devices, and servers, so there is no avatar to save.',
-    detail: (seed: string) => `ditherFace('${seed}') === ditherFace('${seed}')`,
+    detail: (seed: string) => `palletface('${seed}') === palletface('${seed}')`,
     tag: 'Same seed',
   },
   {
@@ -38,8 +38,8 @@ const FEATURES = [
   },
   {
     title: 'One typed function',
-    body: `Call ditherFace with a seed and get an SVG string back. Pick one of ${STYLE_COUNT} styles, set the size with px, and pass a name for the letter styles. It ships as ESM with TypeScript types.`,
-    detail: () => 'ditherFace(seed, { style, px, name })',
+    body: `Pass a seed to get an SVG string back. Pick one of ${STYLE_COUNT} styles, set the size with px, and pass a name for the letter styles. It ships as ESM with TypeScript types.`,
+    detail: () => 'palletface(seed, { style, px, name })',
     tag: 'One function',
   },
 ] as const
@@ -145,7 +145,7 @@ function Plot({ seed, active, visit, reduced }: { seed: string; active: number; 
               <Face seed={seed} style="pixel-sprite" px={240} className="plotter__art" />
               <div className="plotter__chip" key={inNode ? 'node' : 'browser'}>
                 <span>{inNode ? 'server.ts' : 'page.tsx'}</span>
-                <code>ditherFace(user.id)</code>
+                <code>palletface(user.id)</code>
               </div>
             </>
           )}

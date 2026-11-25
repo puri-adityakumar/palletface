@@ -1,13 +1,3 @@
-/** The palletface mark: an 11 by 11 pixel flower using the favicon's blue and red. */
-export function PixelBloom({ size = 22 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 11 11" width={size} height={size} aria-hidden="true" shapeRendering="crispEdges">
-      <path fill="#2b4fa5" d="M4 0h3v3h1V2h2v2H9v1h2v2H8v1h1v2H7V9H6v2H4V8H3v1H1V7h1V6H0V4h3V3H2V1h2z" />
-      <path fill="#e8553e" d="M4 4h3v3H4z" />
-    </svg>
-  )
-}
-
 /** The GitHub mark (Octicons `mark-github`). */
 export function GitHubMark({ size = 14 }: { size?: number }) {
   return (

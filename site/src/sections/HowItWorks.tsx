@@ -184,7 +184,7 @@ export function QuickStart() {
             </div>
           </div>
           <p className="quick__more">
-            Change it with <code>style</code>, <code>px</code>, and <code>name</code>. See the <a href={LINKS.docs}>README</a> for all{' '}
+            Change it with <code>style</code>, <code>px</code>, and <code>name</code>. See the <a href={`${LINKS.docs}styles/`}>docs</a> for all{' '}
             {STYLE_COUNT} styles.
           </p>
         </div>

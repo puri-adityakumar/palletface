@@ -1,20 +1,7 @@
+@import './theme.css';
+
 :root {
-  --paper: #e7e7e3;
-  --paper-2: #dcdcd7;
-  --paper-3: #f2f2ef;
-  --ink: #1d1d1b;
-  --ink-2: #2b2b28;
-  --ink-line: #3c3c38;
-  --muted: #64645f;
-  --muted-ink: #93938d;
-  --blue: #2633d9;
-  --blue-soft: #a9b0ff;
-  --line: #1d1d1b;
-  --sans: 'Inter Tight Variable', 'Helvetica Neue', Arial, sans-serif;
-  --mono: 'Geist Mono Variable', ui-monospace, Menlo, monospace;
-  --brand: 'Geist Variable', 'Inter Tight Variable', Arial, sans-serif;
   --pad: 28px;
-  color-scheme: light;
 }
 
 *,

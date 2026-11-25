@@ -4,14 +4,14 @@ import { STYLES } from 'palletface'
 
 export const VERSION: string = pkg.version
 export const STYLE_COUNT = STYLES.length
-export const INSTALL = 'npm install palletface'
+export const INSTALL = 'npm install palletface@beta'
 
 const REPO = 'https://github.com/puri-adityakumar/palletface'
 export const REPO_API = 'https://api.github.com/repos/puri-adityakumar/palletface'
 
 export const LINKS = {
   github: REPO,
-  docs: `${REPO}#readme`,
+  docs: '/docs/',
   releases: `${REPO}/releases`,
   issues: `${REPO}/issues`,
   license: `${REPO}/blob/main/LICENSE`,
@@ -23,9 +23,11 @@ export const LINKS = {
   x: 'https://x.com/adityawaslost',
 } as const
 
-export const QUICK_START = `import { ditherFace } from 'palletface'
+export const AVATAR_IMPORT = `import { ditherFace as palletface } from 'palletface'`
 
-const svg = ditherFace('user-123')`
+export const QUICK_START = `${AVATAR_IMPORT}
+
+const svg = palletface('user-123')`
 
 /** The example strip: three seeds per style, in style order. */
 export const SHOWCASE_SEEDS = [

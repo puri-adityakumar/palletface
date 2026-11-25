@@ -28,7 +28,7 @@ To try the standalone playground, run `npm run build:web` and open `playground/i
 3. Validate direct-renderer inputs consistently with the public API.
 4. Add determinism, diversity, SVG structure, edge-case, and style-specific tests.
 5. Capture representative fixed-output expectations. Document intentional changes separately from unchanged seeded geometry.
-6. Update the style registry, public types, and README once the style contract is agreed.
+6. Update the style registry, public types, README, and [docs style catalog](site/public/docs/guide.md#styles) once the style contract is agreed.
 
 ## Pull requests
 

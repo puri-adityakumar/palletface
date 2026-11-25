@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- docs metadata -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="text/markdown" href="/docs/guide.md" title="palletface docs in Markdown" />
+    <script>
+      try {
+        if (localStorage.getItem('palletface.docs.theme') === 'light') {
+          document.documentElement.dataset.theme = 'light'
+        }
+      } catch {
+        // Keep the default theme when storage is unavailable.
+      }
+    </script>
+    <link rel="stylesheet" href="/src/docs/docs.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
+    <header class="docs-header">
+      <div class="docs-width docs-header-inner">
+        <a class="docs-brand" href="/" aria-label="palletface home">
+          <img src="/src/assets/pixel-bloom.svg" alt="" width="24" height="24" />
+          palletface
+        </a>
+        <button type="button" id="docs-theme" class="theme-toggle" aria-label="Dark mode" aria-pressed="true" title="Dark mode" hidden>
+          <svg class="theme-moon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round">
+            <path d="M20.9 13.3A9 9 0 1 1 10.7 3.1a7.2 7.2 0 0 0 10.2 10.2Z" />
+          </svg>
+          <svg class="theme-sun" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" />
+          </svg>
+        </button>
+      </div>
+    </header>
+    <div class="docs-width docs-layout">
+      <aside class="docs-sidebar">
+        <nav class="docs-sections" aria-label="Documentation sections">
+          <h2>Getting started</h2>
+          <ul><!-- docs getting started --></ul>
+          <h2>Reference</h2>
+          <ul><!-- docs reference --></ul>
+        </nav>
+        <nav aria-labelledby="docs-resources-title">
+          <h2 id="docs-resources-title">Resources</h2>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="https://github.com/puri-adityakumar/palletface">GitHub</a></li>
+            <li><a href="/docs/guide.md">Markdown</a></li>
+            <li><a href="/llms.txt">llms.txt</a></li>
+          </ul>
+        </nav>
+      </aside>
+      <main id="content" tabindex="-1">
+        <article class="guide">
+          <!-- docs heading -->
+          <!-- docs outline -->
+          <div class="guide-body">
+            <!-- docs guide -->
+          </div>
+        </article>
+      </main>
+    </div>
+    <script type="module" src="/src/docs/controls.ts"></script>
+    <!-- docs playground script -->
+  </body>
+</html>

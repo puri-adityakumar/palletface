@@ -1,25 +1,25 @@
-# dither-face
+# palletface
 
 **Deterministic pixel, dither, and geometric avatars. One seed, twelve styles, zero runtime dependencies.**
 
 Turn a user ID into a standalone SVG, on the server or in the browser. No avatar service, image storage, account, or network request required. An independent, MIT-licensed sister project of [Palletism](https://palletism.art).
 
+[Documentation and integration examples](site/public/docs/guide.md)
+
 ![Samples of all twelve avatar styles listed below](.github/preview.svg)
 
-> **0.1 beta.** Install the preview with the `beta` dist-tag. Before 1.0, minor releases may change the API or avatar output. Pin an exact version when identities need to stay stable across upgrades.
+> Install the published preview with the `beta` dist-tag. The style catalog below follows this repository and can include styles ahead of npm. Pin an exact version when avatars need to stay stable across upgrades.
 
 ## Quick start
-
-After the beta is approved on npm:
 
 ```sh
 npm install palletface@beta
 ```
 
 ```ts
-import { ditherFace } from 'palletface'
+import { ditherFace as palletface } from 'palletface'
 
-const svg = ditherFace('user-123', {
+const svg = palletface('user-123', {
   style: 'pixel-letter',
   name: 'Aditya',
   px: 80,
@@ -29,7 +29,7 @@ const svg = ditherFace('user-123', {
 const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 ```
 
-`svg` is a complete SVG string with an XML namespace, dimensions, and a viewBox. The same inputs produce the same output with the same package version in the tested runtimes. For the simplest call, `ditherFace('user-123')` uses `pixel-sprite` at 80px.
+`svg` is a complete SVG string with an XML namespace, dimensions, and a viewBox. The same inputs produce the same output with the same package version in the tested runtimes. For the simplest call, `palletface('user-123')` uses `pixel-sprite` at 80px.
 
 ## Twelve styles
 
@@ -55,7 +55,7 @@ Use `STYLES` to populate a style picker. Saved `ascii-letter`, `ascii-field`, an
 ## Options
 
 ```ts
-import { ditherFace, type DitherFaceOptions, type StyleSlug } from 'palletface'
+import type { DitherFaceOptions, StyleSlug } from 'palletface'
 ```
 
 | Input | Type | Default | Behavior |
@@ -82,9 +82,9 @@ Use your existing bundler, or run `npm run build:web` in this repository for the
 ### Server-side rendering
 
 ```js
-import { ditherFace } from 'palletface'
+import { ditherFace as palletface } from 'palletface'
 
-const svg = ditherFace('user-123', { style: 'pixel-emotes', px: 80 })
+const svg = palletface('user-123', { style: 'pixel-landscape', px: 80 })
 // Send as an SVG response with Content-Type: image/svg+xml,
 // or encode it into an image's data URL in your HTML template.
 ```
@@ -115,4 +115,4 @@ Open `playground/index.html` in your browser. `npm run sheet -- out-sheet` gener
 
 - [Contributing](CONTRIBUTING.md) · [Releasing](RELEASING.md) · [Security](SECURITY.md) · [MIT license](LICENSE)
 
-dither-face grew from Palletism's avatar experiments, but is independently installable and usable in any application. Palletism's existing avatars are not automatically migrated by this package.
+palletface grew from Palletism's avatar experiments and is independently installable and usable in any application. Palletism's existing avatars are not automatically migrated by this package.

@@ -5,7 +5,7 @@ import { SubHead } from '../components/SubHead'
 import { Footer } from '../sections/Footer'
 import { callFor, Face, LETTER_STYLES } from '../lib/faces'
 import { useCopy } from '../lib/hooks'
-import { STYLE_COUNT } from '../lib/content'
+import { AVATAR_IMPORT, STYLE_COUNT } from '../lib/content'
 import { usePageMeta } from '../lib/router'
 import './page.css'
 
@@ -14,7 +14,7 @@ const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 function GalleryCard({ seed, slug, title }: { seed: string; slug: StyleSlug; title: string }) {
   const named = LETTER_STYLES.has(slug)
   const call = callFor(seed, slug, 200, named ? capital(seed) : undefined)
-  const [state, copy] = useCopy(call)
+  const [state, copy] = useCopy(`${AVATAR_IMPORT}\n\nconst svg = ${call}`)
   return (
     <li className="gal">
       <Face seed={seed} style={slug} px={200} name={capital(seed)} alt={`${title} avatar for “${seed}”`} className="gal__art" />
