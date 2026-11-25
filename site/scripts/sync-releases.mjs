@@ -24,4 +24,4 @@ export type Release = {
 
 export const RELEASES: Release[] = `
 writeFileSync(new URL('../src/lib/releases.ts', import.meta.url), header + JSON.stringify(releases, null, 2) + '\n')
-console.log(\`Bundled \${releases.length} release(s).\`)
+console.log(`Bundled ${releases.length} release(s).`)
