@@ -43,6 +43,7 @@
 .pg__controls {
   grid-area: controls;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 28px;
   padding: 32px;
@@ -296,6 +297,10 @@
   align-items: end;
   gap: 16px 48px;
   margin-bottom: 32px;
+}
+
+.pg-sec__head .note {
+  overflow-wrap: anywhere;
 }
 
 .pg-sec__head h2 {
