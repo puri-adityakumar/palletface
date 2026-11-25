@@ -139,7 +139,7 @@ export function QuickStart() {
             SVG out.
           </h2>
           <p className="quick__pin">
-            Before 1.0, a minor release may change the output. Pin it with <code>--save-exact</code>.
+            Minor and patch releases never change existing avatars.
           </p>
         </div>
         <div className="quick__steps">

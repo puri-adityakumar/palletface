@@ -72,7 +72,7 @@ function SeedCard({ seed }: { seed: string }) {
         <Face seed={seed} style={style} px={208} name={nameFor(seed)} />
       </Pixelate>
       <code className="ff-card__call">
-        ditherFace('{seed}', {'{'}
+        palletface('{seed}', {'{'}
         <br />
         {'  '}style: '{style}'{LETTER_STYLES.has(style) ? ', name' : ''} {'}'})
       </code>

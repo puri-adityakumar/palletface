@@ -28,7 +28,7 @@ npm run dev        # http://localhost:5173/
 - `index.html` and `src/main.tsx` are the entry points. `src/App.tsx` orders the sections.
 - [`public/docs/guide.md`](public/docs/guide.md) is the source for the static docs pages and the Markdown at `/docs/guide.md`. `docs/markdown.ts` maps each top-level section to its HTML route with a shared sidebar. Code blocks fenced with `` ```js example `` run when the docs build, and the avatars they draw appear under them. A table whose first column is `Slug` gets a preview column drawn from each slug. `public/llms.txt` links agents to the full guide. The docs default to dark mode and remember the reader's theme preference.
 - `src/sections/` holds one component and one stylesheet per page section.
-- `src/pages/` holds the playground at `/playground` and the changelog at `/changelog`. `src/App.tsx` picks the page from the path. The changelog shows the releases bundled in `src/lib/releases.ts` and refreshes them from the GitHub API when it can.
+- `src/pages/` holds the playground at `/playground` and the changelog at `/changelog`. `src/App.tsx` picks the page from the path. The changelog shows only stable releases. It starts from the ones bundled in `src/lib/releases.ts` and refreshes them from the GitHub API when it can, skipping pre-releases.
 - `src/field/SeedField.tsx` draws the seed field on a canvas behind the hero, the sponsor panel, and the footer. Ink cells grow from the seed, paper cells show how many ink neighbours they have, and areas passed as `clear` or `solid` stay paper or ink.
 - `src/components/` and `src/lib/` hold shared pieces: copy buttons, the seed input, pixel icons, avatar helpers, pixel reveals, and the page copy in `lib/content.ts`.
 - `src/prototype/` and `prototype.html` are the five throwaway design prototypes the page grew from. Keep them out of production code. Their extra fonts are dev dependencies.
@@ -81,5 +81,5 @@ npx wrangler pages deploy dist --project-name palletface
 Follow step 3 of [Verify and publish](../RELEASING.md#verify-and-publish) in the release runbook:
 
 1. Check that `main` has the released version in the root `package.json`.
-2. Check the install commands in `src/lib/content.ts` and `public/docs/guide.md`. Use `npm install palletface` once the stable release is on `latest`.
+2. Run `npm run sync:releases` so the changelog bundles the new release, and commit `src/lib/releases.ts`.
 3. Deploy (a push to `main` does it), then open the live page and check the version, the install command, and that every style in the showcase renders.

@@ -1,4 +1,4 @@
-import { ditherFace, type StyleSlug } from 'palletface'
+import { palletface, type StyleSlug } from 'palletface'
 import { bayer } from '../../lib/dither'
 import { LETTER_STYLES, svgUrl } from '../../lib/faces'
 
@@ -12,7 +12,7 @@ const PASSES = [
 
 export function makePlot(seed: string, style: StyleSlug, index: number) {
   const start = performance.now()
-  const svg = ditherFace(seed, { style, px: PX, name: LETTER_STYLES.has(style) ? seed : undefined })
+  const svg = palletface(seed, { style, px: PX, name: LETTER_STYLES.has(style) ? seed : undefined })
   const ms = performance.now() - start
   const native = Number(svg.match(/viewBox="0 0 (\d+) \d+"/)?.[1] ?? 20)
   return {

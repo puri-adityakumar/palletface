@@ -77,7 +77,7 @@ const text = (x, y, attrs, content) =>
 const place = (svg, x, y) => `<g transform="translate(${x},${y})">${svg}</g>`
 
 /**
- * Build the sheet svg. `lib` is the built dither-face module (INK, PAPER);
+ * Build the sheet svg. `lib` is the built palletface module (INK, PAPER);
  * `styles` is the registry; `users` defaults to the reference eight.
  */
 export function renderSheet(lib, styles, users = USERS) {

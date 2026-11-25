@@ -1,25 +1,27 @@
 {
   "name": "palletface",
-  "version": "0.2.0-beta.1",
-  "description": "Deterministic seeded SVG avatars — pixel and ascii faces picked from a user id, so they never change between renders.",
+  "version": "1.0.0",
+  "description": "Deterministic SVG avatars from any string: twelve pixel, dither, and geometric styles with zero runtime dependencies.",
   "type": "module",
   "license": "MIT",
   "author": "puri-adityakumar <contact@palletism.art>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/puri-adityakumar/dither-face.git"
+    "url": "git+https://github.com/puri-adityakumar/palletface.git"
   },
   "bugs": {
-    "url": "https://github.com/puri-adityakumar/dither-face/issues"
+    "url": "https://github.com/puri-adityakumar/palletface/issues"
   },
-  "homepage": "https://github.com/puri-adityakumar/dither-face#readme",
+  "homepage": "https://github.com/puri-adityakumar/palletface#readme",
   "keywords": [
     "avatar",
+    "avatar-generator",
     "identicon",
+    "profile-picture",
     "svg",
     "pixel-art",
-    "ascii",
     "dither",
+    "generative-art",
     "deterministic",
     "palletism"
   ],
@@ -42,7 +44,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "build": "tsc",
-    "build:web": "esbuild src/index.ts --bundle --format=iife --global-name=DitherFace --outfile=dist/dither-face.js",
+    "build:web": "esbuild src/index.ts --bundle --format=iife --global-name=Palletface --outfile=dist/palletface.js",
     "sheet": "npm run build && node scripts/render-sheet.mjs",
     "preview:render": "npm run build && node scripts/render-preview.mjs",
     "check": "npm run typecheck && npm run test && npm run build",

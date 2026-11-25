@@ -1,5 +1,5 @@
 /**
- * The registry holds the avatar styles in sheet order. `ditherFace` is the
+ * The registry holds the avatar styles in sheet order. `palletface` is the
  * one-call consumer API. Every avatar is a pure function of its seed
  * string for a given package version and runtime configuration.
  */
@@ -38,7 +38,7 @@ export { pixelFlora, pixelRelic, pixelStamp }
 
 /** One look in the registry. */
 export interface AvatarStyle {
-  /** Url-safe id passed as `style` to `ditherFace`, e.g. `"pixel-sprite"`. */
+  /** Url-safe id passed as `style` to `palletface`, e.g. `"pixel-sprite"`. */
   readonly slug: StyleSlug
   /** Sheet row title, e.g. "pixel sprite". */
   readonly title: string
@@ -53,7 +53,7 @@ export interface AvatarStyle {
 }
 
 /**
- * Slugs accepted by `ditherFace(seed, { style })`, including legacy ASCII styles.
+ * Slugs accepted by `palletface(seed, { style })`, including legacy ASCII styles.
  * Use `STYLES` for the current style picker and sheet order.
  */
 export type StyleSlug =
@@ -155,8 +155,8 @@ const LEGACY_STYLES = new Map<string, AvatarStyle['draw']>([
   ['ascii-face', asciiFace],
 ])
 
-/** Options for `ditherFace`; everything is optional. */
-export interface DitherFaceOptions {
+/** Options for `palletface`; everything is optional. */
+export interface PalletfaceOptions {
   /** Which look to draw, by slug. Defaults to the first sheet style, `'pixel-sprite'`. */
   style?: StyleSlug
   /** Box size in css pixels. Defaults to 80, the sheet's avatar size. */
@@ -172,12 +172,12 @@ export interface DitherFaceOptions {
 const DEFAULT_PX = 80
 
 /**
- * Draw one avatar: `ditherFace('user-123', { style: 'pixel-landscape', px: 80 })`
+ * Draw one avatar: `palletface('user-123', { style: 'pixel-landscape', px: 80 })`
  * returns a standalone `<svg>` string, repeatable for the same inputs and
  * package version in supported runtimes. Throws on an unknown slug, listing
  * the valid ones. ASCII appearance also depends on available system fonts.
  */
-export function ditherFace(seed: string, options: DitherFaceOptions = {}): string {
+export function palletface(seed: string, options: PalletfaceOptions = {}): string {
   if (options === null || typeof options !== 'object' || Array.isArray(options)) {
     throw new TypeError('options must be an object when provided')
   }
@@ -187,7 +187,7 @@ export function ditherFace(seed: string, options: DitherFaceOptions = {}): strin
   const slug = options.style === undefined ? 'pixel-sprite' : options.style
   const draw = STYLES.find((s) => s.slug === slug)?.draw ?? LEGACY_STYLES.get(slug)
   if (!draw) {
-    throw new Error(`ditherFace: unknown style ${JSON.stringify(slug)}; available: ${STYLES.map((s) => s.slug).join(', ')}`)
+    throw new Error(`palletface: unknown style ${JSON.stringify(slug)}; available: ${STYLES.map((s) => s.slug).join(', ')}`)
   }
   return draw(seed, px, options.name)
 }

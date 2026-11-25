@@ -1,5 +1,5 @@
 import { useDeferredValue, useState } from 'react'
-import { ditherFace, STYLES, type StyleSlug } from 'palletface'
+import { palletface, STYLES, type StyleSlug } from 'palletface'
 import { Code } from '../components/Code'
 import { SeedInput } from '../components/SeedInput'
 import { SubHead } from '../components/SubHead'
@@ -64,7 +64,7 @@ function Builder({ seed, setSeed, thumbSeed, style, setStyle, name, setName, siz
   const valid = size.trim() !== '' && Number.isFinite(px) && px > 0
   const named = LETTER_STYLES.has(style)
   const nameOption = named && name !== '' ? name : undefined
-  const svg = valid ? ditherFace(seed, { style, px, name: nameOption }) : ''
+  const svg = valid ? palletface(seed, { style, px, name: nameOption }) : ''
   const code = valid ? codeFor(seed, style, px, nameOption) : ''
   const [codeState, copyCode] = useCopy(code)
   const [svgState, copySvg] = useCopy(svg)

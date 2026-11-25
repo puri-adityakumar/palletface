@@ -1,4 +1,4 @@
-// Refreshes site/src/lib/releases.ts from GitHub. Needs the gh CLI.
+// Refreshes site/src/lib/releases.ts from GitHub with every stable release. Needs the gh CLI.
 import { execFileSync } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
 
@@ -6,11 +6,11 @@ const json = execFileSync('gh', [
   'api',
   'repos/puri-adityakumar/palletface/releases',
   '--jq',
-  'map({tag_name, name, published_at, prerelease, html_url, body})',
+  'map(select(.prerelease | not) | {tag_name, name, published_at, prerelease, html_url, body})',
 ], { encoding: 'utf8' })
 
 const releases = JSON.parse(json)
-const header = `/** GitHub releases, bundled so the changelog works while the repo is private.
+const header = `/** Stable GitHub releases, bundled so the changelog works while the repo is private.
  * Refresh with \`npm run sync:releases\` (uses gh). The page also tries the public API at runtime.
  */
 export type Release = {

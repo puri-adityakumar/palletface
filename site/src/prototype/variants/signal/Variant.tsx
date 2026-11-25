@@ -286,7 +286,7 @@ function Repl({ seed, onSeed, style, onStyle }: SeedControls & { style: StyleSlu
                   <label>STYLE <select id="sg-terminal-style" value={style} onChange={(e) => onStyle(e.target.value as StyleSlug)}>{STYLES.map(({ slug }) => <option key={slug}>{slug}</option>)}</select></label>
                 </div>
                 <div className="sg-log">
-                  <code className="sg-log-prompt"><span aria-hidden="true">&gt; </span><b>ditherFace</b>({quote(seed)}, {'{'} style: <em>'{style}'</em> {'}'})</code>
+                  <code className="sg-log-prompt"><span aria-hidden="true">&gt; </span><b>palletface</b>({quote(seed)}, {'{'} style: <em>'{style}'</em> {'}'})</code>
                   <div className="sg-log-output">
                     <code><Stream svg={svg} active={visible} /></code>
                     <i className={visible ? 'sg-blink' : undefined} aria-hidden="true" />

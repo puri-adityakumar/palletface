@@ -8,19 +8,18 @@ import { RELEASES, type Release } from '../lib/releases'
 import { usePageMeta } from '../lib/router'
 import './page.css'
 
-/** The bundled snapshot shows instantly; a working public API refreshes it. */
-function useReleases(): { releases: Release[]; failed: boolean } {
+/** Stable releases only. The bundled snapshot shows instantly; a working public API refreshes it. */
+function useReleases(): Release[] {
   const [releases, setReleases] = useState<Release[]>(RELEASES)
-  const [failed, setFailed] = useState(false)
   useEffect(() => {
     const ctrl = new AbortController()
     fetch(`${REPO_API}/releases?per_page=50`, { signal: ctrl.signal })
       .then((res) => (res.ok ? (res.json() as Promise<Release[]>) : Promise.reject(new Error(String(res.status)))))
-      .then(setReleases)
-      .catch(() => setFailed(true))
+      .then((all) => setReleases(all.filter((r) => !r.prerelease)))
+      .catch(() => {})
     return () => ctrl.abort()
   }, [])
-  return { releases, failed }
+  return releases
 }
 
 const slug = (text: string) =>
@@ -139,11 +138,11 @@ const dateFmt = new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', 
 /** Every GitHub release, newest first, with a contents list that follows the reader. */
 export function ChangelogPage() {
   usePageMeta('Changelog · palletface')
-  const { releases, failed } = useReleases()
+  const releases = useReleases()
   const sections = useMemo(() => releases.map((r) => ({ release: r, sections: sectionsOf(r) })), [releases])
   const ids = sections.flatMap(({ release, sections }) => [release.tag_name, ...sections.map((s) => s.id)])
   const current = useCurrent(ids)
-  const latest = releases.find((r) => !r.prerelease)?.tag_name
+  const latest = releases[0]?.tag_name
 
   // usePageMeta scrolls to the top on mount, so a link to one release has to jump again.
   useEffect(() => {
@@ -158,7 +157,7 @@ export function ChangelogPage() {
         <div className="page__head">
           <h1 className="h2">Changelog.</h1>
           <p className="note">
-            Every release, newest first. Before 1.0, a minor release may change the output, so pin the version with <code>--save-exact</code>.
+            Every release, newest first. Minor and patch releases never change existing avatars; only a major release can.
           </p>
           <p className="log__links">
             <a href={LINKS.releases} target="_blank" rel="noreferrer">
@@ -172,15 +171,7 @@ export function ChangelogPage() {
 
         {releases.length === 0 ? (
           <p className="log__state">
-            {failed ? (
-              <>
-                Couldn't load the releases right now. <a href={LINKS.releases}>Read them on GitHub</a>.
-              </>
-            ) : (
-              <>
-                No releases yet. <a href={LINKS.releases}>Watch the repo on GitHub</a>.
-              </>
-            )}
+            No releases yet. <a href={LINKS.releases}>Watch the repo on GitHub</a>.
           </p>
         ) : (
           <div className="log">
@@ -224,7 +215,6 @@ export function ChangelogPage() {
                       </h2>
                       <p className="rel__meta">
                         <time dateTime={r.published_at}>{dateFmt.format(new Date(r.published_at))}</time>
-                        {r.prerelease && <span className="rel__badge">Pre-release</span>}
                         {r.tag_name === latest && <span className="rel__badge rel__badge--on">Latest</span>}
                       </p>
                     </header>

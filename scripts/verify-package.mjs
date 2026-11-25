@@ -9,7 +9,7 @@ import { promisify } from 'node:util'
 const exec = promisify(execFile)
 const root = fileURLToPath(new URL('../', import.meta.url))
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm'
-const temp = await mkdtemp(join(tmpdir(), 'dither-face-package-'))
+const temp = await mkdtemp(join(tmpdir(), 'palletface-package-'))
 const run = async (command, args, cwd = root) => {
   try {
     return await exec(command, args, { cwd, maxBuffer: 4 * 1024 * 1024 })
@@ -25,7 +25,7 @@ try {
   const jsonStart = packed.stdout.lastIndexOf('\n[')
   const [manifest] = JSON.parse(jsonStart >= 0 ? packed.stdout.slice(jsonStart + 1) : packed.stdout)
   const files = manifest.files.map(({ path }) => path)
-  for (const required of ['package.json', 'README.md', 'LICENSE', 'dist/index.js', 'dist/index.d.ts', 'dist/dither-face.js']) {
+  for (const required of ['package.json', 'README.md', 'LICENSE', 'dist/index.js', 'dist/index.d.ts', 'dist/palletface.js']) {
     assert.ok(files.includes(required), `Missing package file: ${required}`)
   }
   const allowed = /^(?:package\.json|README\.md|LICENSE|dist\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.(?:js|d\.ts))$/i
@@ -33,7 +33,7 @@ try {
 
   const consumer = join(temp, 'consumer')
   await mkdir(consumer)
-  await writeFile(join(consumer, 'package.json'), JSON.stringify({ name: 'dither-face-consumer', private: true, type: 'module' }))
+  await writeFile(join(consumer, 'package.json'), JSON.stringify({ name: 'palletface-consumer', private: true, type: 'module' }))
   await run(npm, ['install', '--ignore-scripts', '--no-audit', '--no-fund', join(temp, manifest.filename)], consumer)
   const metadata = JSON.parse(await readFile(join(consumer, 'node_modules/palletface/package.json'), 'utf8'))
   assert.equal(Object.keys(metadata.dependencies ?? {}).length, 0, 'Package must have zero runtime dependencies')
@@ -42,39 +42,39 @@ try {
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
-import { ditherFace, STYLES, pixelFlora, pixelRelic, pixelStamp } from 'palletface'
+import { palletface, STYLES, pixelFlora, pixelRelic, pixelStamp } from 'palletface'
 assert.equal(STYLES.length, 12)
 assert.equal(new Set(STYLES.map(s => s.slug)).size, STYLES.length)
-assert.equal(ditherFace('x'), ditherFace('x', { style: 'pixel-sprite', px: 80 }))
+assert.equal(palletface('x'), palletface('x', { style: 'pixel-sprite', px: 80 }))
 for (const { slug } of STYLES) {
   for (const seed of ['', 's', 'élodie', '東京', '<script>']) {
     const options = { style: slug, px: 37, name: 'Ada' }
-    const a = ditherFace(seed, options)
-    assert.equal(a, ditherFace(seed, options))
+    const a = palletface(seed, options)
+    assert.equal(a, palletface(seed, options))
     assert.match(a, /^<svg /)
     assert.match(a, /width="37"/)
     assert.ok(!a.includes('<script>'))
   }
 }
-assert.notEqual(ditherFace('x', {style:'pixel-letter',name:'Ada'}), ditherFace('x', {style:'pixel-letter',name:'Zeke'}))
-assert.throws(() => ditherFace('x', {style:'bad'}), /unknown style/)
-assert.throws(() => ditherFace('x', {px:0}), /positive/)
-assert.throws(() => ditherFace(3), /seed/)
+assert.notEqual(palletface('x', {style:'pixel-letter',name:'Ada'}), palletface('x', {style:'pixel-letter',name:'Zeke'}))
+assert.throws(() => palletface('x', {style:'bad'}), /unknown style/)
+assert.throws(() => palletface('x', {px:0}), /positive/)
+assert.throws(() => palletface(3), /seed/)
 const context = {}
-runInNewContext(readFileSync('node_modules/palletface/dist/dither-face.js', 'utf8'), context)
-for (const {slug} of STYLES) assert.equal(context.DitherFace.ditherFace('bundle-check', {style:slug}), ditherFace('bundle-check', {style:slug}))
+runInNewContext(readFileSync('node_modules/palletface/dist/palletface.js', 'utf8'), context)
+for (const {slug} of STYLES) assert.equal(context.Palletface.palletface('bundle-check', {style:slug}), palletface('bundle-check', {style:slug}))
 for (const [slug, draw, bundled] of [
-  ['pixel-flora', pixelFlora, context.DitherFace.pixelFlora],
-  ['pixel-relic', pixelRelic, context.DitherFace.pixelRelic],
-  ['pixel-stamp', pixelStamp, context.DitherFace.pixelStamp],
+  ['pixel-flora', pixelFlora, context.Palletface.pixelFlora],
+  ['pixel-relic', pixelRelic, context.Palletface.pixelRelic],
+  ['pixel-stamp', pixelStamp, context.Palletface.pixelStamp],
 ]) {
-  const svg = ditherFace('x', {style:slug, px:24, name:'Élodie'})
+  const svg = palletface('x', {style:slug, px:24, name:'Élodie'})
   assert.equal(draw('x', 24, 'Élodie'), svg)
   assert.equal(bundled('x', 24, 'Élodie'), svg)
 }
 for (const style of ['ascii-letter', 'ascii-field', 'ascii-face']) {
   assert.ok(!STYLES.some(entry => entry.slug === style))
-  assert.equal(context.DitherFace.ditherFace('legacy-check', {style}), ditherFace('legacy-check', {style}))
+  assert.equal(context.Palletface.palletface('legacy-check', {style}), palletface('legacy-check', {style}))
 }
 console.log('PASS runtime consumer and browser bundle parity')
 `)
@@ -85,25 +85,25 @@ console.log('PASS runtime consumer and browser bundle parity')
     files: ['consumer.ts'],
   }))
   await writeFile(join(consumer, 'consumer.ts'), `
-import { ditherFace, pixelSprite, pixelLetter, pixelEmotes, pixelFlora, pixelRelic, pixelStamp, STYLES, type StyleSlug, type DitherFaceOptions } from 'palletface'
+import { palletface, pixelSprite, pixelLetter, pixelEmotes, pixelFlora, pixelRelic, pixelStamp, STYLES, type StyleSlug, type PalletfaceOptions } from 'palletface'
 const style: StyleSlug = 'mirrored-signal'
-const options: DitherFaceOptions = {style, px:24, name:'Ada'}
-const svg: string = ditherFace('x', options)
+const options: PalletfaceOptions = {style, px:24, name:'Ada'}
+const svg: string = palletface('x', options)
 pixelSprite('x', 80)
 pixelLetter('x', 80, 'Ada')
 pixelEmotes('x', 80)
 const additions: StyleSlug[] = ['pixel-flora', 'pixel-relic', 'pixel-stamp']
-additions.forEach(style => ditherFace('x', {style}))
+additions.forEach(style => palletface('x', {style}))
 pixelFlora('x', 24)
 pixelRelic('x', 32)
 pixelStamp('x', 80, 'Élodie')
-STYLES.forEach(s => ditherFace('x', {style:s.slug}))
+STYLES.forEach(s => palletface('x', {style:s.slug}))
 // @ts-expect-error invalid style must fail
-ditherFace('x', {style:'not-a-style'})
+palletface('x', {style:'not-a-style'})
 // @ts-expect-error seed must be a string
-ditherFace(12)
+palletface(12)
 // @ts-expect-error size must be numeric
-ditherFace('x', {px:'80'})
+palletface('x', {px:'80'})
 `)
   await run(process.execPath, [join(root, 'node_modules/typescript/bin/tsc'), '-p', join(consumer, 'tsconfig.json')])
   console.log(`PASS package: ${manifest.filename}; ${files.length} allowed files; Node runtime, IIFE parity and TypeScript consumer`)

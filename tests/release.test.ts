@@ -8,7 +8,7 @@ const fixtures: string[] = []
 afterEach(() => fixtures.splice(0).forEach(path => rmSync(path, { recursive: true, force: true })))
 
 function repository(version = '0.1.0') {
-  const cwd = mkdtempSync(join(tmpdir(), 'dither-face-release-test-'))
+  const cwd = mkdtempSync(join(tmpdir(), 'palletface-release-test-'))
   fixtures.push(cwd)
   mkdirSync(join(cwd, 'scripts'))
   copyFileSync(new URL('../scripts/check-release.mjs', import.meta.url), join(cwd, 'scripts/check-release.mjs'))
@@ -38,7 +38,7 @@ describe('release guard', () => {
   })
 
   it('accepts a semver prerelease tag', () => {
-    const { run } = repository('0.1.0-beta.1')
+    const { run } = repository('1.1.0-rc.1')
     expect(run()).toContain('PASS release gate')
   })
 

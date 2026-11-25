@@ -4,7 +4,7 @@ import { STYLES } from 'palletface'
 
 export const VERSION: string = pkg.version
 export const STYLE_COUNT = STYLES.length
-export const INSTALL = 'npm install palletface@beta'
+export const INSTALL = 'npm install palletface'
 
 const REPO = 'https://github.com/puri-adityakumar/palletface'
 export const REPO_API = 'https://api.github.com/repos/puri-adityakumar/palletface'
@@ -23,7 +23,7 @@ export const LINKS = {
   x: 'https://x.com/adityawaslost',
 } as const
 
-export const AVATAR_IMPORT = `import { ditherFace as palletface } from 'palletface'`
+export const AVATAR_IMPORT = `import { palletface } from 'palletface'`
 
 export const QUICK_START = `${AVATAR_IMPORT}
 

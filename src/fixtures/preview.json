@@ -110,9 +110,9 @@
     },
     {
       "style": "pixel-stamp",
-      "seed": "dither-face-aditya",
+      "seed": "palletface-aditya",
       "name": "Ada",
-      "sha256": "87505e8e73d7e874fd4d74e70b9ef29a3e29e043997b6935e6604b55a57be286"
+      "sha256": "4277a373b57cd1f281a3ea6d39255f5a58050ac48436ec3e20d65769df8fd6e2"
     },
     {
       "style": "pixel-stamp",

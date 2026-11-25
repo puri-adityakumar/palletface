@@ -1,12 +1,12 @@
 # Agent guide
 
-The repository is `dither-face`. The npm package is `palletface`, and the standalone browser bundle exposes the `DitherFace` global.
+The repository and the npm package are both `palletface`. The main export is the `palletface` function, and the standalone browser bundle exposes the `Palletface` global.
 
 ## Project layout
 
 - `src/index.ts` is the public entry point and style registry. `src/styles/` contains the SVG renderers.
 - Unit tests live beside the source. `src/fixtures/` pins representative SVG output, and `tests/` contains shared test helpers and release checks.
-- `playground/index.html` is the standalone demo. It loads `dist/dither-face.js` after `npm run build:web`.
+- `playground/index.html` is the standalone demo. It loads `dist/palletface.js` after `npm run build:web`.
 - `scripts/` contains the package verifier, release guard, and SVG preview and sheet generators. GitHub CI and release workflows live in `.github/workflows/`.
 
 ## Development
