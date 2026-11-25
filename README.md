@@ -140,10 +140,10 @@ Use Node 22.12+ or Node 24 and npm, then:
 
 ```sh
 npm ci
-npm run build:web
+npm run check:all
 ```
 
-Open `playground/index.html` in your browser. `npm run sheet -- out-sheet` generates the reference SVG sheet, and `npm run check:all` runs the library and installed-package checks. The website and docs live in `site/`.
+`npm run sheet -- out-sheet` generates the reference SVG sheet, and `npm run build:web` builds `dist/palletface.js`. The website, docs, and playground live in `site/`.
 
 ## Contributing
 

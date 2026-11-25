@@ -11,7 +11,7 @@ npm ci
 npm run check:all
 ```
 
-To try the standalone playground, run `npm run build:web` and open `playground/index.html` in your browser.
+The website, docs, and playground live in `site/` (`cd site && npm ci && npm run dev`).
 
 ## Scope and conventions
 
