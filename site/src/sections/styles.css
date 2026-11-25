@@ -1,0 +1,200 @@
+.styles__layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(0, 2.5fr);
+  gap: 56px;
+  align-items: start;
+}
+
+.styles__head {
+  position: sticky;
+  top: 40px;
+  display: grid;
+  gap: 22px;
+  justify-items: start;
+}
+
+.styles__word {
+  overflow-wrap: anywhere;
+}
+
+.styles__legend {
+  margin: 6px 0 0;
+  max-width: 34ch;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.styles__legend span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  background: var(--blue);
+}
+
+.styles__legend code {
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.tile {
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.tile button {
+  all: unset;
+  box-sizing: border-box;
+  cursor: copy;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 14px 14px 20px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.tile button:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.tile button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -3px;
+}
+
+.tile__meta {
+  justify-self: stretch;
+  display: flex;
+  justify-content: space-between;
+  min-height: 12px;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tile__status {
+  color: var(--blue);
+}
+
+.tile__copy {
+  display: none;
+}
+
+.tile button:hover .tile__copy,
+.tile button:focus-visible .tile__copy {
+  display: inline;
+}
+
+.tile button:hover .tile__tag,
+.tile button:focus-visible .tile__tag {
+  display: none;
+}
+
+.tile__art {
+  margin: 12px 0 8px;
+}
+
+.tile__art img {
+  width: 136px;
+  height: 136px;
+}
+
+.tile__name {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.tile__slug {
+  font: 500 11px/1 var(--mono);
+  color: var(--muted);
+}
+
+.tile button:hover .tile__slug,
+.tile button:hover .tile__meta {
+  color: var(--muted-ink);
+}
+
+.tile button:hover .tile__status {
+  color: var(--blue-soft);
+}
+
+@media (max-width: 1100px) {
+  .styles__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+
+  .styles__head {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  /* three small tiles per row, so all twelve fit in about one screen */
+  .tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .tile button {
+    align-content: start;
+    gap: 6px;
+    padding: 8px 6px 14px;
+  }
+
+  .tile__meta {
+    justify-content: flex-end;
+    min-height: 10px;
+    font-size: 10px;
+  }
+
+  .tile__meta > span:first-child {
+    display: none;
+  }
+
+  /* "Uses name" becomes the blue square from the legend */
+  .tile__tag {
+    font-size: 0;
+  }
+
+  .tile__tag:not(:empty) {
+    display: block;
+    width: 8px;
+    height: 8px;
+    background: var(--blue);
+  }
+
+  .tile__art {
+    margin: 0;
+  }
+
+  .tile__art img {
+    width: 72px;
+    height: 72px;
+  }
+
+  .tile__name {
+    font-size: 13px;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .tile__slug {
+    display: none;
+  }
+}

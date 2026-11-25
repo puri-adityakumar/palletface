@@ -1,0 +1,118 @@
+.sponsor {
+  padding-top: 112px;
+}
+
+.sponsor__panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border: 1px solid var(--line);
+  border-top-right-radius: 14px;
+  /* clips the seed field to the rounded corner */
+  overflow: hidden;
+}
+
+.sponsor__copy {
+  display: grid;
+  gap: 22px;
+  align-content: center;
+  justify-items: start;
+  padding: 56px 48px;
+}
+
+.sponsor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+/* GitHub's sponsor pink */
+.btn--sponsor {
+  border-color: #bf3989;
+  background: #bf3989;
+  color: #fff;
+}
+
+.btn--sponsor:hover {
+  border-color: #99286e;
+  background: #99286e;
+  color: #fff;
+}
+
+/* GitHub's star yellow */
+.btn__star {
+  color: #e3b341;
+}
+
+.sponsor__field {
+  position: relative;
+  min-height: 400px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-left: 1px solid var(--line);
+}
+
+.slot {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 18px 22px 16px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+}
+
+.slot__n {
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.slot__art {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.slot img {
+  width: 96px;
+  height: 96px;
+}
+
+.slot__style {
+  font: 500 10px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.slot__note {
+  font: 500 12px/1.2 var(--mono);
+}
+
+@media (max-width: 900px) {
+  .sponsor__panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sponsor__copy {
+    padding: 36px 22px;
+  }
+
+  .sponsor__field {
+    min-height: 300px;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .sponsor__actions {
+    width: 100%;
+  }
+
+  .sponsor__actions .btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}

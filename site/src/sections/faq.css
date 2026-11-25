@@ -1,0 +1,158 @@
+.faq__layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(0, 1.7fr);
+  gap: 56px;
+  align-items: start;
+}
+
+.faq__head {
+  position: sticky;
+  top: 40px;
+  display: grid;
+  gap: 22px;
+}
+
+.faq__head a {
+  font-weight: 500;
+  text-underline-offset: 3px;
+}
+
+.faq__list {
+  border-top: 1px solid var(--line);
+}
+
+.faq details {
+  border-bottom: 1px solid var(--line);
+}
+
+.faq summary {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary:hover .faq__q {
+  color: var(--blue);
+}
+
+.faq summary:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.faq__n {
+  font: 500 12px/1 var(--mono);
+  color: var(--muted);
+}
+
+.faq__q {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* a plus made of cells; the vertical bar drops out when open */
+.faq__mark {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  justify-self: end;
+}
+
+.faq__mark::before,
+.faq__mark::after {
+  content: '';
+  position: absolute;
+  background: var(--ink);
+}
+
+.faq__mark::before {
+  left: 0;
+  right: 0;
+  top: 7px;
+  height: 4px;
+}
+
+.faq__mark::after {
+  top: 0;
+  bottom: 0;
+  left: 7px;
+  width: 4px;
+}
+
+.faq details[open] .faq__mark::after {
+  display: none;
+}
+
+.faq details[open] .faq__mark::before {
+  background: var(--blue);
+}
+
+.faq__a {
+  margin: 0;
+  padding: 0 40px 26px 56px;
+  max-width: 68ch;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.faq details[open] .faq__a {
+  animation: faq-wipe 0.36s steps(9, end);
+}
+
+@keyframes faq-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq details[open] .faq__a {
+    animation: none;
+  }
+}
+
+.faq__a code {
+  font-size: 0.88em;
+  padding: 1px 5px;
+  background: var(--paper-2);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1000px) {
+  .faq__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+  }
+
+  .faq__head {
+    position: static;
+  }
+}
+
+@media (max-width: 620px) {
+  .faq summary {
+    grid-template-columns: 32px minmax(0, 1fr) 22px;
+    padding: 18px 0;
+  }
+
+  .faq__q {
+    font-size: 17px;
+  }
+
+  .faq__a {
+    padding: 0 0 22px 44px;
+  }
+}

@@ -1,0 +1,72 @@
+/* sits flush under the sponsor panel and shares its border */
+.contribute {
+  display: flex;
+  padding: 28px 48px;
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-bottom-left-radius: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px 32px;
+}
+
+.contribute__faces {
+  display: flex;
+}
+
+/* overlapping faces, like a contributor list; the paper ring keeps each one readable */
+.contribute__faces > * {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--paper);
+}
+
+.contribute__faces > * + * {
+  margin-left: -12px;
+}
+
+.contribute__more {
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--paper);
+  font: 500 16px/1 var(--mono);
+  letter-spacing: -0.04em;
+}
+
+.contribute__copy {
+  flex: 1 1 280px;
+  display: grid;
+  gap: 4px;
+}
+
+.contribute__copy h3 {
+  margin: 0;
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.contribute__copy p {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+@media (max-width: 900px) {
+  .contribute {
+    padding: 28px 22px;
+  }
+}
+
+@media (max-width: 620px) {
+  .contribute__copy h3 {
+    font-size: 22px;
+  }
+
+  .contribute .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

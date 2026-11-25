@@ -1,0 +1,8 @@
+# palletface
+
+> ESM library for deterministic SVG avatars in Node and browsers. Install `palletface` from npm. The standalone browser global is `DitherFace`.
+
+## Documentation
+
+- [Integration guide](./docs/guide.md): Installation, `ditherFace` options, style slugs, browser and server examples, and output guarantees.
+- [Source](https://github.com/puri-adityakumar/palletface): Library implementation and package version.
