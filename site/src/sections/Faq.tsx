@@ -10,7 +10,7 @@ const QA: { q: string; a: ReactNode }[] = [
   },
   {
     q: 'Will a user’s avatar ever change?',
-    a: 'Not with the same inputs and version. Before 1.0, a minor release may change the output, so pin an exact version to keep avatars stable.',
+    a: 'Not with the same seed and options. Minor and patch releases never change existing avatars; only a major release can.',
   },
   {
     q: 'What should I use as the seed?',

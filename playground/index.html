@@ -49,14 +49,14 @@
   </div>
   <div id="rows"></div>
 </div>
-<script src="../dist/dither-face.js"></script>
+<script src="../dist/palletface.js"></script>
 <script>
 'use strict'
 
 const USERS = ['aditya', 'zeke', 'marcus', 'élodie', 'kai', 'rhea', 'quinn', 'yuki']
 const NAV_PX = 30, PROFILE_PX = 56, AVATAR_PX = 80
 
-const lib = window.DitherFace
+const lib = window.Palletface
 const errorBox = document.getElementById('error')
 
 // ?seed=<text> on the url pre-fills the input so the page can be captured at a
@@ -65,8 +65,8 @@ const errorBox = document.getElementById('error')
 const urlParams = new URLSearchParams(location.search)
 if (urlParams.has('seed')) document.getElementById('seed').value = urlParams.get('seed')
 
-if (!lib || typeof lib.ditherFace !== 'function' || !Array.isArray(lib.STYLES)) {
-  errorBox.textContent = 'window.DitherFace is missing — build it first: run `npm run build:web`, then reload this page. (it looks for ../dist/dither-face.js next to playground/.)'
+if (!lib || typeof lib.palletface !== 'function' || !Array.isArray(lib.STYLES)) {
+  errorBox.textContent = 'window.Palletface is missing — build it first: run `npm run build:web`, then reload this page. (it looks for ../dist/palletface.js next to playground/.)'
   errorBox.classList.add('on')
 } else {
   document.getElementById('style-count').textContent = String(lib.STYLES.length)
@@ -163,11 +163,11 @@ if (!lib || typeof lib.ditherFace !== 'function' || !Array.isArray(lib.STYLES)) 
     rows.appendChild(row)
   })
 
-  /* — render: one ditherFace call per avatar, seed-user as the seed — */
+  /* — render: one palletface call per avatar, seed-user as the seed — */
   function render() {
     const seed = document.getElementById('seed').value
     for (const s of SLOTS) {
-      const svg = lib.ditherFace(seed + '-' + s.user, { style: s.style, px: s.px, name: s.user })
+      const svg = lib.palletface(seed + '-' + s.user, { style: s.style, px: s.px, name: s.user })
       s.el._svg = svg // exact bytes the button copies
       s.el.innerHTML = svg
     }

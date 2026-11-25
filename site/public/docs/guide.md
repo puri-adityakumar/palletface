@@ -3,7 +3,7 @@
 `palletface` turns a string into a standalone SVG avatar in Node or the browser. It has zero runtime dependencies.
 
 ```sh
-npm install palletface@beta
+npm install palletface
 ```
 
 ## Quick start
@@ -13,7 +13,7 @@ npm install palletface@beta
 Use an ESM project. For Node, use 22.12+ or 24.
 
 ```sh
-npm install palletface@beta
+npm install palletface
 ```
 
 ### Generate an SVG
@@ -22,7 +22,7 @@ Save as `avatar.mjs` and run `node avatar.mjs` to write `avatar.svg`.
 
 ```js
 import { writeFileSync } from 'node:fs'
-import { ditherFace as palletface } from 'palletface'
+import { palletface } from 'palletface'
 
 const svg = palletface('user-123', {
   style: 'pixel-letter',
@@ -33,7 +33,7 @@ const svg = palletface('user-123', {
 writeFileSync('avatar.svg', svg)
 ```
 
-The snippets work with `@beta`. The avatars in these docs and in the [playground](/playground) come from this site's source build, which can include styles ahead of npm.
+The avatars in these docs and in the [playground](/playground) are drawn by the library itself when the site is built.
 
 ## Examples
 
@@ -42,7 +42,7 @@ Each snippet below runs when the docs are built, and the avatars under it are wh
 The snippets use this import:
 
 ```js
-import { ditherFace as palletface, STYLES } from 'palletface'
+import { palletface, STYLES } from 'palletface'
 ```
 
 ### Default avatar
@@ -105,14 +105,15 @@ const avatars = users.map((id) =>
 ```
 
 To show an SVG in a page or return it from a server, see [Integrations](/docs/integrations/).
+
 ## API reference
 
 ### Options
 
-Palletface exports `ditherFace`. The examples import it as `palletface`.
+The package's main export is `palletface`.
 
 ```ts
-ditherFace(seed: string, options?: DitherFaceOptions): string
+palletface(seed: string, options?: PalletfaceOptions): string
 ```
 
 | Input | Type | Default | Behavior |
@@ -136,11 +137,12 @@ import { STYLES } from 'palletface'
 const choices = STYLES.map(({ slug, title }) => ({ value: slug, label: title }))
 ```
 
-TypeScript can import `DitherFaceOptions`, `StyleSlug`, and `AvatarStyle` from the package entry point.
+TypeScript can import `PalletfaceOptions`, `StyleSlug`, and `AvatarStyle` from the package entry point.
 
 ### Stability
 
-- The same inputs and package version produce the same SVG in supported runtimes. Pin the exact version with `npm install --save-exact palletface@beta` when appearance matters across deploys.
+- The same seed and options produce the same SVG in supported runtimes.
+- Minor and patch releases never change existing avatars. Only a major release can, and its release notes say which styles changed. The default `^1.0.0` range from `npm install palletface` stays on one major version. To lock an exact version, use `npm install --save-exact palletface`.
 - Use an opaque, stable ID as the seed. Keep emails, tokens, and secrets out of seeds. Different seeds can produce identical or similar avatars.
 
 ## Styles
@@ -166,7 +168,7 @@ Direct renderers take `(seed, px)`. Initial renderers also accept `name` as a th
 
 ### Legacy ASCII styles
 
-The source registry keeps `ascii-letter`, `ascii-field`, and `ascii-face` out of `STYLES`. Saved slugs still render through `ditherFace` or the `asciiLetter`, `asciiField`, and `asciiFace` exports. Only `ascii-letter` uses `name`. ASCII glyphs use system monospace fonts and can look different across platforms.
+The source registry keeps `ascii-letter`, `ascii-field`, and `ascii-face` out of `STYLES`. Saved slugs still render through `palletface` or the `asciiLetter`, `asciiField`, and `asciiFace` exports. Only `ascii-letter` uses `name`. ASCII glyphs use system monospace fonts and can look different across platforms.
 
 ## Integrations
 
@@ -175,7 +177,7 @@ The source registry keeps `ascii-letter`, `ascii-field`, and `ascii-face` out of
 Add `<img id="avatar" width="80" height="80" alt="Ada's avatar">` to the page.
 
 ```js
-import { ditherFace as palletface } from 'palletface'
+import { palletface } from 'palletface'
 
 const svg = palletface('user-123', { style: 'pixel-letter', name: 'Ada' })
 document.getElementById('avatar').src =
@@ -186,13 +188,13 @@ If your Content Security Policy disallows `data:` in `img-src`, use a URL for th
 
 ### Browser without a bundler
 
-Serve `node_modules/palletface/dist/dither-face.js` next to your HTML. The file exposes `DitherFace`.
+Serve `node_modules/palletface/dist/palletface.js` next to your HTML. The file exposes `Palletface`.
 
 ```html
 <img id="avatar" width="80" height="80" alt="Ada's avatar">
-<script src="./dither-face.js"></script>
+<script src="./palletface.js"></script>
 <script>
-  const { ditherFace: palletface } = DitherFace
+  const { palletface } = Palletface
   const svg = palletface('user-123')
   document.getElementById('avatar').src =
     `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
@@ -204,7 +206,7 @@ Serve `node_modules/palletface/dist/dither-face.js` next to your HTML. The file 
 Return the SVG as `image/svg+xml`. This example uses the Fetch `Response` API.
 
 ```js
-import { ditherFace as palletface } from 'palletface'
+import { palletface } from 'palletface'
 
 export function avatarResponse(userId) {
   return new Response(palletface(userId), {

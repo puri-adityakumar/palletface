@@ -19,9 +19,9 @@ export const PITCH = `One seed, ${STYLE_COUNT} styles, zero runtime dependencies
 export const LEDE =
   'Turn a user ID into a standalone SVG, on the server or in the browser. No avatar service, image storage, account, or network request required.'
 
-export const QUICK_START = `import { ditherFace } from 'palletface'
+export const QUICK_START = `import { palletface } from 'palletface'
 
-const svg = ditherFace('user-123', {
+const svg = palletface('user-123', {
   style: 'pixel-letter',
   name: 'Aditya',
   px: 80,

@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/palletface"><img alt="npm beta version" src="https://img.shields.io/npm/v/palletface/beta?label=npm%40beta&color=2633d9"></a>
+  <a href="https://www.npmjs.com/package/palletface"><img alt="npm version" src="https://img.shields.io/npm/v/palletface?color=2633d9"></a>
   <a href="https://github.com/puri-adityakumar/palletface/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/puri-adityakumar/palletface/actions/workflows/ci.yml/badge.svg"></a>
   <img alt="Zero runtime dependencies" src="https://img.shields.io/badge/dependencies-0-1d1d1b">
   <img alt="TypeScript types included" src="https://img.shields.io/badge/types-included-1d1d1b">
@@ -11,8 +11,9 @@
 </p>
 
 <p align="center">
-  <a href="site/public/docs/guide.md"><b>Docs</b></a> ·
-  <a href="site/public/docs/guide.md#examples">Examples</a> ·
+  <a href="https://palletface.palletism.art/docs/"><b>Docs</b></a> ·
+  <a href="https://palletface.palletism.art/docs/examples/">Examples</a> ·
+  <a href="https://palletface.palletism.art/playground">Playground</a> ·
   <a href="https://www.npmjs.com/package/palletface">npm</a> ·
   <a href="https://github.com/puri-adityakumar/palletface/releases">Releases</a> ·
   <a href="https://palletism.art">Palletism</a> ·
@@ -23,12 +24,10 @@
 
 **palletface** turns any string, such as a user ID, into a small pixel, dither, or geometric avatar. You get a standalone SVG on the server or in the browser, with no avatar service, image storage, account, or network request. It is an independent, MIT-licensed sister project of [Palletism](https://palletism.art).
 
-> [!NOTE]
-> palletface is in beta. Install it with the `beta` dist-tag, and pin an exact version when avatars need to stay the same across upgrades. The style list below follows this repository and can include styles that are not on npm yet.
-
 ## Features
 
-- **Deterministic.** The same seed, options, and package version always draw the same SVG.
+- **Deterministic.** The same seed and options always draw the same SVG.
+- **Stable across upgrades.** Minor and patch releases never change existing avatars. Only a major release can.
 - **Twelve styles.** Sprites, bitmap letters, dither orbs, landscapes, contours, flora, relics, stamps, and more.
 - **Zero runtime dependencies.** Rendering needs no DOM, network, clock, or system randomness.
 - **Runs anywhere.** Node, browsers, and server-side rendering, from the same ESM package.
@@ -38,11 +37,11 @@
 ## Quick start
 
 ```sh
-npm install palletface@beta
+npm install palletface
 ```
 
 ```ts
-import { ditherFace as palletface } from 'palletface'
+import { palletface } from 'palletface'
 
 const svg = palletface('user-123', {
   style: 'pixel-letter',
@@ -54,7 +53,7 @@ const svg = palletface('user-123', {
 const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 ```
 
-`svg` is a complete SVG string with an XML namespace, dimensions, and a viewBox. The same inputs produce the same output with the same package version in the tested runtimes. For the simplest call, `palletface('user-123')` uses `pixel-sprite` at 80px.
+`svg` is a complete SVG string with an XML namespace, dimensions, and a viewBox. The same seed and options produce the same output in the tested runtimes. For the simplest call, `palletface('user-123')` uses `pixel-sprite` at 80px.
 
 ## Styles
 
@@ -77,14 +76,14 @@ Each row is one style. The first six columns show different seeds, and the last 
 | `pixel-relic` | 16×16 key, lantern, or potion with chunky inventory-sprite highlights | No |
 | `pixel-stamp` | Bitmap initial cut through a chipped block on a rounded square | Yes |
 
-Use `STYLES` to populate a style picker. Saved `ascii-letter`, `ascii-field`, and `ascii-face` selections remain renderable through `ditherFace` and their direct exports.
+Use `STYLES` to populate a style picker. Saved `ascii-letter`, `ascii-field`, and `ascii-face` selections remain renderable through `palletface` and their direct exports.
 
 `pixelFlora(seed, px)`, `pixelRelic(seed, px)`, and `pixelStamp(seed, px, name?)` are also available as named exports.
 
 ## Options
 
 ```ts
-import type { DitherFaceOptions, StyleSlug } from 'palletface'
+import type { PalletfaceOptions, StyleSlug } from 'palletface'
 ```
 
 | Input | Type | Default | Behavior |
@@ -106,12 +105,12 @@ image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 image.alt = 'Aditya’s avatar'
 ```
 
-Use your existing bundler, or run `npm run build:web` in this repository for the `DitherFace` browser global.
+Use your existing bundler, or load `node_modules/palletface/dist/palletface.js` with a script tag for the `Palletface` browser global.
 
 ### Server-side rendering
 
 ```js
-import { ditherFace as palletface } from 'palletface'
+import { palletface } from 'palletface'
 
 const svg = palletface('user-123', { style: 'pixel-landscape', px: 80 })
 // Send as an SVG response with Content-Type: image/svg+xml,
@@ -120,7 +119,7 @@ const svg = palletface('user-123', { style: 'pixel-landscape', px: 80 })
 
 Package verification exercises Node against the installed tarball. Core rendering does not use `window`, a DOM, or server APIs.
 
-The [integration docs](site/public/docs/guide.md#integrations) also show a page without a bundler and a server route that returns the SVG.
+The [integration docs](https://palletface.palletism.art/docs/integrations/) also show a page without a bundler and a server route that returns the SVG.
 
 ## Compatibility, privacy, and accessibility
 
@@ -133,7 +132,7 @@ The [integration docs](site/public/docs/guide.md#integrations) also show a page 
 
 ## Documentation
 
-The [palletface docs](site/public/docs/guide.md) cover the [quick start](site/public/docs/guide.md#quick-start), [examples](site/public/docs/guide.md#examples), the [API reference](site/public/docs/guide.md#api-reference), every [style](site/public/docs/guide.md#styles), and [integrations](site/public/docs/guide.md#integrations).
+The [palletface docs](https://palletface.palletism.art/docs/) cover the [quick start](https://palletface.palletism.art/docs/quick-start/), [examples](https://palletface.palletism.art/docs/examples/), the [API reference](https://palletface.palletism.art/docs/api-reference/), every [style](https://palletface.palletism.art/docs/styles/), and [integrations](https://palletface.palletism.art/docs/integrations/). Try every style in the [playground](https://palletface.palletism.art/playground).
 
 ## Development
 

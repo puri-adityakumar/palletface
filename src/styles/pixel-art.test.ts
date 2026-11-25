@@ -76,7 +76,7 @@ describe('Pixel Stamp', () => {
   it('seeds the stamp palette and surface details', () => {
     const primary = pixelStamp('marcus', 32, 'M')
     expect(fills(pixelStamp('quinn', 32, 'M'))).not.toEqual(fills(primary))
-    const variant = pixelStamp('dither-face-zeke', 32, 'M')
+    const variant = pixelStamp('palletface-zeke-4', 32, 'M')
     expect(fills(variant)).toEqual(fills(primary))
     expect(geometry(variant)).not.toBe(geometry(primary))
   })

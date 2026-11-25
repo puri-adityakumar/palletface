@@ -2,8 +2,9 @@ import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { Marked, Renderer } from 'marked'
 import type { Plugin } from 'vite'
-import { ditherFace, STYLES, type DitherFaceOptions, type StyleSlug } from '../../src/index.ts'
+import { palletface, STYLES, type PalletfaceOptions, type StyleSlug } from '../../src/index.ts'
 
+const SITE_URL = 'https://palletface.palletism.art'
 const site = new URL('../', import.meta.url)
 const guide = new URL('../public/docs/guide.md', import.meta.url)
 
@@ -33,7 +34,7 @@ const SEEDS = ['ada', 'kai', 'yuki', 'élodie', 'marcus', 'rhea', 'quinn', 'zeke
 function styleStrip() {
   const items = STYLES.map(({ slug, title }, i) => {
     const seed = SEEDS[i % SEEDS.length]!
-    return `<li>${avatar(ditherFace(seed, { style: slug, px: 64 }), 64, `${title} avatar for “${seed}”`)}</li>`
+    return `<li>${avatar(palletface(seed, { style: slug, px: 64 }), 64, `${title} avatar for “${seed}”`)}</li>`
   })
   return `<ul class="docs-strip" aria-label="One avatar in each style">${items.join('')}</ul>`
 }
@@ -66,12 +67,12 @@ type Drawn = { seed: string; style: string; name?: string; px: number; svg: stri
 /** Runs a snippet with `palletface` and `STYLES` in scope and keeps every avatar it draws. */
 function draw(code: string): Drawn[] {
   const drawn: Drawn[] = []
-  const palletface = (seed: string, options: DitherFaceOptions = {}) => {
-    const svg = ditherFace(seed, options)
+  const record = (seed: string, options: PalletfaceOptions = {}) => {
+    const svg = palletface(seed, options)
     drawn.push({ seed, style: options.style ?? 'pixel-sprite', name: options.name, px: options.px ?? 80, svg })
     return svg
   }
-  new Function('palletface', 'STYLES', code)(palletface, STYLES)
+  new Function('palletface', 'STYLES', code)(record, STYLES)
   if (!drawn.length) throw new Error(`This example draws no avatar:\n${code}`)
   return drawn
 }
@@ -138,7 +139,7 @@ export function docsMarkdown(): Plugin {
                   row += 1
                   if (row === 0) return `${tr}<th><span class="sr-only">Preview</span></th>`
                   const slug = slugs[row - 1]!
-                  return `${tr}<td class="docs-preview">${avatar(ditherFace('user-123', { style: slug, px: 40 }), 40, '')}</td>`
+                  return `${tr}<td class="docs-preview">${avatar(palletface('user-123', { style: slug, px: 40 }), 40, '')}</td>`
                 })
               }
               return `<div class="docs-table-scroll" tabindex="0">${table}</div>\n`
@@ -175,7 +176,18 @@ export function docsMarkdown(): Plugin {
           <p>On this page</p><ul>${sections.join('\n')}</ul>
         </nav>` : ''
         const pageTitle = overview ? 'palletface Docs' : `${page.title} · palletface Docs`
-        const meta = `<title>${pageTitle}</title><meta name="description" content="${page.description}" />`
+        const url = `${SITE_URL}${page.href}`
+        const meta = [
+          `<title>${pageTitle}</title>`,
+          `<meta name="description" content="${page.description}" />`,
+          `<link rel="canonical" href="${url}" />`,
+          `<meta property="og:type" content="website" />`,
+          `<meta property="og:url" content="${url}" />`,
+          `<meta property="og:title" content="${pageTitle}" />`,
+          `<meta property="og:description" content="${page.description}" />`,
+          `<meta property="og:image" content="${SITE_URL}/social-preview.png" />`,
+          `<meta name="twitter:card" content="summary_large_image" />`,
+        ].join('')
 
         return template
           .replace('<!-- docs metadata -->', () => meta)

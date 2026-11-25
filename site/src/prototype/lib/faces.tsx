@@ -1,4 +1,4 @@
-import { ditherFace, STYLES, type StyleSlug } from 'palletface'
+import { palletface, STYLES, type StyleSlug } from 'palletface'
 import type { CSSProperties } from 'react'
 
 export { STYLES }
@@ -8,7 +8,7 @@ export type { StyleSlug }
 export const LETTER_STYLES: ReadonlySet<StyleSlug> = new Set<StyleSlug>(['pixel-letter', 'pixelify-letter', 'pixel-stamp'])
 
 export function face(seed: string, style: StyleSlug, px = 80, name?: string): string {
-  return ditherFace(seed, { style, px, name })
+  return palletface(seed, { style, px, name })
 }
 
 export const svgUrl = (svg: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
@@ -16,7 +16,7 @@ export const svgUrl = (svg: string) => `data:image/svg+xml;charset=utf-8,${encod
 /** The exact call that draws an avatar, for copy buttons and code captions. */
 export function callFor(seed: string, style: StyleSlug, px = 80, name?: string): string {
   const named = LETTER_STYLES.has(style) && name ? `, name: '${name}'` : ''
-  return `ditherFace('${seed}', { style: '${style}', px: ${px}${named} })`
+  return `palletface('${seed}', { style: '${style}', px: ${px}${named} })`
 }
 
 type FaceProps = {

@@ -3,13 +3,13 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing version tag, for example v0.2.0-beta
+        description: Existing version tag, for example v1.0.0
         required: true
         type: string
       dist-tag:
-        description: npm distribution tag, for example beta
+        description: npm distribution tag; releases use latest
         required: true
-        default: beta
+        default: latest
         type: string
       release-branch:
         description: Branch containing the reviewed release commit

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { ditherFace, type StyleSlug } from './index.js'
+import { palletface, type StyleSlug } from './index.js'
 import {
   cellsToMap,
   fixedModel,
@@ -62,7 +62,7 @@ function assertAsciiLetterMigration(record: Record, svg: string): void {
 describe('pre-change seeded designs', () => {
   for (const record of baseline.records) {
     it(`preserves ${record.style} ${JSON.stringify(record.seed)} / ${record.name ?? '(seed initial)'}`, () => {
-      const svg = ditherFace(record.seed, { style: record.style, px: 80, name: record.name })
+      const svg = palletface(record.seed, { style: record.style, px: 80, name: record.name })
       if (record.style === 'ascii-letter') {
         assertAsciiLetterMigration(record, svg)
       } else {
@@ -78,7 +78,7 @@ const preview = JSON.parse(readFileSync(new URL('./fixtures/preview.json', impor
 describe('preview exact SVG output', () => {
   for (const record of preview.records) {
     it(`pins ${record.style} bytes for ${JSON.stringify(record.seed)}`, () => {
-      const svg = ditherFace(record.seed, { style: record.style, px: 80, name: record.name })
+      const svg = palletface(record.seed, { style: record.style, px: 80, name: record.name })
       if (record.style === 'ascii-letter') {
         const migration = record.migration
         expect(migration?.previousSha256, 'recorded old preview SHA').toMatch(/^[0-9a-f]{64}$/)
