@@ -8,5 +8,7 @@
     "not_found_handling": "single-page-application"
   },
   "routes": [{ "pattern": "palletface.palletism.art", "custom_domain": true }],
-  "workers_dev": false
+  "workers_dev": false,
+  // Required by `npx wrangler preview` for Cloudflare Workers PR preview builds.
+  "previews": {}
 }

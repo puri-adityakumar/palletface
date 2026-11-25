@@ -506,7 +506,8 @@
 
 .gal__art {
   width: 200px;
-  height: 200px;
+  height: auto;
+  aspect-ratio: 1;
   max-width: 100%;
 }
 
@@ -925,7 +926,6 @@
 
   .gal__art {
     width: 140px;
-    height: 140px;
   }
 
   .gal__name {
