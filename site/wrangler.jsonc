@@ -1,5 +1,5 @@
 {
-  // The site is static assets on Cloudflare Workers. Run `npm run build` before `npx wrangler deploy`.
+  // Static assets on Cloudflare Workers (built from /site). Run `npm run build` before `npx wrangler deploy` or `npx wrangler preview`.
   "name": "palletface",
   "compatibility_date": "2026-11-25",
   "assets": {
@@ -8,5 +8,7 @@
     "not_found_handling": "single-page-application"
   },
   "routes": [{ "pattern": "palletface.palletism.art", "custom_domain": true }],
-  "workers_dev": false
+  "workers_dev": false,
+  // Required by `npx wrangler preview` for Cloudflare Workers PR preview builds.
+  "previews": {}
 }

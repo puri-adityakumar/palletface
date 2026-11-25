@@ -43,6 +43,7 @@
 .pg__controls {
   grid-area: controls;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 28px;
   padding: 32px;
@@ -298,6 +299,10 @@
   margin-bottom: 32px;
 }
 
+.pg-sec__head .note {
+  overflow-wrap: anywhere;
+}
+
 .pg-sec__head h2 {
   margin: 0;
   font-weight: 500;
@@ -501,7 +506,8 @@
 
 .gal__art {
   width: 200px;
-  height: 200px;
+  height: auto;
+  aspect-ratio: 1;
   max-width: 100%;
 }
 
@@ -920,7 +926,6 @@
 
   .gal__art {
     width: 140px;
-    height: 140px;
   }
 
   .gal__name {

@@ -205,11 +205,13 @@
 
 .quick__steps {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 40px;
 }
 
 .quick__step {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   justify-items: start;
 }

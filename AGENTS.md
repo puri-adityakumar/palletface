@@ -6,7 +6,7 @@ The repository and the npm package are both `palletface`. The main export is the
 
 - `src/index.ts` is the public entry point and style registry. `src/styles/` contains the SVG renderers.
 - Unit tests live beside the source. `src/fixtures/` pins representative SVG output, and `tests/` contains shared test helpers and release checks.
-- `playground/index.html` is the standalone demo. It loads `dist/palletface.js` after `npm run build:web`.
+- `site/` contains the website, docs, and playground.
 - `scripts/` contains the package verifier, release guard, and SVG preview and sheet generators. GitHub CI and release workflows live in `.github/workflows/`.
 
 ## Development
@@ -18,7 +18,7 @@ Use Node 22.12+ or Node 24 with npm. Run `npm ci` to install dependencies. Follo
 | `npm test` | Run the Vitest suite. |
 | `npm run check` | Typecheck, test, and build the library. |
 | `npm run check:all` | Run `check` and verify the packed package in a fresh consumer. |
-| `npm run build:web` | Build the standalone browser bundle for the playground. |
+| `npm run build:web` | Build the standalone browser bundle (`dist/palletface.js`). |
 
 Keep rendering deterministic and free of runtime dependencies. Rendering must work without a DOM, network, clock, or system randomness. Review public API changes and changes to SVG output deliberately. Explain intentional fixture updates alongside the change.
 
