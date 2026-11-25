@@ -73,7 +73,7 @@ To deploy on every push to `main`, connect the repository once in the Cloudflare
 
 The site builds from the full repository, because it imports the library from `../src`. Cloudflare installs dependencies from `site/package-lock.json` before the build.
 
-Pull request builds use the **Previews Base** tab on the same page. Set its root directory to `site` as well, with the build command `npm run build` and the Preview command `npx wrangler preview`. Cloudflare copies these settings into a branch's Preview when the Preview is first created, so later changes do not reach an existing Preview. To pick them up, delete it with `npx wrangler preview delete --name <branch>` and push again.
+Pull request builds use the **Previews Base** tab on the same page. Set its root directory to `site` as well, with the build command `npm run build` and the Preview command `npx wrangler preview`. Cloudflare copies these settings into each branch on its first preview build, so later changes only reach branches that have not built yet. Deleting the Preview with `npx wrangler preview delete` does not reset a branch's copy.
 
 ## After a release
 
