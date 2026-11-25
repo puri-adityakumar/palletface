@@ -799,6 +799,55 @@
   font-size: 0.9em;
 }
 
+.log__table {
+  max-width: 68ch;
+  margin: 0 0 16px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+}
+
+.log__table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.log__table th,
+.log__table td {
+  padding: 8px 14px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.log__table th {
+  font: 500 11px/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.log__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.log__table td code {
+  white-space: nowrap;
+}
+
+.log__code {
+  max-width: 68ch;
+  margin: 0 0 16px;
+  padding: 20px 24px;
+  background: var(--ink);
+}
+
+.log__code .code {
+  font-size: 13.5px;
+}
+
 .log__body a:hover {
   color: var(--blue);
 }
@@ -905,6 +954,33 @@
     white-space: normal;
     overflow-wrap: anywhere;
     line-height: 1.4;
+  }
+
+  .log__table table {
+    font-size: 13px;
+  }
+
+  .log__table th,
+  .log__table td {
+    padding: 8px 10px;
+  }
+
+  .log__table td code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .log__code {
+    padding: 16px;
+  }
+
+  .log__code .code {
+    font-size: 12.5px;
+  }
+
+  .log__code .code__line {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   .ladder {

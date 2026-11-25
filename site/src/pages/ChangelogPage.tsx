@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { Code } from '../components/Code'
 import { CopyButton } from '../components/CopyButton'
 import { Out } from '../components/Pixel'
 import { SubHead } from '../components/SubHead'
@@ -62,31 +63,92 @@ function inline(text: string, key: number): ReactNode {
   })
 }
 
-/** Release notes as headings, lists and paragraphs. Raw URLs stay plain text. */
+const FENCE = /^```/
+const TABLE_RULE = /^\|?(\s*:?-+:?\s*\|)*\s*:?-+:?\s*\|?$/
+const cells = (row: string) =>
+  row
+    .replace(/^\||\|$/g, '')
+    .split('|')
+    .map((cell) => cell.trim())
+
+/** Release notes as headings, lists, paragraphs, tables, and code blocks. Raw URLs stay plain text. */
 function Notes({ release }: { release: Release }) {
   const blocks: ReactNode[] = []
   let list: string[] = []
+  let rows: string[] = []
+  let code: string[] | undefined
   const flush = (key: number) => {
-    if (!list.length) return
-    blocks.push(
-      <ul key={`ul-${key}`}>
-        {list.map((item, i) => (
-          <li key={i}>{inline(item, i)}</li>
-        ))}
-      </ul>,
-    )
-    list = []
+    if (list.length) {
+      blocks.push(
+        <ul key={`ul-${key}`}>
+          {list.map((item, i) => (
+            <li key={i}>{inline(item, i)}</li>
+          ))}
+        </ul>,
+      )
+      list = []
+    }
+    if (rows.length) {
+      const [head = '', ...body] = rows.filter((row, i) => i !== 1 || !TABLE_RULE.test(row))
+      blocks.push(
+        <div key={`table-${key}`} className="log__table">
+          <table>
+            <thead>
+              <tr>
+                {cells(head).map((cell, i) => (
+                  <th key={i}>{inline(cell, i)}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {body.map((row, r) => (
+                <tr key={r}>
+                  {cells(row).map((cell, i) => (
+                    <td key={i}>{inline(cell, i)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>,
+      )
+      rows = []
+    }
   }
+  const pushCode = (key: number, lines: string[]) =>
+    blocks.push(
+      <div key={`code-${key}`} className="log__code">
+        <Code code={lines.join('\n')} />
+      </div>,
+    )
   const lines = (release.body ?? '').replace(/\r/g, '').split('\n')
-  lines.forEach((raw, i) => {
+  for (const [i, raw] of lines.entries()) {
     const line = raw.trim()
+    if (code) {
+      if (FENCE.test(line)) {
+        pushCode(i, code)
+        code = undefined
+      } else code.push(raw)
+      continue
+    }
+    if (FENCE.test(line)) {
+      flush(i)
+      code = []
+      continue
+    }
     if (!line) {
       flush(i)
-      return
+      continue
+    }
+    if (line.startsWith('|')) {
+      if (list.length) flush(i)
+      rows.push(line)
+      continue
     }
     if (line.startsWith('- ') || line.startsWith('* ')) {
+      if (rows.length) flush(i)
       list.push(line.slice(2))
-      return
+      continue
     }
     flush(i)
     const heading = line.match(HEADING)
@@ -97,8 +159,9 @@ function Notes({ release }: { release: Release }) {
         </h3>,
       )
     } else blocks.push(<p key={i}>{inline(line, i)}</p>)
-  })
+  }
   flush(lines.length)
+  if (code) pushCode(lines.length, code)
   return <>{blocks}</>
 }
 
