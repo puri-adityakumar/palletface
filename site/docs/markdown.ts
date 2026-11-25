@@ -4,6 +4,7 @@ import { Marked, Renderer } from 'marked'
 import type { Plugin } from 'vite'
 import { palletface, STYLES, type PalletfaceOptions, type StyleSlug } from '../../src/index.ts'
 
+const SITE_URL = 'https://palletface.palletism.art'
 const site = new URL('../', import.meta.url)
 const guide = new URL('../public/docs/guide.md', import.meta.url)
 
@@ -175,7 +176,18 @@ export function docsMarkdown(): Plugin {
           <p>On this page</p><ul>${sections.join('\n')}</ul>
         </nav>` : ''
         const pageTitle = overview ? 'palletface Docs' : `${page.title} · palletface Docs`
-        const meta = `<title>${pageTitle}</title><meta name="description" content="${page.description}" />`
+        const url = `${SITE_URL}${page.href}`
+        const meta = [
+          `<title>${pageTitle}</title>`,
+          `<meta name="description" content="${page.description}" />`,
+          `<link rel="canonical" href="${url}" />`,
+          `<meta property="og:type" content="website" />`,
+          `<meta property="og:url" content="${url}" />`,
+          `<meta property="og:title" content="${pageTitle}" />`,
+          `<meta property="og:description" content="${page.description}" />`,
+          `<meta property="og:image" content="${SITE_URL}/social-preview.png" />`,
+          `<meta name="twitter:card" content="summary_large_image" />`,
+        ].join('')
 
         return template
           .replace('<!-- docs metadata -->', () => meta)

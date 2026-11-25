@@ -1,0 +1,12 @@
+{
+  // The site is static assets on Cloudflare Workers. Run `npm run build` before `npx wrangler deploy`.
+  "name": "palletface",
+  "compatibility_date": "2026-11-25",
+  "assets": {
+    "directory": "./dist",
+    // /playground and /changelog have no file of their own, so direct links and refreshes need index.html.
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [{ "pattern": "palletface.palletism.art", "custom_domain": true }],
+  "workers_dev": false
+}

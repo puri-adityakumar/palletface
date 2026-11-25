@@ -11,8 +11,9 @@
 </p>
 
 <p align="center">
-  <a href="site/public/docs/guide.md"><b>Docs</b></a> ·
-  <a href="site/public/docs/guide.md#examples">Examples</a> ·
+  <a href="https://palletface.palletism.art/docs/"><b>Docs</b></a> ·
+  <a href="https://palletface.palletism.art/docs/examples/">Examples</a> ·
+  <a href="https://palletface.palletism.art/playground">Playground</a> ·
   <a href="https://www.npmjs.com/package/palletface">npm</a> ·
   <a href="https://github.com/puri-adityakumar/palletface/releases">Releases</a> ·
   <a href="https://palletism.art">Palletism</a> ·
@@ -118,7 +119,7 @@ const svg = palletface('user-123', { style: 'pixel-landscape', px: 80 })
 
 Package verification exercises Node against the installed tarball. Core rendering does not use `window`, a DOM, or server APIs.
 
-The [integration docs](site/public/docs/guide.md#integrations) also show a page without a bundler and a server route that returns the SVG.
+The [integration docs](https://palletface.palletism.art/docs/integrations/) also show a page without a bundler and a server route that returns the SVG.
 
 ## Compatibility, privacy, and accessibility
 
@@ -131,7 +132,7 @@ The [integration docs](site/public/docs/guide.md#integrations) also show a page 
 
 ## Documentation
 
-The [palletface docs](site/public/docs/guide.md) cover the [quick start](site/public/docs/guide.md#quick-start), [examples](site/public/docs/guide.md#examples), the [API reference](site/public/docs/guide.md#api-reference), every [style](site/public/docs/guide.md#styles), and [integrations](site/public/docs/guide.md#integrations).
+The [palletface docs](https://palletface.palletism.art/docs/) cover the [quick start](https://palletface.palletism.art/docs/quick-start/), [examples](https://palletface.palletism.art/docs/examples/), the [API reference](https://palletface.palletism.art/docs/api-reference/), every [style](https://palletface.palletism.art/docs/styles/), and [integrations](https://palletface.palletism.art/docs/integrations/). Try every style in the [playground](https://palletface.palletism.art/playground).
 
 ## Development
 

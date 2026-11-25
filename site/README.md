@@ -1,6 +1,6 @@
 # palletface site
 
-The landing page and documentation for [palletface](https://github.com/puri-adityakumar/palletface), built with React and Vite and hosted on Cloudflare Pages.
+The landing page and documentation for [palletface](https://github.com/puri-adityakumar/palletface), built with React and Vite and hosted on Cloudflare Workers at [palletface.palletism.art](https://palletface.palletism.art).
 
 The page renders avatars with the library source in `../src` through a Vite alias, so it always shows the styles and version of the commit it was built from. The displayed version comes from the root `package.json`.
 
@@ -48,11 +48,20 @@ The landing page and docs share the pixel bloom in `src/assets/pixel-bloom.svg`,
 | `public/icon-512.png` | Square icon for avatars and profiles (512 × 512). |
 | `public/social-preview.png` | Link preview image (1280 × 640). Upload it in the repo's **Settings → General → Social preview**. |
 
-## Deploy to Cloudflare Pages
+## Deploy to Cloudflare
 
-The site builds from the full repository, because it imports the library from `../src`.
+The site is a Cloudflare Worker named `palletface` that serves the built `dist/` folder as static assets. [`wrangler.jsonc`](wrangler.jsonc) holds its settings: the `palletface.palletism.art` custom domain, no `workers.dev` address, and single-page app mode, which serves `index.html` for paths without a file so `/playground` and `/changelog` load directly. `public/_headers` sets caching for hashed assets and a few security headers.
 
-First-time setup in the Cloudflare dashboard (**Workers & Pages → Create → Pages → Connect to Git**):
+To deploy by hand, build and upload with Wrangler:
+
+```sh
+cd site
+npm ci
+npm run build
+npx wrangler deploy
+```
+
+To deploy on every push to `main`, connect the repository once in the Cloudflare dashboard (**Workers & Pages → palletface → Settings → Builds → Connect**):
 
 | Setting | Value |
 | --- | --- |
@@ -60,21 +69,9 @@ First-time setup in the Cloudflare dashboard (**Workers & Pages → Create → P
 | Production branch | `main` |
 | Root directory | `site` |
 | Build command | `npm run build` |
-| Build output directory | `dist` |
-| Environment variable | `NODE_VERSION` = `22.12.0` |
+| Deploy command | `npx wrangler deploy` |
 
-Cloudflare installs dependencies from `site/package-lock.json` before the build. Every push to `main` deploys to production, and other branches get preview URLs.
-
-To deploy by hand instead, build locally and upload `dist/` with Wrangler:
-
-```sh
-cd site
-npm ci
-npm run build
-npx wrangler pages deploy dist --project-name palletface
-```
-
-`public/_headers` sets caching for hashed assets and a few security headers. The build has no top-level `404.html`, so Cloudflare Pages serves `index.html` for unknown paths and `/playground` and `/changelog` load directly.
+The site builds from the full repository, because it imports the library from `../src`. Cloudflare installs dependencies from `site/package-lock.json` before the build.
 
 ## After a release
 
