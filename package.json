@@ -13,6 +13,10 @@
     "url": "https://github.com/puri-adityakumar/palletface/issues"
   },
   "homepage": "https://palletface.palletism.art",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/puri-adityakumar"
+  },
   "keywords": [
     "avatar",
     "avatar-generator",
