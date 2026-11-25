@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { Marked, Renderer } from 'marked'
 import type { Plugin } from 'vite'
-import { ditherFace, STYLES, type DitherFaceOptions } from '../../src/index.ts'
+import { ditherFace, STYLES, type DitherFaceOptions, type StyleSlug } from '../../src/index.ts'
 
 const site = new URL('../', import.meta.url)
 const guide = new URL('../public/docs/guide.md', import.meta.url)
@@ -23,6 +23,43 @@ export const docsEntries = pages.map(({ entry }) => entry)
 
 const escapeHtml = (text: string) =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+const avatar = (svg: string, px: number, alt: string) =>
+  `<img src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" width="${px}" height="${px}" alt="${escapeHtml(alt)}" />`
+
+const SEEDS = ['ada', 'kai', 'yuki', 'élodie', 'marcus', 'rhea', 'quinn', 'zeke', 'noor', 'tomás', 'aditya', 'mina']
+
+/** One avatar per style for the overview, each from a different seed. */
+function styleStrip() {
+  const items = STYLES.map(({ slug, title }, i) => {
+    const seed = SEEDS[i % SEEDS.length]!
+    return `<li>${avatar(ditherFace(seed, { style: slug, px: 64 }), 64, `${title} avatar for “${seed}”`)}</li>`
+  })
+  return `<ul class="docs-strip" aria-label="One avatar in each style">${items.join('')}</ul>`
+}
+
+// Groups: comment, string, keyword, number, then (HTML only) tag.
+const SCRIPT = String.raw`(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|` + '`(?:[^`\\\\]|\\\\.)*`' + String.raw`)|\b(import|from|export|const|let|function|return|new|await|async|true|false|null|undefined)\b|\b(\d+(?:\.\d+)?)\b`
+const TOKENS: Record<string, RegExp> = {
+  js: new RegExp(SCRIPT, 'g'),
+  ts: new RegExp(SCRIPT, 'g'),
+  html: new RegExp(`${SCRIPT}|(<\\/?[a-zA-Z][\\w-]*|\\/?>)`, 'g'),
+}
+const KINDS = ['comment', 'string', 'keyword', 'number', 'tag']
+
+/** Escaped code with comments, strings, keywords, numbers, and tags wrapped in spans. */
+function highlight(code: string, lang: string) {
+  const pattern = TOKENS[lang]
+  if (!pattern) return escapeHtml(code)
+  let out = ''
+  let last = 0
+  for (const match of code.matchAll(pattern)) {
+    const kind = KINDS[match.slice(1).findIndex((group) => group !== undefined)]
+    out += escapeHtml(code.slice(last, match.index)) + `<span class="tok-${kind}">${escapeHtml(match[0])}</span>`
+    last = match.index + match[0].length
+  }
+  return out + escapeHtml(code.slice(last))
+}
 
 type Drawn = { seed: string; style: string; name?: string; px: number; svg: string }
 
@@ -47,8 +84,7 @@ function exampleResult(code: string) {
   const items = drawn.map(({ seed, style, name, px, svg }, n) => {
     const label = fields[n]!.filter((_, i) => differs[i]).join(' · ')
     const alt = `${style} avatar for “${seed}”${name === undefined ? '' : ` named ${name}`}, ${px} px`
-    const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
-    return `<li><img src="${src}" width="${px}" height="${px}" alt="${escapeHtml(alt)}" />${label ? `<span>${escapeHtml(label)}</span>` : ''}</li>`
+    return `<li>${avatar(svg, px, alt)}${label ? `<span>${escapeHtml(label)}</span>` : ''}</li>`
   })
   return `<ul class="docs-example-result" aria-label="Result">${items.join('')}</ul>`
 }
@@ -86,13 +122,25 @@ export function docsMarkdown(): Plugin {
             },
             code(token) {
               // ```js example runs at build time, and its avatars are shown under the code.
-              const [lang, ...flags] = (token.lang ?? '').split(/\s+/)
-              const html = Renderer.prototype.code.call(this, { ...token, lang })
-              if (!flags.includes('example')) return html
-              return `<figure class="docs-example">${html}${exampleResult(token.text)}</figure>\n`
+              const [lang = '', ...flags] = (token.lang ?? '').split(/\s+/)
+              const pre = Renderer.prototype.code.call(this, { ...token, lang, text: highlight(token.text, lang), escaped: true })
+              const block = `<div class="docs-code">${pre}<button type="button" class="docs-copy" hidden><span aria-live="polite">Copy</span><span class="sr-only"> code</span></button></div>`
+              if (!flags.includes('example')) return `${block}\n`
+              return `<figure class="docs-example">${block}${exampleResult(token.text)}</figure>\n`
             },
             table(token) {
-              const table = Renderer.prototype.table.call(this, token)
+              let table = Renderer.prototype.table.call(this, token)
+              // The style list gets a preview column, drawn from the slug in each row.
+              if (token.header[0]?.text === 'Slug') {
+                const slugs = token.rows.map((row) => row[0]!.text.replace(/`/g, '') as StyleSlug)
+                let row = -1
+                table = table.replace(/<tr>\n?/g, (tr) => {
+                  row += 1
+                  if (row === 0) return `${tr}<th><span class="sr-only">Preview</span></th>`
+                  const slug = slugs[row - 1]!
+                  return `${tr}<td class="docs-preview">${avatar(ditherFace('user-123', { style: slug, px: 40 }), 40, '')}</td>`
+                })
+              }
               return `<div class="docs-table-scroll" tabindex="0">${table}</div>\n`
             },
           },
@@ -107,7 +155,8 @@ export function docsMarkdown(): Plugin {
         if (heading?.type !== 'heading') throw new Error(`Missing Markdown heading for ${page.href}`)
         const end = tokens.findIndex((token, index) => index > start && token.type === 'heading' && token.depth === 2)
         const title = markdown.parser([{ ...heading, depth: 1 }])
-        const article = markdown.parser(tokens.slice(start + 1, end === -1 ? undefined : end))
+        const body = markdown.parser(tokens.slice(start + 1, end === -1 ? undefined : end))
+        const article = overview ? body.replace('</p>', () => `</p>${styleStrip()}`) : body
 
         const nav = (group: string) => pages.filter((item) => item.group === group).map((item) => {
           const current = item === page ? ' aria-current="page"' : ''
@@ -134,7 +183,7 @@ export function docsMarkdown(): Plugin {
           .replace('<!-- docs reference -->', () => nav('reference'))
           .replace('<!-- docs heading -->', () => title)
           .replace('<!-- docs outline -->', () => outline)
-          .replace('<!-- docs guide -->', () => article + index + pagination)
+          .replace('<!-- docs guide -->', () => article + index + (overview ? '' : pagination))
       },
     },
   }

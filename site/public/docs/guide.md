@@ -2,6 +2,10 @@
 
 `palletface` turns a string into a standalone SVG avatar in Node or the browser. It has zero runtime dependencies.
 
+```sh
+npm install palletface@beta
+```
+
 ## Quick start
 
 ### Install

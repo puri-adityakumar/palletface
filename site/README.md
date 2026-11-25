@@ -26,7 +26,7 @@ npm run dev        # http://localhost:5173/
 ## Layout
 
 - `index.html` and `src/main.tsx` are the entry points. `src/App.tsx` orders the sections.
-- [`public/docs/guide.md`](public/docs/guide.md) is the source for the static docs pages and the Markdown at `/docs/guide.md`. `docs/markdown.ts` maps each top-level section to its HTML route with a shared sidebar. Code blocks fenced with `` ```js example `` run when the docs build, and the avatars they draw appear under them. `public/llms.txt` links agents to the full guide. The docs default to dark mode and remember the reader's theme preference.
+- [`public/docs/guide.md`](public/docs/guide.md) is the source for the static docs pages and the Markdown at `/docs/guide.md`. `docs/markdown.ts` maps each top-level section to its HTML route with a shared sidebar. Code blocks fenced with `` ```js example `` run when the docs build, and the avatars they draw appear under them. A table whose first column is `Slug` gets a preview column drawn from each slug. `public/llms.txt` links agents to the full guide. The docs default to dark mode and remember the reader's theme preference.
 - `src/sections/` holds one component and one stylesheet per page section.
 - `src/pages/` holds the playground at `/playground` and the changelog at `/changelog`. `src/App.tsx` picks the page from the path. The changelog shows the releases bundled in `src/lib/releases.ts` and refreshes them from the GitHub API when it can.
 - `src/field/SeedField.tsx` draws the seed field on a canvas behind the hero, the sponsor panel, and the footer. Ink cells grow from the seed, paper cells show how many ink neighbours they have, and areas passed as `clear` or `solid` stay paper or ink.

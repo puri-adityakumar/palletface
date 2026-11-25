@@ -16,6 +16,42 @@ if (themeButton) {
   })
 }
 
+const menuButton = document.querySelector<HTMLButtonElement>('#docs-menu')
+const sidebar = document.querySelector<HTMLElement>('#docs-sidebar')
+
+if (menuButton && sidebar) {
+  const setMenu = (open: boolean) => {
+    menuButton.setAttribute('aria-expanded', String(open))
+    sidebar.classList.toggle('is-open', open)
+  }
+  menuButton.addEventListener('click', () => setMenu(menuButton.getAttribute('aria-expanded') !== 'true'))
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && sidebar.classList.contains('is-open')) {
+      setMenu(false)
+      menuButton.focus()
+    }
+  })
+}
+
+for (const button of document.querySelectorAll<HTMLButtonElement>('.docs-copy')) {
+  const code = button.parentElement?.querySelector('code')
+  const status = button.querySelector('[aria-live]')
+  if (!code || !status) continue
+  let timer = 0
+  button.hidden = false
+  button.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText((code.textContent ?? '').replace(/\n$/, ''))
+      status.textContent = 'Copied'
+    } catch {
+      status.textContent = 'Retry'
+    }
+    window.clearTimeout(timer)
+    timer = window.setTimeout(() => {
+      status.textContent = 'Copy'
+    }, 1400)
+  })
+}
 if (document.querySelector('.docs-overview') && location.hash) {
   const legacySections = new Map([
     ['#stability', '/docs/api-reference/#stability'],
