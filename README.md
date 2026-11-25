@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/banner.png" alt="palletface by palletism.art: SVG avatars from any string, shown in all twelve styles" width="100%">
+  <img src=".github/banner.png" alt="palletface by palletism.art: SVG avatars from any string, with one seed drawn in all twelve styles" width="100%">
 </p>
 
 <p align="center">
@@ -58,7 +58,9 @@ const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 
 ## Styles
 
-![Samples of all twelve avatar styles, labeled with their style slugs](.github/preview.svg)
+![All twelve styles, one per row: six seeds at 64px, then the first seed at 48, 32, 24, and 16px](.github/preview.svg)
+
+Each row is one style. The first six columns show different seeds, and the last four show the first seed at smaller display sizes.
 
 | `style` | Appearance | Display name used? |
 | --- | --- | --- |
