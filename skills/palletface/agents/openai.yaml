@@ -1,0 +1,4 @@
+interface:
+  display_name: "Palletface"
+  short_description: "Generate deterministic SVG avatars"
+  default_prompt: "Use $palletface to add a fallback avatar seeded by each user ID."

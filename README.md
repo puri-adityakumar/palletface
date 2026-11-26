@@ -55,6 +55,16 @@ const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 
 `svg` is a complete SVG string with an XML namespace, dimensions, and a viewBox. The same seed and options produce the same output in the tested runtimes. For the simplest call, `palletface('user-123')` uses `pixel-sprite` at 80px.
 
+## Agent skill
+
+Install the [palletface skill](skills/palletface/SKILL.md) to help your coding agent generate SVG avatars and integrate them into your app.
+
+```sh
+npx skills add puri-adityakumar/palletface --skill palletface
+```
+
+Try asking your agent to “Use palletface to add a deterministic fallback avatar seeded by each user's ID.”
+
 ## Styles
 
 ![All twelve styles, one per row: six seeds at 64px, then the first seed at 48, 32, 24, and 16px](.github/preview.svg)
