@@ -46,7 +46,8 @@ The landing page and docs share the pixel bloom in `src/assets/pixel-bloom.svg`,
 | `public/favicon.svg` | Browser tab icon. |
 | `public/apple-touch-icon.png` | Home screen icon on iOS (180 × 180). |
 | `public/icon-512.png` | Square icon for avatars and profiles (512 × 512). |
-| `public/social-preview.png` | Link preview image (1280 × 640). Upload it in the repo's **Settings → General → Social preview**. |
+| `public/og.png` | Link preview image for the site and docs (1200 × 630). |
+| `../.github/social-preview.png` | Link preview image for the GitHub repo (1280 × 640). Upload it in the repo's **Settings → General → Social preview**. |
 
 ## Deploy to Cloudflare
 
