@@ -21,7 +21,17 @@ export const LINKS = {
   author: 'https://github.com/puri-adityakumar',
   palletism: 'https://palletism.art',
   x: 'https://x.com/adityawaslost',
+  skill: 'https://skills.sh/puri-adityakumar/palletface/palletface',
 } as const
+
+/** Installs the agent skill in skills/palletface, as in the package README. */
+export const SKILL_INSTALL = 'npx skills add puri-adityakumar/palletface --skill palletface'
+
+/**
+ * GitHub logins of current sponsors, oldest first. Each one gets a face in the Sponsor section's list and a
+ * thank-you in the support toast. The page also promises a spot in the package README, so add them there too.
+ */
+export const SPONSORS: readonly string[] = []
 
 export const AVATAR_IMPORT = `import { palletface } from 'palletface'`
 

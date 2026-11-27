@@ -142,6 +142,10 @@ pre {
   font: inherit;
 }
 
+.install__word {
+  white-space: nowrap;
+}
+
 .install__prompt {
   color: var(--muted-ink);
 }

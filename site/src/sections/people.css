@@ -1,0 +1,180 @@
+.people__wall {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: stretch;
+}
+
+.people__faces {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.people__face {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 8px 12px;
+  background: var(--paper-3);
+  border: 1.5px solid transparent;
+  border-top-left-radius: 10px;
+}
+
+.people__face img {
+  width: 100%;
+  max-width: 112px;
+  height: auto;
+  aspect-ratio: 1;
+  opacity: 0.72;
+  transition: opacity 0.2s;
+}
+
+.people__face[aria-pressed='true'] {
+  border-color: var(--blue);
+  background: var(--paper);
+}
+
+.people__face[aria-pressed='true'] img,
+.people__face:hover img {
+  opacity: 1;
+}
+
+.people__face:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.people__handle {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 500 12px/1.2 var(--mono);
+}
+
+.people__style {
+  font: 500 10px/1.2 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* the quote, on ink */
+.people__quote {
+  margin: 0;
+  display: grid;
+  align-content: space-between;
+  gap: 28px;
+  padding: 40px;
+  background: var(--ink);
+  color: var(--paper);
+  border-top-right-radius: 14px;
+}
+
+.people__mark {
+  font: 500 120px/0.6 var(--sans);
+  color: var(--blue-soft);
+}
+
+.people__quote blockquote {
+  margin: 0;
+  min-height: 3.3em;
+  font-weight: 500;
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  white-space: pre-line;
+  text-wrap: pretty;
+  animation: people-in 0.4s both;
+}
+
+@keyframes people-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.people__quote figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+/* a real photo, so it is smoothed, unlike the pixel avatars */
+.people__photo {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--ink-line);
+  image-rendering: auto;
+}
+
+.people__quote b {
+  margin-right: 6px;
+  font: 600 15px/1.2 var(--sans);
+}
+
+.people__quote small {
+  font: 500 12px/1.2 var(--mono);
+  color: var(--muted-ink);
+}
+
+.people__quote figcaption a {
+  margin-left: auto;
+  font: 500 12px/1 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--blue-soft);
+}
+
+.people__quote figcaption a:hover {
+  color: var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .people__quote blockquote {
+    animation: none;
+  }
+
+  .people__face img {
+    transition: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .people__wall {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .people__faces {
+    gap: 8px;
+  }
+
+  .people__face {
+    padding: 8px;
+  }
+
+  .people__handle,
+  .people__style {
+    display: none;
+  }
+
+  .people__quote {
+    gap: 20px;
+    padding: 28px 22px;
+  }
+}

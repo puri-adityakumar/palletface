@@ -249,6 +249,47 @@
   color: var(--paper);
 }
 
+/* a rule on each side of the word */
+.quick__or {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.quick__or::before,
+.quick__or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--ink-line);
+}
+
+.quick__ask {
+  margin: 0;
+  max-width: 60ch;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #bdbdb7;
+}
+
+.quick__ask q {
+  color: var(--paper);
+}
+
+.quick__ask a {
+  color: var(--blue-soft);
+  white-space: nowrap;
+}
+
+.quick__ask a:hover {
+  color: var(--paper);
+}
+
 @media (max-width: 1000px) {
   /* the three steps become a swipe slider; the next step peeks in from the right */
   .how__steps {
@@ -314,8 +355,18 @@
     font-size: 12.5px;
   }
 
+  /* the skill command is too long for one line on a phone, so the button grows to fit it */
   .quick__step .install {
     width: 100%;
+    height: auto;
+    min-height: 52px;
+    padding-block: 8px;
     justify-content: space-between;
+    font-size: 13px;
+  }
+
+  .quick__step .install code {
+    min-width: 0;
+    line-height: 1.4;
   }
 }

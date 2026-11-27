@@ -1,0 +1,246 @@
+/* the support toast: a face peeking up from the bottom-right corner */
+.support {
+  position: fixed;
+  right: 28px;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(100%);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.support.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* only the bubble, menu, and face take clicks, not the empty box around them */
+.support.is-in > * {
+  pointer-events: auto;
+}
+
+.support__bubble {
+  position: relative;
+  margin: 0 46px 0 0;
+  padding: 10px 14px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  font: 500 13px/1.2 var(--mono);
+  white-space: nowrap;
+}
+
+/* the speech tail: two stepped pixels */
+.support__bubble::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  bottom: -12px;
+  width: 8px;
+  height: 8px;
+  background: var(--ink);
+  box-shadow: 6px 4px 0 var(--ink);
+}
+
+.support__star {
+  color: #e3b341;
+}
+
+.support__pink {
+  color: #bf3989;
+}
+
+/* the lower part of the face stays below the screen edge */
+.support__face {
+  all: unset;
+  cursor: pointer;
+  display: block;
+  transform: translateY(14%);
+  animation: support-bob 2.4s ease-in-out infinite;
+}
+
+.support__face:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.support__face img {
+  width: 88px;
+  height: 88px;
+  transition: transform 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.25);
+}
+
+.support__face.is-duck img {
+  transform: translateY(115%);
+  transition-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+}
+
+@keyframes support-bob {
+  50% {
+    transform: translateY(6%);
+  }
+}
+
+.support__menu {
+  display: none;
+  width: 320px;
+  gap: 10px;
+  padding: 16px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-top-left-radius: 12px;
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.support__menu > p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.support__menu > .support__title {
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.015em;
+}
+
+.support.is-open .support__menu {
+  display: grid;
+}
+
+.support.is-open .support__bubble {
+  display: none;
+}
+
+.support.is-open .support__face {
+  animation: none;
+  transform: translateY(8%);
+}
+
+.support__opt {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 2px 8px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--ink);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.support__icon {
+  grid-row: span 2;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.support__opt b {
+  font: 600 14px/1.25 var(--sans);
+}
+
+.support__opt small {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--ink-2);
+}
+
+.support__opt:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.support__opt:hover small {
+  color: var(--muted-ink);
+}
+
+.support__opt--sponsor {
+  border-color: #bf3989;
+  background: #bf3989;
+  color: #fff;
+}
+
+.support__opt--sponsor small,
+.support__opt--sponsor:hover small {
+  color: #ffe3f2;
+}
+
+.support__opt--sponsor:hover {
+  border-color: #99286e;
+  background: #99286e;
+}
+
+.support__menu > .support__thanks {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.support__thanks a:hover {
+  color: #bf3989;
+}
+
+.support__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.support__later {
+  all: unset;
+  cursor: pointer;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.support__later:hover {
+  color: var(--ink);
+}
+
+.support__later:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.support__see {
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--blue);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .support,
+  .support__face img {
+    transition: none;
+  }
+
+  .support__face {
+    animation: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .support {
+    right: 16px;
+  }
+
+  .support__face img {
+    width: 64px;
+    height: 64px;
+  }
+
+  /* on a phone the bubble would cover what people are reading; the face alone still invites a tap */
+  .support__bubble {
+    display: none;
+  }
+
+  .support__menu {
+    width: min(320px, calc(100vw - 32px));
+  }
+}

@@ -1,4 +1,4 @@
-import { palletface, STYLES, type StyleSlug } from 'palletface'
+import { fnv1a, palletface, STYLES, type StyleSlug } from 'palletface'
 import type { CSSProperties } from 'react'
 
 export { STYLES }
@@ -10,6 +10,9 @@ export const LETTER_STYLES: ReadonlySet<StyleSlug> = new Set<StyleSlug>(['pixel-
 export function face(seed: string, style: StyleSlug, px = 80, name?: string): string {
   return palletface(seed, { style, px, name })
 }
+
+/** A style picked by hashing the seed, so a person keeps the same look everywhere on the page. */
+export const styleFor = (seed: string) => STYLES[fnv1a(seed) % STYLES.length]!
 
 export const svgUrl = (svg: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 

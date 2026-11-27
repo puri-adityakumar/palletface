@@ -2,10 +2,11 @@ import { useMemo, useState, type UIEvent } from 'react'
 import { fnv1a } from 'palletface'
 import { Code } from '../components/Code'
 import { CopyButton } from '../components/CopyButton'
+import { Out } from '../components/Pixel'
 import { face, Face, svgUrl } from '../lib/faces'
 import { useInView, useReducedMotion } from '../lib/hooks'
 import { Pixelate, usePixelSteps } from '../lib/pixelate'
-import { INSTALL, LINKS, QUICK_START, STYLE_COUNT } from '../lib/content'
+import { INSTALL, LINKS, QUICK_START, SKILL_INSTALL, STYLE_COUNT } from '../lib/content'
 import './how.css'
 
 const bytes = (s: string) => new TextEncoder().encode(s).length
@@ -161,6 +162,17 @@ export function QuickStart() {
             Change it with <code>style</code>, <code>px</code>, and <code>name</code>. See the <a href={`${LINKS.docs}styles/`}>docs</a> for all{' '}
             {STYLE_COUNT} styles.
           </p>
+          <p className="quick__or">or</p>
+          <div className="quick__step" id="skill">
+            <h3>Let your coding agent do it</h3>
+            <CopyButton value={SKILL_INSTALL} variant="install" tone="paper" />
+            <p className="quick__ask">
+              Then ask it: <q>Use palletface to add a deterministic fallback avatar seeded by each user’s ID.</q> The skill is on{' '}
+              <a href={LINKS.skill} target="_blank" rel="noreferrer">
+                skills.sh <Out />
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </section>
