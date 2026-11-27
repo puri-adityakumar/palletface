@@ -3,13 +3,66 @@ import { STYLES } from 'palletface'
 import { Out } from '../components/Pixel'
 import { Contribute } from './Contribute'
 import { SeedField } from '../field/SeedField'
-import { LINKS } from '../lib/content'
-import { Face } from '../lib/faces'
+import { LINKS, SPONSORS } from '../lib/content'
+import { Face, styleFor } from '../lib/faces'
 import { useInView, useReducedMotion } from '../lib/hooks'
 import { Pixelate, usePixelSteps } from '../lib/pixelate'
 import './sponsor.css'
 
 const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+const pad = (n: number) => String(n).padStart(2, '0')
+/** Open slots fill the list up to three; past that, one always stays open. */
+const MIN_ROWS = 3
+
+/** Current sponsors, then open slots, one above the other. Each open slot links to GitHub Sponsors. */
+function SponsorList() {
+  const open = Math.max(1, MIN_ROWS - SPONSORS.length)
+  return (
+    <div className="sponsors" id="sponsors">
+      <p className="sponsors__k">
+        <span aria-hidden="true">♥</span> Sponsors · get featured
+      </p>
+      <p className="sponsors__perks">
+        Every sponsor gets their face in this list, a dedicated mention in the corner pop-up, and a spot in the{' '}
+        <a href={`${LINKS.github}#sponsor`} target="_blank" rel="noreferrer">
+          README
+        </a>
+        .
+      </p>
+      <ul className="sponsors__list">
+        {SPONSORS.map((login) => (
+          <li key={login}>
+            <a className="sponsors__item" href={`https://github.com/${login}`} target="_blank" rel="noreferrer">
+              <Face className="sponsors__dot" seed={login} style={styleFor(login).slug} px={64} name={capital(login)} alt="" />
+              <span className="sponsors__label">@{login}</span>
+            </a>
+          </li>
+        ))}
+        {Array.from({ length: open }, (_, i) => {
+          const n = SPONSORS.length + i + 1
+          return (
+            <li key={n}>
+              <a
+                className="sponsors__item sponsors__item--open"
+                href={LINKS.sponsor}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`Sponsor slot ${pad(n)} is open. Sponsor palletface on GitHub`}
+              >
+                <span className="sponsors__dot sponsors__plus" aria-hidden="true">
+                  +
+                </span>
+                <span className="sponsors__label" aria-hidden="true">
+                  Sponsor {pad(n)} <em>· open</em>
+                </span>
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
 
 /** The open sponsor slot: the visitor's seed, cycling through every style while it is on screen. */
 function Slot({ seed }: { seed: string }) {
@@ -53,6 +106,7 @@ export function Sponsor({ seed }: { seed: string }) {
                 <span className="btn__star" aria-hidden="true">★</span> Star the repo <Out />
               </a>
             </div>
+            <SponsorList />
           </div>
           <div className="sponsor__field">
             <SeedField seed="sponsor" shape="sponsor" cell={22} clear={clear} />

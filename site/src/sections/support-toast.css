@@ -172,6 +172,15 @@
   background: #99286e;
 }
 
+.support__menu > .support__thanks {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.support__thanks a:hover {
+  color: #bf3989;
+}
+
 .support__foot {
   display: flex;
   justify-content: space-between;

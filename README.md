@@ -170,6 +170,10 @@ palletface grew from Palletism's avatar experiments and is independently install
 
 <a href="https://github.com/sponsors/puri-adityakumar"><img src=".github/sponsor.png" alt="Fund the next style. palletface is free, MIT licensed, and made by one person. Sponsor on GitHub." width="100%"></a>
 
+Every sponsor gets a spot in this README, their face in the sponsor list on the [website](https://palletface.palletism.art/#sponsor), and a dedicated mention in the website's corner pop-up.
+
+**Sponsors:** none yet. [Be the first](https://github.com/sponsors/puri-adityakumar).
+
 ## License
 
 [MIT](LICENSE) © puri-adityakumar

@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
 import { STYLES } from 'palletface'
-import { LINKS } from '../lib/content'
-import { Face } from '../lib/faces'
+import { LINKS, SPONSORS } from '../lib/content'
+import { Face, styleFor, type StyleSlug } from '../lib/faces'
 import { useReducedMotion } from '../lib/hooks'
 import './support-toast.css'
 
@@ -14,8 +14,6 @@ const DUCK_MS = 260
 const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 const SEEDS = ['palletface', 'kai', 'yuki', 'noor', 'priya', 'otto', 'lena', 'ravi', 'juno', 'felix', 'hana', 'zara']
 const FIRST = STYLES.findIndex((s) => s.slug === 'pixel-sprite')
-/** One face per style, starting with Pixel Sprite. */
-const PEEKS = STYLES.map((_, i) => ({ seed: SEEDS[i % SEEDS.length]!, style: STYLES[(FIRST + i) % STYLES.length]!.slug }))
 const BUBBLES: ReactNode[] = [
   <>
     psst… a <span className="support__star">★</span> helps a lot
@@ -24,6 +22,31 @@ const BUBBLES: ReactNode[] = [
     sponsor us, <span className="support__pink">get featured ♥</span>
   </>,
 ]
+
+type Peek = { seed: string; style: StyleSlug; bubble: ReactNode }
+/** One face per style, starting with Pixel Sprite, taking turns asking for a star and for a sponsor. */
+const ASKS: Peek[] = STYLES.map((_, i) => ({
+  seed: SEEDS[i % SEEDS.length]!,
+  style: STYLES[(FIRST + i) % STYLES.length]!.slug,
+  bubble: BUBBLES[i % BUBBLES.length],
+}))
+const THANKS: Peek[] = SPONSORS.map((login) => ({
+  seed: login,
+  style: styleFor(login).slug,
+  bubble: (
+    <>
+      thanks <b>@{login}</b> for sponsoring <span className="support__pink">♥</span>
+    </>
+  ),
+}))
+/** Every third turn is a sponsor's own face thanking them, so each sponsor gets a dedicated mention. */
+const PEEKS: Peek[] = THANKS.length
+  ? Array.from({ length: Math.max(ASKS.length / 2, THANKS.length) }, (_, r) => [
+      ASKS[(2 * r) % ASKS.length]!,
+      ASKS[(2 * r + 1) % ASKS.length]!,
+      THANKS[r % THANKS.length]!,
+    ]).flat()
+  : ASKS
 
 function dismissedRecently(): boolean {
   try {
@@ -34,13 +57,13 @@ function dismissedRecently(): boolean {
 }
 
 /**
- * True while the hero, the sponsors row, or the Sponsor section is on screen.
- * The hero has its own calls to action, and the other two already ask.
+ * True while the hero or the Sponsor section is on screen.
+ * The hero has its own calls to action, and the Sponsor section already asks.
  */
 function useQuiet(): boolean {
   const [quiet, setQuiet] = useState(true)
   useEffect(() => {
-    const zones = [document.querySelector('.hero'), document.getElementById('sponsors'), document.getElementById('sponsor')]
+    const zones = [document.querySelector('.hero'), document.getElementById('sponsor')]
     const seen = new Set<Element>()
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) {
@@ -142,7 +165,7 @@ export function SupportToast() {
       onPointerLeave={() => setHover(false)}
     >
       <p className="support__bubble" aria-hidden="true">
-        {BUBBLES[peek % BUBBLES.length]}
+        {face.bubble}
       </p>
       <div className="support__menu" id="support-menu">
         <p className="support__title">Like palletface?</p>
@@ -159,13 +182,27 @@ export function SupportToast() {
             ♥
           </span>
           <b>Sponsor us and get featured</b>
-          <small>Your face goes on the site, right under the showcase.</small>
+          <small>Your face on the site, a mention here, and a spot in the README.</small>
         </a>
+        {SPONSORS.length > 0 && (
+          <p className="support__thanks">
+            Thanks to{' '}
+            {SPONSORS.map((login, i) => (
+              <Fragment key={login}>
+                {i > 0 && ', '}
+                <a href={`https://github.com/${login}`} target="_blank" rel="noreferrer">
+                  @{login}
+                </a>
+              </Fragment>
+            ))}{' '}
+            for sponsoring <span className="support__pink">♥</span>
+          </p>
+        )}
         <div className="support__foot">
           <button type="button" className="support__later" onClick={dismiss}>
             Not now
           </button>
-          <a className="support__see" href="#examples" onClick={seeWhere}>
+          <a className="support__see" href="#sponsor" onClick={seeWhere}>
             See where ↓
           </a>
         </div>
