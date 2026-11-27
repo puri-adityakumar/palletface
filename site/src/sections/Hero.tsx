@@ -104,6 +104,9 @@ export function Hero({ seed }: { seed: string }) {
             <a href={LINKS.docs}>Docs</a>
           </li>
           <li>
+            <a href="#skill">Skill</a>
+          </li>
+          <li>
             <GitHubLink />
           </li>
         </ul>

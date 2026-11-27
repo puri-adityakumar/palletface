@@ -12,6 +12,7 @@ const COLUMNS = [
       ['GitHub', LINKS.github],
       ['npm', LINKS.npm],
       ['Docs', LINKS.docs],
+      ['Agent skill', LINKS.skill],
       ['Playground', '/playground'],
       ['Changelog', '/changelog'],
     ],

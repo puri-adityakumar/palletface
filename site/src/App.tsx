@@ -5,7 +5,9 @@ import { Showcase } from './sections/Showcase'
 import { Features } from './sections/Features'
 import { Styles } from './sections/Styles'
 import { HowItWorks, QuickStart } from './sections/HowItWorks'
+import { People } from './sections/People'
 import { Sponsor } from './sections/Sponsor'
+import { SupportToast } from './sections/SupportToast'
 import { Faq } from './sections/Faq'
 import { Footer } from './sections/Footer'
 import { PlaygroundPage } from './pages/PlaygroundPage'
@@ -38,10 +40,12 @@ function Landing() {
         <DitherBand from={PAPER} to={INK} height={72} cell={8} seed="field/band-down" />
         <QuickStart />
         <DitherBand from={INK} to={PAPER} height={72} cell={8} mode="static" seed="field/band-up" />
+        <People />
         <Sponsor seed={later} />
         <Faq />
       </main>
       <Footer seed={later} />
+      <SupportToast />
     </div>
   )
 }
